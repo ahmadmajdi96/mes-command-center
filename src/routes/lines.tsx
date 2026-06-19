@@ -1,28 +1,66 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { lines } from "@/lib/mes-data";
+import { useMes } from "@/lib/mes-store";
+import type { ProductionLine } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
 import { ResponsiveContainer, RadialBar, RadialBarChart, PolarAngleAxis } from "recharts";
-import { Factory } from "lucide-react";
+import { Factory, Plus, Pencil } from "lucide-react";
+import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
+import { ConfirmDelete } from "@/components/crud/confirm-delete";
 
 export const Route = createFileRoute("/lines")({
   head: () => ({
     meta: [
       { title: "Production Lines · Cortanex MES" },
-      { name: "description", content: "Live status of every production line — OEE breakdown, current work order and output." },
+      { name: "description", content: "Create, edit and monitor production lines — OEE breakdown, current work order and output." },
     ],
   }),
   component: LinesPage,
 });
 
+const lineFields: Field[] = [
+  { name: "id", label: "Line ID", type: "text", placeholder: "L-07", required: true },
+  { name: "name", label: "Name", type: "text", required: true },
+  { name: "plant", label: "Plant", type: "text", required: true, span: 2 },
+  { name: "status", label: "Status", type: "select", required: true, options: [
+    { value: "running", label: "running" },
+    { value: "idle", label: "idle" },
+    { value: "down", label: "down" },
+    { value: "changeover", label: "changeover" },
+  ]},
+  { name: "uptime", label: "Uptime", type: "text", placeholder: "0h 00m" },
+  { name: "product", label: "Current Product", type: "text", span: 2 },
+  { name: "currentWorkOrder", label: "Current WO", type: "text" },
+  { name: "oee", label: "OEE %", type: "number" },
+  { name: "availability", label: "Availability %", type: "number" },
+  { name: "performance", label: "Performance %", type: "number" },
+  { name: "quality", label: "Quality %", type: "number" },
+  { name: "output", label: "Output", type: "number" },
+  { name: "target", label: "Target", type: "number" },
+];
+
 function LinesPage() {
+  const store = useMes();
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Production Lines</h1>
-        <p className="text-sm text-muted-foreground">All plants · {lines.length} lines monitored</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Production Lines</h1>
+          <p className="text-sm text-muted-foreground">All plants · {store.lines.length} lines monitored</p>
+        </div>
+        <EntityFormDialog<ProductionLine>
+          title="New Production Line"
+          fields={lineFields}
+          initial={{ status: "idle", oee: 0, availability: 0, performance: 0, quality: 0, output: 0, target: 0, uptime: "—" } as any}
+          onSubmit={(v) => store.createLine(v as any)}
+          trigger={
+            <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)]">
+              <Plus className="h-3.5 w-3.5" /> New Line
+            </button>
+          }
+        />
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {lines.map((l) => (
+        {store.lines.map((l) => (
           <div key={l.id} className="glass-panel rounded-2xl p-5">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
               <div className="min-w-0">
@@ -71,6 +109,21 @@ function LinesPage() {
                 <span className="text-muted-foreground">Uptime</span>
                 <span className="font-mono">{l.uptime}</span>
               </div>
+            </div>
+
+            <div className="mt-3 flex justify-end gap-1.5">
+              <EntityFormDialog<ProductionLine>
+                title="Edit Line"
+                fields={lineFields}
+                initial={l}
+                onSubmit={(v) => store.updateLine(l.id, v)}
+                trigger={
+                  <button className="grid h-8 w-8 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground hover:text-primary hover:border-primary/40">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                }
+              />
+              <ConfirmDelete label={`Delete ${l.id}`} onConfirm={() => store.deleteLine(l.id)} />
             </div>
           </div>
         ))}
