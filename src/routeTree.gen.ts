@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
 import { Route as MasterDataRouteImport } from './routes/master-data'
 import { Route as LinesRouteImport } from './routes/lines'
@@ -27,6 +28,11 @@ const WorkOrdersRoute = WorkOrdersRouteImport.update({
 const TelemetryRoute = TelemetryRouteImport.update({
   id: '/telemetry',
   path: '/telemetry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QualityRoute = QualityRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/lines': typeof LinesRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
+  '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/lines': typeof LinesRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
+  '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/lines': typeof LinesRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
+  '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/lines'
     | '/master-data'
     | '/quality'
+    | '/settings'
     | '/telemetry'
     | '/work-orders'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/lines'
     | '/master-data'
     | '/quality'
+    | '/settings'
     | '/telemetry'
     | '/work-orders'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/lines'
     | '/master-data'
     | '/quality'
+    | '/settings'
     | '/telemetry'
     | '/work-orders'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   LinesRoute: typeof LinesRoute
   MasterDataRoute: typeof MasterDataRoute
   QualityRoute: typeof QualityRoute
+  SettingsRoute: typeof SettingsRoute
   TelemetryRoute: typeof TelemetryRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
 }
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/telemetry'
       fullPath: '/telemetry'
       preLoaderRoute: typeof TelemetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quality': {
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   LinesRoute: LinesRoute,
   MasterDataRoute: MasterDataRoute,
   QualityRoute: QualityRoute,
+  SettingsRoute: SettingsRoute,
   TelemetryRoute: TelemetryRoute,
   WorkOrdersRoute: WorkOrdersRoute,
 }
