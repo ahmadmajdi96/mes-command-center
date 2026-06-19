@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
+import { Route as QualityRouteImport } from './routes/quality'
 import { Route as LinesRouteImport } from './routes/lines'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
@@ -25,6 +26,11 @@ const WorkOrdersRoute = WorkOrdersRouteImport.update({
 const TelemetryRoute = TelemetryRouteImport.update({
   id: '/telemetry',
   path: '/telemetry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QualityRoute = QualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LinesRoute = LinesRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRoute
+  '/quality': typeof QualityRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRoute
+  '/quality': typeof QualityRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRoute
+  '/quality': typeof QualityRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/quality'
     | '/telemetry'
     | '/work-orders'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/quality'
     | '/telemetry'
     | '/work-orders'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/quality'
     | '/telemetry'
     | '/work-orders'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
   LinesRoute: typeof LinesRoute
+  QualityRoute: typeof QualityRoute
   TelemetryRoute: typeof TelemetryRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/telemetry'
       fullPath: '/telemetry'
       preLoaderRoute: typeof TelemetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quality': {
+      id: '/quality'
+      path: '/quality'
+      fullPath: '/quality'
+      preLoaderRoute: typeof QualityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lines': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
   LinesRoute: LinesRoute,
+  QualityRoute: QualityRoute,
   TelemetryRoute: TelemetryRoute,
   WorkOrdersRoute: WorkOrdersRoute,
 }
