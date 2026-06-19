@@ -304,6 +304,13 @@ export interface DowntimeEvent {
   id: string;
   lineId: string;
   lineName: string;
+  /** Station where the stoppage originated (optional for line-wide events) */
+  stationId?: string;
+  /** Active assignment that was on station when the event was raised */
+  assignmentId?: string;
+  /** Operator on station at the time, captured for traceability */
+  operatorId?: string;
+  operatorName?: string;
   reasonCode: string;
   category: "equipment_failure" | "changeover" | "material_shortage" | "quality_hold" | "operator_break";
   startedAt: string;
@@ -314,11 +321,11 @@ export interface DowntimeEvent {
 }
 
 export const downtime: DowntimeEvent[] = [
-  { id: "DT-401", lineId: "L-03", lineName: "Bottling Line C", reasonCode: "Capper jam", category: "equipment_failure", startedAt: "08:42", durationMin: 28, workOrderId: "WO-2401-120", status: "open", notes: "Maintenance dispatched — auto WO created in CMMS" },
+  { id: "DT-401", lineId: "L-03", lineName: "Bottling Line C", stationId: "ST-303", operatorId: "U-003", operatorName: "Omar Al-Saleh", reasonCode: "Capper jam", category: "equipment_failure", startedAt: "08:42", durationMin: 28, workOrderId: "WO-2401-120", status: "open", notes: "Maintenance dispatched — auto WO created in CMMS" },
   { id: "DT-400", lineId: "L-04", lineName: "Packaging D", reasonCode: "SKU changeover", category: "changeover", startedAt: "08:10", durationMin: 45, status: "open" },
-  { id: "DT-399", lineId: "L-02", lineName: "Oven Line B", reasonCode: "Awaiting raw lot", category: "material_shortage", startedAt: "07:30", durationMin: 12, workOrderId: "WO-2401-119", status: "resolved" },
-  { id: "DT-398", lineId: "L-01", lineName: "Mixer Line A", reasonCode: "Operator handover", category: "operator_break", startedAt: "06:45", durationMin: 8, status: "resolved" },
-  { id: "DT-397", lineId: "L-05", lineName: "Cheese Vat E", reasonCode: "CCP retest", category: "quality_hold", startedAt: "06:12", durationMin: 6, workOrderId: "WO-2401-121", status: "resolved" },
+  { id: "DT-399", lineId: "L-02", lineName: "Oven Line B", stationId: "ST-203", reasonCode: "Awaiting raw lot", category: "material_shortage", startedAt: "07:30", durationMin: 12, workOrderId: "WO-2401-119", status: "resolved" },
+  { id: "DT-398", lineId: "L-01", lineName: "Mixer Line A", stationId: "ST-102", operatorId: "U-002", operatorName: "Mariam Khalid", reasonCode: "Operator handover", category: "operator_break", startedAt: "06:45", durationMin: 8, status: "resolved" },
+  { id: "DT-397", lineId: "L-05", lineName: "Cheese Vat E", stationId: "ST-501", reasonCode: "CCP retest", category: "quality_hold", startedAt: "06:12", durationMin: 6, workOrderId: "WO-2401-121", status: "resolved" },
 ];
 
 export interface QualityHold {
