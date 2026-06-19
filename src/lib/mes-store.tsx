@@ -6,12 +6,20 @@ import {
   genealogy as seedGen,
   recipeSteps as seedSteps,
   lines as seedLines,
+  stations as seedStations,
+  users as seedUsers,
+  teams as seedTeams,
+  assignments as seedAssignments,
   type WorkOrder,
   type DowntimeEvent,
   type QualityHold,
   type GenealogyRecord,
   type RecipeStep,
   type ProductionLine,
+  type Station,
+  type MesUser,
+  type Team,
+  type Assignment,
 } from "./mes-data";
 
 type State = {
@@ -21,38 +29,47 @@ type State = {
   genealogy: GenealogyRecord[];
   steps: RecipeStep[];
   lines: ProductionLine[];
+  stations: Station[];
+  users: MesUser[];
+  teams: Team[];
+  assignments: Assignment[];
 };
 
 type Actions = {
-  // Work orders
   createWorkOrder: (w: Omit<WorkOrder, "id" | "progress" | "qtyProduced">) => void;
   updateWorkOrder: (id: string, patch: Partial<WorkOrder>) => void;
   deleteWorkOrder: (id: string) => void;
-  // Downtime
   createDowntime: (d: Omit<DowntimeEvent, "id">) => void;
   updateDowntime: (id: string, patch: Partial<DowntimeEvent>) => void;
   deleteDowntime: (id: string) => void;
-  // Holds
   createHold: (h: Omit<QualityHold, "id">) => void;
   updateHold: (id: string, patch: Partial<QualityHold>) => void;
   deleteHold: (id: string) => void;
-  // Genealogy
   createGenealogy: (g: Omit<GenealogyRecord, "id">) => void;
   updateGenealogy: (id: string, patch: Partial<GenealogyRecord>) => void;
   deleteGenealogy: (id: string) => void;
-  // Steps
   createStep: (s: Omit<RecipeStep, "id">) => void;
   updateStep: (id: string, patch: Partial<RecipeStep>) => void;
   deleteStep: (id: string) => void;
-  // Lines
   createLine: (l: Omit<ProductionLine, "id"> & { id?: string }) => void;
   updateLine: (id: string, patch: Partial<ProductionLine>) => void;
   deleteLine: (id: string) => void;
+  createStation: (s: Omit<Station, "id"> & { id?: string }) => void;
+  updateStation: (id: string, patch: Partial<Station>) => void;
+  deleteStation: (id: string) => void;
+  createUser: (u: Omit<MesUser, "id"> & { id?: string }) => void;
+  updateUser: (id: string, patch: Partial<MesUser>) => void;
+  deleteUser: (id: string) => void;
+  createTeam: (t: Omit<Team, "id"> & { id?: string }) => void;
+  updateTeam: (id: string, patch: Partial<Team>) => void;
+  deleteTeam: (id: string) => void;
+  createAssignment: (a: Omit<Assignment, "id"> & { id?: string }) => void;
+  updateAssignment: (id: string, patch: Partial<Assignment>) => void;
+  deleteAssignment: (id: string) => void;
 };
 
 const Ctx = createContext<(State & Actions) | null>(null);
-
-const KEY = "cortanex-mes-v1";
+const KEY = "cortanex-mes-v2";
 
 function nextId(prefix: string, list: { id: string }[]) {
   const nums = list
@@ -73,13 +90,21 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
     genealogy: seedGen,
     steps: seedSteps,
     lines: seedLines,
+    stations: seedStations,
+    users: seedUsers,
+    teams: seedTeams,
+    assignments: seedAssignments,
   }));
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setState(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Merge to ensure newly added entity arrays exist even on older caches
+        setState((s) => ({ ...s, ...parsed }));
+      }
     } catch {}
   }, []);
 
@@ -128,7 +153,42 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
 
     createLine: (l) => setState((s) => ({ ...s, lines: [...s.lines, { ...l, id: l.id || nextId("L-", s.lines) } as ProductionLine] })),
     updateLine: (id, p) => setState((s) => ({ ...s, lines: s.lines.map((l) => (l.id === id ? { ...l, ...p } : l)) })),
-    deleteLine: (id) => setState((s) => ({ ...s, lines: s.lines.filter((l) => l.id !== id) })),
+    deleteLine: (id) => setState((s) => ({
+      ...s,
+      lines: s.lines.filter((l) => l.id !== id),
+      stations: s.stations.filter((st) => st.lineId !== id),
+    })),
+
+    createStation: (st) => setState((s) => ({
+      ...s,
+      stations: [...s.stations, { ...st, id: st.id || nextId("ST-", s.stations) } as Station],
+    })),
+    updateStation: (id, p) => setState((s) => ({ ...s, stations: s.stations.map((x) => (x.id === id ? { ...x, ...p } : x)) })),
+    deleteStation: (id) => setState((s) => ({
+      ...s,
+      stations: s.stations.filter((x) => x.id !== id),
+      assignments: s.assignments.filter((a) => !(a.targetType === "station" && a.targetId === id)),
+    })),
+
+    createUser: (u) => setState((s) => ({ ...s, users: [...s.users, { ...u, id: u.id || nextId("U-", s.users) } as MesUser] })),
+    updateUser: (id, p) => setState((s) => ({ ...s, users: s.users.map((u) => (u.id === id ? { ...u, ...p } : u)) })),
+    deleteUser: (id) => setState((s) => ({
+      ...s,
+      users: s.users.filter((u) => u.id !== id),
+      assignments: s.assignments.filter((a) => a.userId !== id),
+    })),
+
+    createTeam: (t) => setState((s) => ({ ...s, teams: [...s.teams, { ...t, id: t.id || nextId("T-", s.teams), memberIds: t.memberIds || [] } as Team] })),
+    updateTeam: (id, p) => setState((s) => ({ ...s, teams: s.teams.map((t) => (t.id === id ? { ...t, ...p } : t)) })),
+    deleteTeam: (id) => setState((s) => ({
+      ...s,
+      teams: s.teams.filter((t) => t.id !== id),
+      assignments: s.assignments.filter((a) => !(a.targetType === "team" && a.targetId === id)),
+    })),
+
+    createAssignment: (a) => setState((s) => ({ ...s, assignments: [{ ...a, id: a.id || nextId("AS-", s.assignments) } as Assignment, ...s.assignments] })),
+    updateAssignment: (id, p) => setState((s) => ({ ...s, assignments: s.assignments.map((a) => (a.id === id ? { ...a, ...p } : a)) })),
+    deleteAssignment: (id) => setState((s) => ({ ...s, assignments: s.assignments.filter((a) => a.id !== id) })),
   }), [state]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
