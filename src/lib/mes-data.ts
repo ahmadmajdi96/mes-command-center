@@ -165,6 +165,8 @@ export interface AuditEntry {
   summary: string;
 }
 export const auditEntries: AuditEntry[] = [];
+
+// ============ Users ============
 export type UserRole = "operator" | "supervisor" | "team_lead";
 export type UserStatus = "active" | "off-shift" | "on-break" | "inactive";
 
