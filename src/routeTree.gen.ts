@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
 import { Route as LinesRouteImport } from './routes/lines'
+import { Route as ExecutionRouteImport } from './routes/execution'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WorkOrdersRoute = WorkOrdersRouteImport.update({
@@ -23,6 +24,11 @@ const LinesRoute = LinesRouteImport.update({
   path: '/lines',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExecutionRoute = ExecutionRouteImport.update({
+  id: '/execution',
+  path: '/execution',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/execution': typeof ExecutionRoute
   '/lines': typeof LinesRoute
   '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/execution': typeof ExecutionRoute
   '/lines': typeof LinesRoute
   '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/execution': typeof ExecutionRoute
   '/lines': typeof LinesRoute
   '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/lines' | '/work-orders'
+  fullPaths: '/' | '/execution' | '/lines' | '/work-orders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/lines' | '/work-orders'
-  id: '__root__' | '/' | '/lines' | '/work-orders'
+  to: '/' | '/execution' | '/lines' | '/work-orders'
+  id: '__root__' | '/' | '/execution' | '/lines' | '/work-orders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExecutionRoute: typeof ExecutionRoute
   LinesRoute: typeof LinesRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LinesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/execution': {
+      id: '/execution'
+      path: '/execution'
+      fullPath: '/execution'
+      preLoaderRoute: typeof ExecutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExecutionRoute: ExecutionRoute,
   LinesRoute: LinesRoute,
   WorkOrdersRoute: WorkOrdersRoute,
 }
