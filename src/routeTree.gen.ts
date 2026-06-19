@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
+import { Route as TelemetryRouteImport } from './routes/telemetry'
 import { Route as LinesRouteImport } from './routes/lines'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const WorkOrdersRoute = WorkOrdersRouteImport.update({
   id: '/work-orders',
   path: '/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TelemetryRoute = TelemetryRouteImport.update({
+  id: '/telemetry',
+  path: '/telemetry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LinesRoute = LinesRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRoute
+  '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRoute
+  '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRoute
+  '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/telemetry'
     | '/work-orders'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/telemetry'
     | '/work-orders'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/telemetry'
     | '/work-orders'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
   LinesRoute: typeof LinesRoute
+  TelemetryRoute: typeof TelemetryRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
 }
 
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/work-orders'
       fullPath: '/work-orders'
       preLoaderRoute: typeof WorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/telemetry': {
+      id: '/telemetry'
+      path: '/telemetry'
+      fullPath: '/telemetry'
+      preLoaderRoute: typeof TelemetryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lines': {
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
   LinesRoute: LinesRoute,
+  TelemetryRoute: TelemetryRoute,
   WorkOrdersRoute: WorkOrdersRoute,
 }
 export const routeTree = rootRouteImport
