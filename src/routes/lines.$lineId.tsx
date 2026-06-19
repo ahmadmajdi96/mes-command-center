@@ -130,12 +130,33 @@ function LineDetailPage() {
 
   const stationFields = baseStationFields(lineId);
 
-  // Resolve assignments → user(s) per station/team
+  // Resolve assignments → user(s) per station/team — recomputes on every assignment change
   const stationOperators = (stationId: string) =>
     store.assignments
       .filter((a) => a.active && a.targetType === "station" && a.targetId === stationId)
       .map((a) => store.users.find((u) => u.id === a.userId))
       .filter(Boolean);
+
+  // Open downtime (live) per station + line-wide
+  const lineDowntime = useMemo(
+    () => store.downtime.filter((d) => d.lineId === lineId),
+    [store.downtime, lineId],
+  );
+  const openByStation = useMemo(() => {
+    const m: Record<string, DowntimeEvent[]> = {};
+    for (const d of lineDowntime) {
+      if (d.status !== "open" || !d.stationId) continue;
+      (m[d.stationId] ??= []).push(d);
+    }
+    return m;
+  }, [lineDowntime]);
+  const openLineWide = lineDowntime.filter((d) => d.status === "open" && !d.stationId);
+
+  // Last tick across this line — proves the live update path is wired
+  const lastTick = useMemo(() => {
+    const ticks = lineStations.map((s) => s.lastTickAt).filter(Boolean) as string[];
+    return ticks.sort().at(-1);
+  }, [lineStations]);
 
   return (
     <div className="space-y-6">
