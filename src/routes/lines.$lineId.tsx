@@ -1,14 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
-import type { Station, CommProtocol, StationStatus, StationType } from "@/lib/mes-data";
+import type { Station, CommProtocol, StationStatus, StationType, DowntimeEvent, StepTemplate } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
 import {
   Factory, ArrowLeft, ArrowRight, Cpu, Hand, Plus, Pencil, Network, Wifi,
-  Activity, User as UserIcon, Gauge, Clock, AlertTriangle,
+  Activity, User as UserIcon, Gauge, Clock, AlertTriangle, AlertOctagon, ShieldAlert,
+  ListChecks, Radio, X,
 } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/lines/$lineId")({
   head: ({ params }) => ({
@@ -128,12 +130,33 @@ function LineDetailPage() {
 
   const stationFields = baseStationFields(lineId);
 
-  // Resolve assignments → user(s) per station/team
+  // Resolve assignments → user(s) per station/team — recomputes on every assignment change
   const stationOperators = (stationId: string) =>
     store.assignments
       .filter((a) => a.active && a.targetType === "station" && a.targetId === stationId)
       .map((a) => store.users.find((u) => u.id === a.userId))
       .filter(Boolean);
+
+  // Open downtime (live) per station + line-wide
+  const lineDowntime = useMemo(
+    () => store.downtime.filter((d) => d.lineId === lineId),
+    [store.downtime, lineId],
+  );
+  const openByStation = useMemo(() => {
+    const m: Record<string, DowntimeEvent[]> = {};
+    for (const d of lineDowntime) {
+      if (d.status !== "open" || !d.stationId) continue;
+      (m[d.stationId] ??= []).push(d);
+    }
+    return m;
+  }, [lineDowntime]);
+  const openLineWide = lineDowntime.filter((d) => d.status === "open" && !d.stationId);
+
+  // Last tick across this line — proves the live update path is wired
+  const lastTick = useMemo(() => {
+    const ticks = lineStations.map((s) => s.lastTickAt).filter(Boolean) as string[];
+    return ticks.sort().at(-1);
+  }, [lineStations]);
 
   return (
     <div className="space-y-6">
@@ -177,11 +200,47 @@ function LineDetailPage() {
         <KPI label="Stations" value={`${lineStations.length}`} icon={<Cpu className="h-4 w-4" />} accent="accent" />
       </div>
 
+      {/* Open downtime banner (line-wide + summary) */}
+      {(openLineWide.length > 0 || Object.keys(openByStation).length > 0) && (
+        <div className="glass-panel rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
+            <AlertOctagon className="h-4 w-4" />
+            {lineDowntime.filter((d) => d.status === "open").length} open downtime event{lineDowntime.filter((d) => d.status === "open").length === 1 ? "" : "s"} on this line
+          </div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {[...openLineWide, ...Object.values(openByStation).flat()].map((d) => {
+              const st = d.stationId ? store.stations.find((s) => s.id === d.stationId) : null;
+              return (
+                <div key={d.id} className="flex items-start justify-between gap-2 rounded-lg border border-destructive/30 bg-background/40 p-2 text-xs">
+                  <div className="min-w-0">
+                    <div className="font-medium">{d.reasonCode}</div>
+                    <div className="font-mono text-[11px] text-muted-foreground">
+                      {st ? `${st.id} · ${st.name}` : "line-wide"} · since {d.startedAt} · {d.durationMin}m
+                      {d.operatorName ? ` · ${d.operatorName}` : ""}
+                    </div>
+                    {d.notes && <div className="mt-1 text-[11px] text-muted-foreground">{d.notes}</div>}
+                  </div>
+                  <button
+                    onClick={() => { store.updateDowntime(d.id, { status: "resolved" }); toast.success(`Resolved ${d.id}`); }}
+                    className="rounded-md border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success hover:bg-success/20"
+                  >
+                    Resolve
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Flow visualization */}
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold tracking-tight">Live station flow</h2>
           <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <span className="flex items-center gap-1 text-success">
+              <Radio className="h-3 w-3 animate-pulse" /> live{lastTick ? ` · ${lastTick}` : ""}
+            </span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success" /> running</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> idle/maint.</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> down</span>
@@ -202,8 +261,30 @@ function LineDetailPage() {
                     <StationCard
                       station={s}
                       operatorNames={operators.map((o) => o!.name)}
+                      templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
+                      openDowntime={openByStation[s.id] ?? []}
                       onEdit={(patch) => store.updateStation(s.id, patch)}
                       onDelete={() => store.deleteStation(s.id)}
+                      onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
+                      onLogDowntime={(reason, category, durationMin) => {
+                        const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
+                        const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
+                        store.createDowntime({
+                          lineId,
+                          lineName: line.name,
+                          stationId: s.id,
+                          assignmentId: activeAsmt?.id,
+                          operatorId: op?.id,
+                          operatorName: op?.name,
+                          reasonCode: reason,
+                          category,
+                          startedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                          durationMin,
+                          status: "open",
+                        });
+                        store.updateStation(s.id, { status: category === "equipment_failure" ? "down" : s.status });
+                        toast.error(`Downtime logged on ${s.id}`);
+                      }}
                       fields={stationFields}
                       lineId={lineId}
                     />
@@ -340,17 +421,25 @@ function KPI({ label, value, icon, accent }: { label: string; value: string; ico
 function StationCard({
   station: s,
   operatorNames,
+  templates,
+  openDowntime,
   fields,
   lineId,
   onEdit,
   onDelete,
+  onRemoveTemplate,
+  onLogDowntime,
 }: {
   station: Station;
   operatorNames: string[];
+  templates: StepTemplate[];
+  openDowntime: DowntimeEvent[];
   fields: Field[];
   lineId: string;
   onEdit: (patch: Partial<Station>) => void;
   onDelete: () => void;
+  onRemoveTemplate: (templateId: string) => void;
+  onLogDowntime: (reason: string, category: DowntimeEvent["category"], durationMin: number) => void;
 }) {
   const statusTone =
     s.status === "running" ? "border-success/40 ring-success/20"
@@ -364,6 +453,8 @@ function StationCard({
     : s.status === "maintenance" ? "bg-warning"
     : "bg-muted-foreground";
 
+  const hasOpenDowntime = openDowntime.length > 0;
+
   return (
     <div className={`relative w-72 shrink-0 rounded-xl border bg-card/70 p-4 backdrop-blur ${statusTone} ring-1`}>
       <div className="flex items-start justify-between">
@@ -371,6 +462,11 @@ function StationCard({
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
             <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
             Seq {s.sequence} · {s.status}
+            {s.lastTickAt && s.status === "running" && (
+              <span className="ml-1 inline-flex items-center gap-0.5 text-success">
+                <Radio className="h-2.5 w-2.5" /> {s.lastTickAt}
+              </span>
+            )}
           </div>
           <h3 className="mt-0.5 truncate text-sm font-semibold">{s.name}</h3>
           <div className="font-mono text-[11px] text-muted-foreground">{s.id}</div>
@@ -381,6 +477,18 @@ function StationCard({
           {s.type === "automatic" ? <Cpu className="h-3.5 w-3.5" /> : <Hand className="h-3.5 w-3.5" />}
         </span>
       </div>
+
+      {/* Open-downtime badge */}
+      {hasOpenDowntime && (
+        <div className="mt-2 rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-[11px] text-destructive">
+          <div className="flex items-center gap-1 font-medium">
+            <AlertOctagon className="h-3 w-3" /> {openDowntime.length} open · {openDowntime[0].reasonCode}
+          </div>
+          <div className="font-mono text-[10px] text-destructive/80">
+            since {openDowntime[0].startedAt} · {openDowntime.reduce((a, d) => a + d.durationMin, 0)}m total
+          </div>
+        </div>
+      )}
 
       {/* Step + live value */}
       <div className="mt-3 rounded-lg bg-background/60 p-2.5">
@@ -408,7 +516,7 @@ function StationCard({
         </div>
       </div>
 
-      {/* Operator */}
+      {/* Operator (live — reacts to assignment changes via store context) */}
       <div className="mt-3 rounded-lg border border-border/40 bg-background/40 p-2">
         <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
           <UserIcon className="h-3 w-3" /> Operator
@@ -421,6 +529,27 @@ function StationCard({
           ))
         )}
       </div>
+
+      {/* Templates applied */}
+      {templates.length > 0 && (
+        <div className="mt-3 rounded-lg border border-border/40 bg-background/40 p-2">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <ListChecks className="h-3 w-3" /> Step templates · {templates.length}
+          </div>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {templates.map((t) => (
+              <span key={t.id} className="group inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 text-[10px]">
+                {t.isCCP && <ShieldAlert className="h-2.5 w-2.5 text-destructive" />}
+                <span className="font-mono">{t.id}</span>
+                <span className="max-w-[7rem] truncate text-muted-foreground">{t.name}</span>
+                <button onClick={() => onRemoveTemplate(t.id)} className="opacity-0 transition group-hover:opacity-100" title="Remove">
+                  <X className="h-2.5 w-2.5 text-destructive" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Machine quick stats */}
       {s.machine && (
@@ -436,19 +565,76 @@ function StationCard({
         </div>
       )}
 
-      <div className="mt-3 flex justify-end gap-1.5">
-        <EntityFormDialog<Station>
-          title={`Edit ${s.id}`}
-          fields={fields}
-          initial={toFlat(s) as any}
-          onSubmit={(v) => onEdit(fromFlat(v, lineId))}
-          trigger={
-            <button className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-primary">
-              <Pencil className="h-3 w-3" />
-            </button>
-          }
-        />
-        <ConfirmDelete label={`Delete ${s.id}`} onConfirm={onDelete} />
+      <div className="mt-3 flex items-center justify-between gap-1.5">
+        <LogDowntimeButton onSubmit={onLogDowntime} />
+        <div className="flex gap-1.5">
+          <EntityFormDialog<Station>
+            title={`Edit ${s.id}`}
+            fields={fields}
+            initial={toFlat(s) as any}
+            onSubmit={(v) => onEdit(fromFlat(v, lineId))}
+            trigger={
+              <button className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-primary">
+                <Pencil className="h-3 w-3" />
+              </button>
+            }
+          />
+          <ConfirmDelete label={`Delete ${s.id}`} onConfirm={onDelete} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LogDowntimeButton({ onSubmit }: { onSubmit: (reason: string, category: DowntimeEvent["category"], durationMin: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [category, setCategory] = useState<DowntimeEvent["category"]>("equipment_failure");
+  const [duration, setDuration] = useState(5);
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-[10px] font-medium text-destructive hover:bg-destructive/20"
+      >
+        <AlertOctagon className="h-3 w-3" /> Log downtime
+      </button>
+    );
+  }
+
+  return (
+    <div className="absolute inset-x-3 bottom-3 z-10 rounded-lg border border-destructive/40 bg-card p-2 shadow-xl">
+      <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-wider text-destructive">
+        <span>Log downtime</span>
+        <button onClick={() => setOpen(false)}><X className="h-3 w-3" /></button>
+      </div>
+      <input
+        autoFocus
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="Reason (e.g. Capper jam)"
+        className="h-7 w-full rounded border border-border/60 bg-background/60 px-2 text-[11px]"
+      />
+      <div className="mt-1 grid grid-cols-2 gap-1">
+        <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="h-7 rounded border border-border/60 bg-background/60 px-1 text-[11px]">
+          <option value="equipment_failure">Equipment failure</option>
+          <option value="changeover">Changeover</option>
+          <option value="material_shortage">Material shortage</option>
+          <option value="quality_hold">Quality hold</option>
+          <option value="operator_break">Operator break</option>
+        </select>
+        <input type="number" min={1} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="h-7 rounded border border-border/60 bg-background/60 px-2 text-[11px]" />
+      </div>
+      <div className="mt-1 flex justify-end gap-1">
+        <button onClick={() => setOpen(false)} className="rounded border border-border/60 px-2 py-0.5 text-[10px]">Cancel</button>
+        <button
+          disabled={!reason.trim()}
+          onClick={() => { onSubmit(reason.trim(), category, duration); setOpen(false); setReason(""); }}
+          className="rounded bg-destructive px-2 py-0.5 text-[10px] font-medium text-destructive-foreground disabled:opacity-50"
+        >
+          Log
+        </button>
       </div>
     </div>
   );

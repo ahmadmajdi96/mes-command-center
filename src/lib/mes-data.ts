@@ -55,6 +55,10 @@ export interface Station {
   target?: string;
   oee?: number;
   machine?: Machine;
+  /** Step templates applied to this station (comma-stored as id[] in form layer) */
+  templateIds?: string[];
+  /** Timestamp of last live telemetry tick — drives the "live" badge */
+  lastTickAt?: string;
 }
 
 export const stations: Station[] = [
@@ -113,6 +117,58 @@ export const stations: Station[] = [
       receivedDataTypes: "salinity,temp,level", sentDataTypes: "agitate_cmd,refill_cmd" } },
   { id: "ST-504", lineId: "L-05", name: "Vacuum Pack", sequence: 4, type: "manual", status: "running", cycleTimeSec: 20, currentStep: "Pack 200g", currentValue: "91 units", target: "100 units", oee: 88 },
 ];
+
+// ============ Step Templates ============
+/** A reusable step definition that can be applied to one or more (typically automatic) stations. */
+export interface StepTemplate {
+  id: string;
+  name: string;
+  category: "process" | "ccp" | "quality_check" | "changeover" | "cleaning";
+  /** Default target value (e.g. "72°C", "PASS", "240 kg") */
+  defaultTarget: string;
+  /** Default tolerance (e.g. "±2°C", "±0.5 kg") */
+  defaultTolerance: string;
+  /** Critical control point — failure blocks the line */
+  isCCP: boolean;
+  /** Auto-raise a quality hold when the captured value is out of tolerance */
+  holdOnFailure: boolean;
+  /** Comma-separated machine tag names this step should read from */
+  sensorBindings: string;
+  /** Operator-facing instruction shown in the operator console */
+  instruction: string;
+  /** Recommended station type for this template */
+  appliesTo: "automatic" | "manual" | "both";
+}
+
+export const stepTemplates: StepTemplate[] = [
+  { id: "TPL-01", name: "HTST Pasteurization", category: "ccp", defaultTarget: "72°C", defaultTolerance: "±0.5°C", isCCP: true, holdOnFailure: true, sensorBindings: "in_temp,out_temp,hold_time", instruction: "Verify pasteurizer holds product at 72°C for ≥15s. Divert on any deviation.", appliesTo: "automatic" },
+  { id: "TPL-02", name: "Inline Metal Detection", category: "ccp", defaultTarget: "PASS", defaultTolerance: "—", isCCP: true, holdOnFailure: true, sensorBindings: "ferrous_mv,non_ferrous_mv,reject_count", instruction: "Confirm 3-wand test passes (Fe/NFe/SS). Auto-reject must engage.", appliesTo: "automatic" },
+  { id: "TPL-03", name: "Heat Seal Verification", category: "quality_check", defaultTarget: "148°C", defaultTolerance: "±3°C", isCCP: false, holdOnFailure: true, sensorBindings: "jaw_temp,seal_count", instruction: "Confirm seal jaws are within tolerance and seal sample passes peel test.", appliesTo: "automatic" },
+  { id: "TPL-04", name: "Mixer Cycle (Standard)", category: "process", defaultTarget: "8:00", defaultTolerance: "±00:10", isCCP: false, holdOnFailure: false, sensorBindings: "rpm,torque_nm,temp_c", instruction: "Run mixer at speed 3 for 8 minutes; log torque and temperature.", appliesTo: "automatic" },
+  { id: "TPL-05", name: "Sanitation Wash (CIP)", category: "cleaning", defaultTarget: "85°C / 20 min", defaultTolerance: "±2°C", isCCP: false, holdOnFailure: false, sensorBindings: "cip_temp,cip_flow,caustic_conc", instruction: "Run CIP cycle: pre-rinse → caustic → rinse → sanitize. Verify endpoint conductivity.", appliesTo: "automatic" },
+  { id: "TPL-06", name: "Lot Scan & Weigh-In", category: "process", defaultTarget: "as per BOM", defaultTolerance: "±0.5 kg", isCCP: false, holdOnFailure: true, sensorBindings: "scale_weight", instruction: "Scan inbound raw lot, weigh against BOM target, capture batch number.", appliesTo: "both" },
+  { id: "TPL-07", name: "Brix / Refractometer Check", category: "quality_check", defaultTarget: "11.5 °Bx", defaultTolerance: "±0.3 °Bx", isCCP: false, holdOnFailure: true, sensorBindings: "brix", instruction: "Sample product and read Brix. Hold batch if out of spec.", appliesTo: "both" },
+];
+
+// ============ Audit Log ============
+export type AuditAction = "create" | "update" | "delete" | "activate" | "deactivate";
+export type AuditEntity =
+  | "line" | "station" | "user" | "team" | "assignment"
+  | "work_order" | "downtime" | "hold" | "genealogy" | "step" | "step_template";
+
+export interface AuditEntry {
+  id: string;
+  at: string;          // ISO timestamp
+  actorId: string;     // user id
+  actorName: string;
+  entity: AuditEntity;
+  entityId: string;
+  action: AuditAction;
+  before?: Record<string, any> | null;
+  after?: Record<string, any> | null;
+  summary: string;
+}
+export const auditEntries: AuditEntry[] = [];
 
 // ============ Users ============
 export type UserRole = "operator" | "supervisor" | "team_lead";
@@ -252,6 +308,13 @@ export interface DowntimeEvent {
   id: string;
   lineId: string;
   lineName: string;
+  /** Station where the stoppage originated (optional for line-wide events) */
+  stationId?: string;
+  /** Active assignment that was on station when the event was raised */
+  assignmentId?: string;
+  /** Operator on station at the time, captured for traceability */
+  operatorId?: string;
+  operatorName?: string;
   reasonCode: string;
   category: "equipment_failure" | "changeover" | "material_shortage" | "quality_hold" | "operator_break";
   startedAt: string;
@@ -262,11 +325,11 @@ export interface DowntimeEvent {
 }
 
 export const downtime: DowntimeEvent[] = [
-  { id: "DT-401", lineId: "L-03", lineName: "Bottling Line C", reasonCode: "Capper jam", category: "equipment_failure", startedAt: "08:42", durationMin: 28, workOrderId: "WO-2401-120", status: "open", notes: "Maintenance dispatched — auto WO created in CMMS" },
+  { id: "DT-401", lineId: "L-03", lineName: "Bottling Line C", stationId: "ST-303", operatorId: "U-003", operatorName: "Omar Al-Saleh", reasonCode: "Capper jam", category: "equipment_failure", startedAt: "08:42", durationMin: 28, workOrderId: "WO-2401-120", status: "open", notes: "Maintenance dispatched — auto WO created in CMMS" },
   { id: "DT-400", lineId: "L-04", lineName: "Packaging D", reasonCode: "SKU changeover", category: "changeover", startedAt: "08:10", durationMin: 45, status: "open" },
-  { id: "DT-399", lineId: "L-02", lineName: "Oven Line B", reasonCode: "Awaiting raw lot", category: "material_shortage", startedAt: "07:30", durationMin: 12, workOrderId: "WO-2401-119", status: "resolved" },
-  { id: "DT-398", lineId: "L-01", lineName: "Mixer Line A", reasonCode: "Operator handover", category: "operator_break", startedAt: "06:45", durationMin: 8, status: "resolved" },
-  { id: "DT-397", lineId: "L-05", lineName: "Cheese Vat E", reasonCode: "CCP retest", category: "quality_hold", startedAt: "06:12", durationMin: 6, workOrderId: "WO-2401-121", status: "resolved" },
+  { id: "DT-399", lineId: "L-02", lineName: "Oven Line B", stationId: "ST-203", reasonCode: "Awaiting raw lot", category: "material_shortage", startedAt: "07:30", durationMin: 12, workOrderId: "WO-2401-119", status: "resolved" },
+  { id: "DT-398", lineId: "L-01", lineName: "Mixer Line A", stationId: "ST-102", operatorId: "U-002", operatorName: "Mariam Khalid", reasonCode: "Operator handover", category: "operator_break", startedAt: "06:45", durationMin: 8, status: "resolved" },
+  { id: "DT-397", lineId: "L-05", lineName: "Cheese Vat E", stationId: "ST-501", reasonCode: "CCP retest", category: "quality_hold", startedAt: "06:12", durationMin: 6, workOrderId: "WO-2401-121", status: "resolved" },
 ];
 
 export interface QualityHold {

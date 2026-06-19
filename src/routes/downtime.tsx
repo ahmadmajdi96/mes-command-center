@@ -18,10 +18,27 @@ export const Route = createFileRoute("/downtime")({
   component: DowntimePage,
 });
 
-function dtFields(lines: { id: string; name: string }[], workOrders: { id: string }[]): Field[] {
+function dtFields(
+  lines: { id: string; name: string }[],
+  workOrders: { id: string }[],
+  stations: { id: string; name: string; lineId: string }[],
+  assignments: { id: string; userId: string; targetType: string; targetId: string; active: boolean }[],
+  users: { id: string; name: string }[],
+): Field[] {
   return [
     { name: "lineId", label: "Line", type: "select", options: lines.map(l => ({ value: l.id, label: `${l.id} · ${l.name}` })), required: true },
     { name: "lineName", label: "Line Name", type: "text", required: true },
+    { name: "stationId", label: "Station (optional)", type: "select", options: [
+      { value: "", label: "— line-wide event —" },
+      ...stations.map((s) => ({ value: s.id, label: `${s.id} · ${s.name} (${s.lineId})` })),
+    ]},
+    { name: "assignmentId", label: "Active assignment", type: "select", options: [
+      { value: "", label: "— auto-detect from station —" },
+      ...assignments.filter((a) => a.active && a.targetType === "station").map((a) => {
+        const u = users.find((x) => x.id === a.userId);
+        return { value: a.id, label: `${a.id} · ${u?.name ?? a.userId} → ${a.targetId}` };
+      }),
+    ]},
     { name: "reasonCode", label: "Reason", type: "text", placeholder: "Capper jam", required: true, span: 2 },
     { name: "category", label: "Category", type: "select", required: true, options: [
       { value: "equipment_failure", label: "Equipment failure" },
@@ -52,7 +69,7 @@ function DowntimePage() {
         </div>
         <EntityFormDialog<Omit<DowntimeEvent, "id">>
           title="Log Downtime Event"
-          fields={dtFields(store.lines, store.workOrders)}
+          fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users)}
           initial={{ status: "open", category: "equipment_failure" } as any}
           onSubmit={(v) => store.createDowntime(v)}
           trigger={
@@ -144,7 +161,7 @@ function DowntimePage() {
                     <div className="flex justify-end gap-1.5">
                       <EntityFormDialog<DowntimeEvent>
                         title="Edit Downtime Event"
-                        fields={dtFields(store.lines, store.workOrders)}
+                        fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users)}
                         initial={d}
                         onSubmit={(v) => store.updateDowntime(d.id, v)}
                         trigger={

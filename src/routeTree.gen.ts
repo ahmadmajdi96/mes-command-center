@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
+import { Route as StepTemplatesRouteImport } from './routes/step-templates'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
 import { Route as MasterDataRouteImport } from './routes/master-data'
@@ -19,6 +20,7 @@ import { Route as LinesRouteImport } from './routes/lines'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
 import { Route as DowntimeRouteImport } from './routes/downtime'
+import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
@@ -36,6 +38,11 @@ const UsersRoute = UsersRouteImport.update({
 const TelemetryRoute = TelemetryRouteImport.update({
   id: '/telemetry',
   path: '/telemetry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StepTemplatesRoute = StepTemplatesRouteImport.update({
+  id: '/step-templates',
+  path: '/step-templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -73,6 +80,11 @@ const DowntimeRoute = DowntimeRouteImport.update({
   path: '/downtime',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssignmentsRoute = AssignmentsRouteImport.update({
   id: '/assignments',
   path: '/assignments',
@@ -92,6 +104,7 @@ const LinesLineIdRoute = LinesLineIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assignments': typeof AssignmentsRoute
+  '/audit': typeof AuditRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
@@ -99,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
@@ -107,6 +121,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assignments': typeof AssignmentsRoute
+  '/audit': typeof AuditRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
@@ -114,6 +129,7 @@ export interface FileRoutesByTo {
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
@@ -123,6 +139,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assignments': typeof AssignmentsRoute
+  '/audit': typeof AuditRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
@@ -130,6 +147,7 @@ export interface FileRoutesById {
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
@@ -140,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assignments'
+    | '/audit'
     | '/downtime'
     | '/execution'
     | '/genealogy'
@@ -147,6 +166,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
@@ -155,6 +175,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assignments'
+    | '/audit'
     | '/downtime'
     | '/execution'
     | '/genealogy'
@@ -162,6 +183,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
@@ -170,6 +192,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assignments'
+    | '/audit'
     | '/downtime'
     | '/execution'
     | '/genealogy'
@@ -177,6 +200,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
@@ -186,6 +210,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssignmentsRoute: typeof AssignmentsRoute
+  AuditRoute: typeof AuditRoute
   DowntimeRoute: typeof DowntimeRoute
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
@@ -193,6 +218,7 @@ export interface RootRouteChildren {
   MasterDataRoute: typeof MasterDataRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
+  StepTemplatesRoute: typeof StepTemplatesRoute
   TelemetryRoute: typeof TelemetryRoute
   UsersRoute: typeof UsersRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
@@ -219,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/telemetry'
       fullPath: '/telemetry'
       preLoaderRoute: typeof TelemetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/step-templates': {
+      id: '/step-templates'
+      path: '/step-templates'
+      fullPath: '/step-templates'
+      preLoaderRoute: typeof StepTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -270,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DowntimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assignments': {
       id: '/assignments'
       path: '/assignments'
@@ -307,6 +347,7 @@ const LinesRouteWithChildren = LinesRoute._addFileChildren(LinesRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssignmentsRoute: AssignmentsRoute,
+  AuditRoute: AuditRoute,
   DowntimeRoute: DowntimeRoute,
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
@@ -314,6 +355,7 @@ const rootRouteChildren: RootRouteChildren = {
   MasterDataRoute: MasterDataRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
+  StepTemplatesRoute: StepTemplatesRoute,
   TelemetryRoute: TelemetryRoute,
   UsersRoute: UsersRoute,
   WorkOrdersRoute: WorkOrdersRoute,
