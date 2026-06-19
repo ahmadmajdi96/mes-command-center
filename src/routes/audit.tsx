@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { AuditEntity, AuditEntry } from "@/lib/mes-data";
-import { History, Search, Filter, ChevronDown, Trash2 } from "lucide-react";
+import { History, Search, Filter, ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/audit")({
   head: () => ({
