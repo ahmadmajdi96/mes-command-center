@@ -105,6 +105,7 @@ export function AppSidebar() {
         {renderGroup("Overview", overview)}
         {renderGroup("Execution", execution)}
         {renderGroup("Monitoring", monitoring)}
+        {renderGroup("Workforce", workforce)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
       <SidebarFooter className="p-3">
