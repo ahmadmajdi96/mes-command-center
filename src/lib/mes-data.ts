@@ -55,6 +55,10 @@ export interface Station {
   target?: string;
   oee?: number;
   machine?: Machine;
+  /** Step templates applied to this station (comma-stored as id[] in form layer) */
+  templateIds?: string[];
+  /** Timestamp of last live telemetry tick — drives the "live" badge */
+  lastTickAt?: string;
 }
 
 export const stations: Station[] = [
