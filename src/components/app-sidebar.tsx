@@ -12,6 +12,8 @@ import {
   Boxes,
   Users,
   UserCog,
+  ListChecks,
+  History,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,6 +36,7 @@ const overview = [
 const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
+  { title: "Step Templates", url: "/step-templates", icon: ListChecks },
   { title: "Genealogy", url: "/genealogy", icon: GitBranch },
 ];
 
@@ -50,6 +53,7 @@ const workforce = [
 
 const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
+  { title: "Audit Log", url: "/audit", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
