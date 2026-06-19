@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
@@ -24,6 +25,11 @@ import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 const WorkOrdersRoute = WorkOrdersRouteImport.update({
   id: '/work-orders',
   path: '/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TelemetryRoute = TelemetryRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
+  '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
   '/lines/$lineId': typeof LinesLineIdRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
+  '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
   '/lines/$lineId': typeof LinesLineIdRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
+  '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
   '/lines/$lineId': typeof LinesLineIdRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/settings'
     | '/telemetry'
+    | '/users'
     | '/work-orders'
     | '/lines/$lineId'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/settings'
     | '/telemetry'
+    | '/users'
     | '/work-orders'
     | '/lines/$lineId'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/settings'
     | '/telemetry'
+    | '/users'
     | '/work-orders'
     | '/lines/$lineId'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
   TelemetryRoute: typeof TelemetryRoute
+  UsersRoute: typeof UsersRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
 }
 
@@ -179,6 +192,13 @@ declare module '@tanstack/react-router' {
       path: '/work-orders'
       fullPath: '/work-orders'
       preLoaderRoute: typeof WorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/telemetry': {
@@ -274,6 +294,7 @@ const rootRouteChildren: RootRouteChildren = {
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
   TelemetryRoute: TelemetryRoute,
+  UsersRoute: UsersRoute,
   WorkOrdersRoute: WorkOrdersRoute,
 }
 export const routeTree = rootRouteImport
