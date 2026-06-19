@@ -49,15 +49,6 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Control Center · Cortanex MES" },
-      { name: "description", content: "Real-time plant-wide OEE, andon alerts, and live work order execution status." },
-    ],
-  }),
-  component: Dashboard,
-});
 
 const tooltipStyle = {
   background: "oklch(0.16 0.02 240 / 0.95)",
