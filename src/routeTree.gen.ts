@@ -19,6 +19,7 @@ import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
 import { Route as DowntimeRouteImport } from './routes/downtime'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 
 const WorkOrdersRoute = WorkOrdersRouteImport.update({
   id: '/work-orders',
@@ -70,30 +71,37 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LinesLineIdRoute = LinesLineIdRouteImport.update({
+  id: '/$lineId',
+  path: '/$lineId',
+  getParentRoute: () => LinesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
-  '/lines': typeof LinesRoute
+  '/lines': typeof LinesRouteWithChildren
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
-  '/lines': typeof LinesRoute
+  '/lines': typeof LinesRouteWithChildren
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,12 +109,13 @@ export interface FileRoutesById {
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
-  '/lines': typeof LinesRoute
+  '/lines': typeof LinesRouteWithChildren
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/telemetry': typeof TelemetryRoute
   '/work-orders': typeof WorkOrdersRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/telemetry'
     | '/work-orders'
+    | '/lines/$lineId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/telemetry'
     | '/work-orders'
+    | '/lines/$lineId'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/telemetry'
     | '/work-orders'
+    | '/lines/$lineId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -152,7 +164,7 @@ export interface RootRouteChildren {
   DowntimeRoute: typeof DowntimeRoute
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
-  LinesRoute: typeof LinesRoute
+  LinesRoute: typeof LinesRouteWithChildren
   MasterDataRoute: typeof MasterDataRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
@@ -232,15 +244,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lines/$lineId': {
+      id: '/lines/$lineId'
+      path: '/$lineId'
+      fullPath: '/lines/$lineId'
+      preLoaderRoute: typeof LinesLineIdRouteImport
+      parentRoute: typeof LinesRoute
+    }
   }
 }
+
+interface LinesRouteChildren {
+  LinesLineIdRoute: typeof LinesLineIdRoute
+}
+
+const LinesRouteChildren: LinesRouteChildren = {
+  LinesLineIdRoute: LinesLineIdRoute,
+}
+
+const LinesRouteWithChildren = LinesRoute._addFileChildren(LinesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DowntimeRoute: DowntimeRoute,
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
-  LinesRoute: LinesRoute,
+  LinesRoute: LinesRouteWithChildren,
   MasterDataRoute: MasterDataRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
