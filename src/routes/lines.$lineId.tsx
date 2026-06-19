@@ -1,14 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
-import type { Station, CommProtocol, StationStatus, StationType } from "@/lib/mes-data";
+import type { Station, CommProtocol, StationStatus, StationType, DowntimeEvent, StepTemplate } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
 import {
   Factory, ArrowLeft, ArrowRight, Cpu, Hand, Plus, Pencil, Network, Wifi,
-  Activity, User as UserIcon, Gauge, Clock, AlertTriangle,
+  Activity, User as UserIcon, Gauge, Clock, AlertTriangle, AlertOctagon, ShieldAlert,
+  ListChecks, Radio, X,
 } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/lines/$lineId")({
   head: ({ params }) => ({
