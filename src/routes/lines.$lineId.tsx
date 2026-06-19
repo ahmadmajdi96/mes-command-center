@@ -200,11 +200,47 @@ function LineDetailPage() {
         <KPI label="Stations" value={`${lineStations.length}`} icon={<Cpu className="h-4 w-4" />} accent="accent" />
       </div>
 
+      {/* Open downtime banner (line-wide + summary) */}
+      {(openLineWide.length > 0 || Object.keys(openByStation).length > 0) && (
+        <div className="glass-panel rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
+            <AlertOctagon className="h-4 w-4" />
+            {lineDowntime.filter((d) => d.status === "open").length} open downtime event{lineDowntime.filter((d) => d.status === "open").length === 1 ? "" : "s"} on this line
+          </div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {[...openLineWide, ...Object.values(openByStation).flat()].map((d) => {
+              const st = d.stationId ? store.stations.find((s) => s.id === d.stationId) : null;
+              return (
+                <div key={d.id} className="flex items-start justify-between gap-2 rounded-lg border border-destructive/30 bg-background/40 p-2 text-xs">
+                  <div className="min-w-0">
+                    <div className="font-medium">{d.reasonCode}</div>
+                    <div className="font-mono text-[11px] text-muted-foreground">
+                      {st ? `${st.id} · ${st.name}` : "line-wide"} · since {d.startedAt} · {d.durationMin}m
+                      {d.operatorName ? ` · ${d.operatorName}` : ""}
+                    </div>
+                    {d.notes && <div className="mt-1 text-[11px] text-muted-foreground">{d.notes}</div>}
+                  </div>
+                  <button
+                    onClick={() => { store.updateDowntime(d.id, { status: "resolved" }); toast.success(`Resolved ${d.id}`); }}
+                    className="rounded-md border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success hover:bg-success/20"
+                  >
+                    Resolve
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Flow visualization */}
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold tracking-tight">Live station flow</h2>
           <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <span className="flex items-center gap-1 text-success">
+              <Radio className="h-3 w-3 animate-pulse" /> live{lastTick ? ` · ${lastTick}` : ""}
+            </span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success" /> running</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> idle/maint.</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> down</span>
@@ -225,8 +261,30 @@ function LineDetailPage() {
                     <StationCard
                       station={s}
                       operatorNames={operators.map((o) => o!.name)}
+                      templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
+                      openDowntime={openByStation[s.id] ?? []}
                       onEdit={(patch) => store.updateStation(s.id, patch)}
                       onDelete={() => store.deleteStation(s.id)}
+                      onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
+                      onLogDowntime={(reason, category, durationMin) => {
+                        const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
+                        const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
+                        store.createDowntime({
+                          lineId,
+                          lineName: line.name,
+                          stationId: s.id,
+                          assignmentId: activeAsmt?.id,
+                          operatorId: op?.id,
+                          operatorName: op?.name,
+                          reasonCode: reason,
+                          category,
+                          startedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                          durationMin,
+                          status: "open",
+                        });
+                        store.updateStation(s.id, { status: category === "equipment_failure" ? "down" : s.status });
+                        toast.error(`Downtime logged on ${s.id}`);
+                      }}
                       fields={stationFields}
                       lineId={lineId}
                     />
