@@ -69,7 +69,7 @@ function DowntimePage() {
         </div>
         <EntityFormDialog<Omit<DowntimeEvent, "id">>
           title="Log Downtime Event"
-          fields={dtFields(store.lines, store.workOrders)}
+          fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users)}
           initial={{ status: "open", category: "equipment_failure" } as any}
           onSubmit={(v) => store.createDowntime(v)}
           trigger={
@@ -161,7 +161,7 @@ function DowntimePage() {
                     <div className="flex justify-end gap-1.5">
                       <EntityFormDialog<DowntimeEvent>
                         title="Edit Downtime Event"
-                        fields={dtFields(store.lines, store.workOrders)}
+                        fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users)}
                         initial={d}
                         onSubmit={(v) => store.updateDowntime(d.id, v)}
                         trigger={
