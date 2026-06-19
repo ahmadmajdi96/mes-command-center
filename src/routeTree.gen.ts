@@ -9,8 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkOrdersRouteImport } from './routes/work-orders'
+import { Route as TelemetryRouteImport } from './routes/telemetry'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as QualityRouteImport } from './routes/quality'
+import { Route as MasterDataRouteImport } from './routes/master-data'
+import { Route as LinesRouteImport } from './routes/lines'
+import { Route as GenealogyRouteImport } from './routes/genealogy'
+import { Route as ExecutionRouteImport } from './routes/execution'
+import { Route as DowntimeRouteImport } from './routes/downtime'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WorkOrdersRoute = WorkOrdersRouteImport.update({
+  id: '/work-orders',
+  path: '/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TelemetryRoute = TelemetryRouteImport.update({
+  id: '/telemetry',
+  path: '/telemetry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QualityRoute = QualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterDataRoute = MasterDataRouteImport.update({
+  id: '/master-data',
+  path: '/master-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinesRoute = LinesRouteImport.update({
+  id: '/lines',
+  path: '/lines',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenealogyRoute = GenealogyRouteImport.update({
+  id: '/genealogy',
+  path: '/genealogy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExecutionRoute = ExecutionRouteImport.update({
+  id: '/execution',
+  path: '/execution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DowntimeRoute = DowntimeRouteImport.update({
+  id: '/downtime',
+  path: '/downtime',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +73,158 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/downtime': typeof DowntimeRoute
+  '/execution': typeof ExecutionRoute
+  '/genealogy': typeof GenealogyRoute
+  '/lines': typeof LinesRoute
+  '/master-data': typeof MasterDataRoute
+  '/quality': typeof QualityRoute
+  '/settings': typeof SettingsRoute
+  '/telemetry': typeof TelemetryRoute
+  '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/downtime': typeof DowntimeRoute
+  '/execution': typeof ExecutionRoute
+  '/genealogy': typeof GenealogyRoute
+  '/lines': typeof LinesRoute
+  '/master-data': typeof MasterDataRoute
+  '/quality': typeof QualityRoute
+  '/settings': typeof SettingsRoute
+  '/telemetry': typeof TelemetryRoute
+  '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/downtime': typeof DowntimeRoute
+  '/execution': typeof ExecutionRoute
+  '/genealogy': typeof GenealogyRoute
+  '/lines': typeof LinesRoute
+  '/master-data': typeof MasterDataRoute
+  '/quality': typeof QualityRoute
+  '/settings': typeof SettingsRoute
+  '/telemetry': typeof TelemetryRoute
+  '/work-orders': typeof WorkOrdersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/downtime'
+    | '/execution'
+    | '/genealogy'
+    | '/lines'
+    | '/master-data'
+    | '/quality'
+    | '/settings'
+    | '/telemetry'
+    | '/work-orders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/downtime'
+    | '/execution'
+    | '/genealogy'
+    | '/lines'
+    | '/master-data'
+    | '/quality'
+    | '/settings'
+    | '/telemetry'
+    | '/work-orders'
+  id:
+    | '__root__'
+    | '/'
+    | '/downtime'
+    | '/execution'
+    | '/genealogy'
+    | '/lines'
+    | '/master-data'
+    | '/quality'
+    | '/settings'
+    | '/telemetry'
+    | '/work-orders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DowntimeRoute: typeof DowntimeRoute
+  ExecutionRoute: typeof ExecutionRoute
+  GenealogyRoute: typeof GenealogyRoute
+  LinesRoute: typeof LinesRoute
+  MasterDataRoute: typeof MasterDataRoute
+  QualityRoute: typeof QualityRoute
+  SettingsRoute: typeof SettingsRoute
+  TelemetryRoute: typeof TelemetryRoute
+  WorkOrdersRoute: typeof WorkOrdersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/work-orders': {
+      id: '/work-orders'
+      path: '/work-orders'
+      fullPath: '/work-orders'
+      preLoaderRoute: typeof WorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/telemetry': {
+      id: '/telemetry'
+      path: '/telemetry'
+      fullPath: '/telemetry'
+      preLoaderRoute: typeof TelemetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quality': {
+      id: '/quality'
+      path: '/quality'
+      fullPath: '/quality'
+      preLoaderRoute: typeof QualityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master-data': {
+      id: '/master-data'
+      path: '/master-data'
+      fullPath: '/master-data'
+      preLoaderRoute: typeof MasterDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lines': {
+      id: '/lines'
+      path: '/lines'
+      fullPath: '/lines'
+      preLoaderRoute: typeof LinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/genealogy': {
+      id: '/genealogy'
+      path: '/genealogy'
+      fullPath: '/genealogy'
+      preLoaderRoute: typeof GenealogyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/execution': {
+      id: '/execution'
+      path: '/execution'
+      fullPath: '/execution'
+      preLoaderRoute: typeof ExecutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downtime': {
+      id: '/downtime'
+      path: '/downtime'
+      fullPath: '/downtime'
+      preLoaderRoute: typeof DowntimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +237,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DowntimeRoute: DowntimeRoute,
+  ExecutionRoute: ExecutionRoute,
+  GenealogyRoute: GenealogyRoute,
+  LinesRoute: LinesRoute,
+  MasterDataRoute: MasterDataRoute,
+  QualityRoute: QualityRoute,
+  SettingsRoute: SettingsRoute,
+  TelemetryRoute: TelemetryRoute,
+  WorkOrdersRoute: WorkOrdersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
