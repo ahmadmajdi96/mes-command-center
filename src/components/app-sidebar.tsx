@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   Settings,
   Boxes,
+  Users,
+  UserCog,
 } from "lucide-react";
 import {
   Sidebar,
@@ -39,6 +41,11 @@ const monitoring = [
   { title: "Andon / Downtime", url: "/downtime", icon: AlertOctagon },
   { title: "Telemetry", url: "/telemetry", icon: Activity },
   { title: "Quality Holds", url: "/quality", icon: ShieldCheck },
+];
+
+const workforce = [
+  { title: "Users", url: "/users", icon: Users },
+  { title: "Assignments", url: "/assignments", icon: UserCog },
 ];
 
 const platform = [
@@ -98,6 +105,7 @@ export function AppSidebar() {
         {renderGroup("Overview", overview)}
         {renderGroup("Execution", execution)}
         {renderGroup("Monitoring", monitoring)}
+        {renderGroup("Workforce", workforce)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
       <SidebarFooter className="p-3">

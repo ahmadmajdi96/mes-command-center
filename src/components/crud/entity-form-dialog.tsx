@@ -30,6 +30,10 @@ export interface Field {
   options?: { value: string; label: string }[];
   required?: boolean;
   span?: 1 | 2;
+  /** Show this field only when another field equals one of these values */
+  visibleWhen?: { field: string; equals: string | string[] };
+  /** Logical section header rendered before the field */
+  section?: string;
 }
 
 export function EntityFormDialog<T extends Record<string, any>>({
@@ -83,55 +87,70 @@ export function EntityFormDialog<T extends Record<string, any>>({
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <form onSubmit={submit} className="grid grid-cols-2 gap-4">
-          {fields.map((f) => (
-            <div key={f.name} className={f.span === 2 ? "col-span-2" : "col-span-2 sm:col-span-1"}>
-              <Label htmlFor={f.name} className="text-xs uppercase tracking-wider text-muted-foreground">
-                {f.label}
-              </Label>
-              <div className="mt-1.5">
-                {f.type === "textarea" ? (
-                  <Textarea
-                    id={f.name}
-                    value={values[f.name] ?? ""}
-                    placeholder={f.placeholder}
-                    onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
-                    className="bg-card/60"
-                  />
-                ) : f.type === "select" ? (
-                  <Select
-                    value={values[f.name] ?? ""}
-                    onValueChange={(val) => setValues((v) => ({ ...v, [f.name]: val }))}
-                  >
-                    <SelectTrigger className="bg-card/60">
-                      <SelectValue placeholder={f.placeholder ?? "Select…"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {f.options?.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    id={f.name}
-                    type={f.type === "number" ? "number" : "text"}
-                    value={values[f.name] ?? ""}
-                    placeholder={f.placeholder}
-                    onChange={(e) =>
-                      setValues((v) => ({
-                        ...v,
-                        [f.name]: f.type === "number" ? Number(e.target.value) : e.target.value,
-                      }))
-                    }
-                    className="bg-card/60"
-                  />
+        <form onSubmit={submit} className="grid max-h-[70vh] grid-cols-2 gap-4 overflow-y-auto pr-1">
+          {fields.map((f, idx) => {
+            if (f.visibleWhen) {
+              const v = values[f.visibleWhen.field];
+              const want = f.visibleWhen.equals;
+              const ok = Array.isArray(want) ? want.includes(v) : v === want;
+              if (!ok) return null;
+            }
+            const prev = fields[idx - 1];
+            const showSection = f.section && f.section !== prev?.section;
+            return (
+              <div key={f.name} className={f.span === 2 ? "col-span-2" : "col-span-2 sm:col-span-1"}>
+                {showSection && (
+                  <div className="col-span-2 mb-1 mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+                    {f.section}
+                  </div>
                 )}
+                <Label htmlFor={f.name} className="text-xs uppercase tracking-wider text-muted-foreground">
+                  {f.label}
+                </Label>
+                <div className="mt-1.5">
+                  {f.type === "textarea" ? (
+                    <Textarea
+                      id={f.name}
+                      value={values[f.name] ?? ""}
+                      placeholder={f.placeholder}
+                      onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
+                      className="bg-card/60"
+                    />
+                  ) : f.type === "select" ? (
+                    <Select
+                      value={values[f.name] ?? ""}
+                      onValueChange={(val) => setValues((v) => ({ ...v, [f.name]: val }))}
+                    >
+                      <SelectTrigger className="bg-card/60">
+                        <SelectValue placeholder={f.placeholder ?? "Select…"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {f.options?.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id={f.name}
+                      type={f.type === "number" ? "number" : "text"}
+                      value={values[f.name] ?? ""}
+                      placeholder={f.placeholder}
+                      onChange={(e) =>
+                        setValues((v) => ({
+                          ...v,
+                          [f.name]: f.type === "number" ? Number(e.target.value) : e.target.value,
+                        }))
+                      }
+                      className="bg-card/60"
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <DialogFooter className="col-span-2 mt-2">
             <button
               type="button"

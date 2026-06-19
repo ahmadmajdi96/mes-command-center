@@ -26,6 +26,157 @@ export const lines: ProductionLine[] = [
   { id: "L-06", name: "Snack Fryer F", plant: "Plant 03 — Dammam", status: "idle", oee: 0, availability: 0, performance: 0, quality: 0, output: 0, target: 0, uptime: "—" },
 ];
 
+// ============ Stations & Machines ============
+export type StationType = "manual" | "automatic";
+export type StationStatus = "running" | "idle" | "down" | "maintenance";
+export type CommProtocol = "OPC-UA" | "MQTT" | "Modbus-TCP" | "EtherNet/IP" | "Profinet" | "REST";
+
+export interface Machine {
+  model: string;
+  vendor: string;
+  ipAddress: string;
+  port: number;
+  protocol: CommProtocol;
+  receivedDataTypes: string;   // comma-separated tag list ingested from the machine
+  sentDataTypes: string;       // comma-separated commands/setpoints written to the machine
+  firmware?: string;
+}
+
+export interface Station {
+  id: string;
+  lineId: string;
+  name: string;
+  sequence: number;
+  type: StationType;
+  status: StationStatus;
+  cycleTimeSec: number;
+  currentStep?: string;
+  currentValue?: string;
+  target?: string;
+  oee?: number;
+  machine?: Machine;
+}
+
+export const stations: Station[] = [
+  // L-01 Mixer Line A
+  { id: "ST-101", lineId: "L-01", name: "Raw Intake", sequence: 1, type: "manual", status: "running", cycleTimeSec: 90, currentStep: "Scan oat lot LOT-OAT-88112", currentValue: "240.2 kg", target: "240 kg", oee: 94 },
+  { id: "ST-102", lineId: "L-01", name: "Mixing Vessel M1", sequence: 2, type: "automatic", status: "running", cycleTimeSec: 480, currentStep: "Mix @ speed 3", currentValue: "5:42", target: "8:00", oee: 91,
+    machine: { model: "Vortex-X9", vendor: "Bühler", ipAddress: "10.21.4.12", port: 4840, protocol: "OPC-UA",
+      receivedDataTypes: "temp_c,pressure_bar,rpm,torque_nm,vibration", sentDataTypes: "setpoint_rpm,recipe_id,start,stop", firmware: "v3.18.2" } },
+  { id: "ST-103", lineId: "L-01", name: "Extruder E2", sequence: 3, type: "automatic", status: "running", cycleTimeSec: 25, currentStep: "Extrude bar form", currentValue: "60.1 g", target: "60.0 g ±1", oee: 88,
+    machine: { model: "EX-2200", vendor: "Reading Bakery", ipAddress: "10.21.4.13", port: 1883, protocol: "MQTT",
+      receivedDataTypes: "die_pressure,output_weight,blade_speed", sentDataTypes: "speed_pct,cut_length_mm", firmware: "v2.4.1" } },
+  { id: "ST-104", lineId: "L-01", name: "Metal Detector (CCP)", sequence: 4, type: "automatic", status: "running", cycleTimeSec: 1, currentStep: "Inline scan", currentValue: "PASS", target: "PASS", oee: 99,
+    machine: { model: "Safeline IQ4", vendor: "Mettler-Toledo", ipAddress: "10.21.4.14", port: 502, protocol: "Modbus-TCP",
+      receivedDataTypes: "ferrous_mv,non_ferrous_mv,reject_count", sentDataTypes: "test_signal,reset" } },
+  { id: "ST-105", lineId: "L-01", name: "Wrap & Seal", sequence: 5, type: "automatic", status: "idle", cycleTimeSec: 4, currentStep: "Awaiting product", currentValue: "148°C", target: "148°C ±3", oee: 86,
+    machine: { model: "FlowPack FP-9", vendor: "Bosch", ipAddress: "10.21.4.15", port: 44818, protocol: "EtherNet/IP",
+      receivedDataTypes: "jaw_temp,film_tension,seal_count", sentDataTypes: "jaw_setpoint,film_speed" } },
+  { id: "ST-106", lineId: "L-01", name: "Case Pack & Palletize", sequence: 6, type: "manual", status: "running", cycleTimeSec: 28, currentStep: "24 units / case", currentValue: "342 cases", target: "420 cases", oee: 82 },
+
+  // L-02 Oven Line B
+  { id: "ST-201", lineId: "L-02", name: "Dough Mixer", sequence: 1, type: "automatic", status: "running", cycleTimeSec: 600, currentStep: "Knead cycle", currentValue: "12.4 kWh", target: "—", oee: 90,
+    machine: { model: "Spiral-X 240", vendor: "Diosna", ipAddress: "10.22.4.21", port: 4840, protocol: "OPC-UA",
+      receivedDataTypes: "torque,dough_temp,hook_speed", sentDataTypes: "speed_setpoint,timer" } },
+  { id: "ST-202", lineId: "L-02", name: "Proofer", sequence: 2, type: "automatic", status: "running", cycleTimeSec: 1800, currentStep: "Proof 30 min", currentValue: "32°C / 78% RH", target: "32°C / 80% RH", oee: 93,
+    machine: { model: "ClimaProof CP-6", vendor: "Koenig", ipAddress: "10.22.4.22", port: 1883, protocol: "MQTT",
+      receivedDataTypes: "temp,humidity,co2", sentDataTypes: "temp_setpoint,humidity_setpoint" } },
+  { id: "ST-203", lineId: "L-02", name: "Tunnel Oven", sequence: 3, type: "automatic", status: "running", cycleTimeSec: 1080, currentStep: "Bake 18 min", currentValue: "Z1 210 / Z2 220 / Z3 196°C", target: "Z3 200°C ±4", oee: 87,
+    machine: { model: "Mecatherm M-Tunnel", vendor: "Mecatherm", ipAddress: "10.22.4.23", port: 4840, protocol: "OPC-UA",
+      receivedDataTypes: "zone1_t,zone2_t,zone3_t,belt_speed,steam_flow", sentDataTypes: "zone_setpoint,belt_setpoint,steam_cmd", firmware: "v5.2.0" } },
+  { id: "ST-204", lineId: "L-02", name: "Cooler & Slicer", sequence: 4, type: "automatic", status: "running", cycleTimeSec: 240, currentStep: "Slice 14 mm", currentValue: "13.9 mm", target: "14 mm ±0.5", oee: 89,
+    machine: { model: "JAC SelfBoy", vendor: "JAC", ipAddress: "10.22.4.24", port: 502, protocol: "Modbus-TCP",
+      receivedDataTypes: "blade_pos,blade_count,jam_flag", sentDataTypes: "slice_mm,start_stop" } },
+  { id: "ST-205", lineId: "L-02", name: "Bagger", sequence: 5, type: "manual", status: "running", cycleTimeSec: 6, currentStep: "Hand-bag 500g", currentValue: "486 bags", target: "600 bags", oee: 81 },
+
+  // L-03 Bottling Line C
+  { id: "ST-301", lineId: "L-03", name: "Press Room", sequence: 1, type: "automatic", status: "running", cycleTimeSec: 60, currentStep: "Press oranges", currentValue: "182 L/h", target: "200 L/h", oee: 84,
+    machine: { model: "HPP-300", vendor: "Hiperbaric", ipAddress: "10.23.4.31", port: 4840, protocol: "OPC-UA",
+      receivedDataTypes: "press_bar,flow_lph,brix", sentDataTypes: "press_setpoint,batch_id" } },
+  { id: "ST-302", lineId: "L-03", name: "Filler", sequence: 2, type: "automatic", status: "down", cycleTimeSec: 2, currentStep: "Awaiting capper", currentValue: "—", target: "330 ml ±2", oee: 0,
+    machine: { model: "Krones VarioFill", vendor: "Krones", ipAddress: "10.23.4.32", port: 44818, protocol: "EtherNet/IP",
+      receivedDataTypes: "fill_volume,nozzle_count,foam_alarm", sentDataTypes: "fill_setpoint,start_stop" } },
+  { id: "ST-303", lineId: "L-03", name: "Capper (FAULT)", sequence: 3, type: "automatic", status: "down", cycleTimeSec: 2, currentStep: "Capper jam — maintenance dispatched", currentValue: "ERR-44", target: "—", oee: 0,
+    machine: { model: "AromaSeal AS-12", vendor: "GEA", ipAddress: "10.23.4.33", port: 502, protocol: "Modbus-TCP",
+      receivedDataTypes: "torque,head_pos,fault_code", sentDataTypes: "reset,jog_cw,jog_ccw" } },
+  { id: "ST-304", lineId: "L-03", name: "Labeler", sequence: 4, type: "automatic", status: "idle", cycleTimeSec: 1, currentStep: "Idle (upstream stopped)", currentValue: "—", target: "—", oee: 0,
+    machine: { model: "Sleever C-9", vendor: "Sleever", ipAddress: "10.23.4.34", port: 1883, protocol: "MQTT",
+      receivedDataTypes: "label_count,reel_diameter", sentDataTypes: "shrink_temp,start_stop" } },
+
+  // L-05 Cheese Vat E
+  { id: "ST-501", lineId: "L-05", name: "Pasteurizer", sequence: 1, type: "automatic", status: "running", cycleTimeSec: 900, currentStep: "HTST 72°C / 15s", currentValue: "72.4°C", target: "72°C ±0.5", oee: 95,
+    machine: { model: "Tetra Therm Aseptic", vendor: "Tetra Pak", ipAddress: "10.25.4.51", port: 4840, protocol: "OPC-UA",
+      receivedDataTypes: "in_temp,out_temp,hold_time,flow_lph", sentDataTypes: "temp_setpoint,divert_cmd", firmware: "v4.7.1" } },
+  { id: "ST-502", lineId: "L-05", name: "Curd Vat", sequence: 2, type: "manual", status: "running", cycleTimeSec: 2400, currentStep: "Cut curd", currentValue: "pH 6.42", target: "pH 6.4 ±0.05", oee: 92 },
+  { id: "ST-503", lineId: "L-05", name: "Brining Tank", sequence: 3, type: "automatic", status: "running", cycleTimeSec: 1200, currentStep: "Brine soak", currentValue: "18.1% NaCl", target: "18% ±0.5", oee: 96,
+    machine: { model: "BrineCtrl 200", vendor: "Alfa Laval", ipAddress: "10.25.4.53", port: 502, protocol: "Modbus-TCP",
+      receivedDataTypes: "salinity,temp,level", sentDataTypes: "agitate_cmd,refill_cmd" } },
+  { id: "ST-504", lineId: "L-05", name: "Vacuum Pack", sequence: 4, type: "manual", status: "running", cycleTimeSec: 20, currentStep: "Pack 200g", currentValue: "91 units", target: "100 units", oee: 88 },
+];
+
+// ============ Users ============
+export type UserRole = "operator" | "supervisor" | "team_lead";
+export type UserStatus = "active" | "off-shift" | "on-break" | "inactive";
+
+export interface MesUser {
+  id: string;
+  name: string;
+  mobile: string;
+  email: string;
+  role: UserRole;
+  shift: "A" | "B" | "C";
+  status: UserStatus;
+  skills?: string;
+}
+
+export const users: MesUser[] = [
+  { id: "U-001", name: "Faisal Al-Mutairi",  mobile: "+966 50 112 3344", email: "faisal.m@cortanex.io",  role: "supervisor", shift: "A", status: "active",    skills: "OEE coach, line balancing" },
+  { id: "U-002", name: "Mariam Khalid",      mobile: "+966 55 220 9981", email: "mariam.k@cortanex.io",  role: "operator",   shift: "A", status: "active",    skills: "Oven, proofer" },
+  { id: "U-003", name: "Omar Al-Saleh",      mobile: "+966 53 401 7710", email: "omar.s@cortanex.io",    role: "operator",   shift: "A", status: "active",    skills: "Filler, capper" },
+  { id: "U-004", name: "Layla Al-Maliki",    mobile: "+966 56 778 0142", email: "layla.m@cortanex.io",   role: "team_lead",  shift: "A", status: "active",    skills: "Dairy CCP" },
+  { id: "U-005", name: "Hassan Rashed",      mobile: "+966 50 998 2204", email: "hassan.r@cortanex.io",  role: "operator",   shift: "C", status: "off-shift", skills: "Mixer, extruder" },
+  { id: "U-006", name: "Noura Al-Harbi",     mobile: "+966 54 663 0098", email: "noura.h@cortanex.io",   role: "operator",   shift: "B", status: "off-shift", skills: "Bagger, palletizer" },
+  { id: "U-007", name: "Khalid Al-Otaibi",   mobile: "+966 53 220 5511", email: "khalid.o@cortanex.io",  role: "team_lead",  shift: "B", status: "off-shift", skills: "Packaging" },
+  { id: "U-008", name: "Sara Bin-Zayed",     mobile: "+966 55 119 7702", email: "sara.b@cortanex.io",    role: "operator",   shift: "A", status: "on-break",  skills: "QA, brix, CCP" },
+];
+
+// ============ Teams ============
+export interface Team {
+  id: string;
+  name: string;
+  shift: "A" | "B" | "C";
+  leadId: string;
+  memberIds: string[];
+  area: string;
+}
+
+export const teams: Team[] = [
+  { id: "T-01", name: "Mixer Crew Alpha",    shift: "A", leadId: "U-001", memberIds: ["U-002", "U-008"], area: "L-01 · Mixer Line A" },
+  { id: "T-02", name: "Dairy Crew",          shift: "A", leadId: "U-004", memberIds: ["U-003"],          area: "L-05 · Cheese Vat E" },
+  { id: "T-03", name: "Night Packaging",     shift: "C", leadId: "U-007", memberIds: ["U-005", "U-006"], area: "L-04 · Packaging D" },
+];
+
+// ============ Assignments ============
+export type AssignmentTarget = "station" | "team";
+export interface Assignment {
+  id: string;
+  userId: string;
+  targetType: AssignmentTarget;
+  targetId: string;           // stationId or teamId
+  shift: "A" | "B" | "C";
+  startedAt: string;
+  endsAt?: string;
+  active: boolean;
+}
+
+export const assignments: Assignment[] = [
+  { id: "AS-001", userId: "U-002", targetType: "station", targetId: "ST-102", shift: "A", startedAt: "06:00", endsAt: "14:00", active: true },
+  { id: "AS-002", userId: "U-008", targetType: "station", targetId: "ST-104", shift: "A", startedAt: "06:00", endsAt: "14:00", active: true },
+  { id: "AS-003", userId: "U-001", targetType: "team",    targetId: "T-01",   shift: "A", startedAt: "06:00", endsAt: "14:00", active: true },
+  { id: "AS-004", userId: "U-003", targetType: "station", targetId: "ST-302", shift: "A", startedAt: "07:10", endsAt: "15:10", active: true },
+  { id: "AS-005", userId: "U-004", targetType: "team",    targetId: "T-02",   shift: "A", startedAt: "05:50", endsAt: "13:50", active: true },
+];
+
 export type WOStatus = "scheduled" | "running" | "paused" | "hold" | "completed";
 export interface WorkOrder {
   id: string;
