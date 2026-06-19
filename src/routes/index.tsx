@@ -103,7 +103,9 @@ function Kpi({
 }
 
 function Dashboard() {
-  const runningWOs = workOrders.filter((w) => w.status === "running");
+  const store = useMes();
+  const runningWOs = store.workOrders.filter((w) => w.status === "running");
+  const lines = store.lines;
 
   return (
     <div className="space-y-6">
