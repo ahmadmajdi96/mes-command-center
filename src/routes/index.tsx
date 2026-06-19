@@ -32,13 +32,22 @@ import {
 import {
   andonAlerts,
   downtimeReasons,
-  lines,
   oeeTrend,
   plantKpis,
   sensorSeries,
-  workOrders,
 } from "@/lib/mes-data";
+import { useMes } from "@/lib/mes-store";
 import { StatusPill } from "@/components/status-pill";
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Control Center · Cortanex MES" },
+      { name: "description", content: "Real-time plant-wide OEE, andon alerts, and live work order execution status." },
+    ],
+  }),
+  component: Dashboard,
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
