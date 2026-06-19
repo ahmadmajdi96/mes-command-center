@@ -145,9 +145,10 @@ function gen(n: number, base: number, variance: number, seed = 1) {
     s = (s * 9301 + 49297) % 233280;
     const r = s / 233280;
     const v = base + (r - 0.5) * variance + Math.sin(i / 3) * variance * 0.3;
-    const d = new Date();
-    d.setMinutes(d.getMinutes() - (n - i) * 2);
-    out.push({ t: `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`, v: Math.round(v * 10) / 10 });
+    const totalMin = (i * 2) % (24 * 60);
+    const hh = Math.floor(totalMin / 60).toString().padStart(2, "0");
+    const mm = (totalMin % 60).toString().padStart(2, "0");
+    out.push({ t: `${hh}:${mm}`, v: Math.round(v * 10) / 10 });
   }
   return out;
 }

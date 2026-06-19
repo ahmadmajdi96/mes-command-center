@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -106,6 +107,13 @@ function Dashboard() {
   const store = useMes();
   const runningWOs = store.workOrders.filter((w) => w.status === "running");
   const lines = store.lines;
+  const [clock, setClock] = useState<string>("");
+  useEffect(() => {
+    const update = () => setClock(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    update();
+    const id = setInterval(update, 30000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -113,7 +121,7 @@ function Dashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Control Center</h1>
-          <p className="text-sm text-muted-foreground">Plant 01 — Riyadh · Shift A · {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+          <p className="text-sm text-muted-foreground">Plant 01 — Riyadh · Shift A · <span suppressHydrationWarning>{clock}</span></p>
         </div>
         <div className="flex items-center gap-2">
           <button className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Last 8h</button>
