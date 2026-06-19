@@ -20,6 +20,7 @@ import { Route as LinesRouteImport } from './routes/lines'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
 import { Route as DowntimeRouteImport } from './routes/downtime'
+import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
@@ -79,6 +80,11 @@ const DowntimeRoute = DowntimeRouteImport.update({
   path: '/downtime',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssignmentsRoute = AssignmentsRouteImport.update({
   id: '/assignments',
   path: '/assignments',
@@ -98,6 +104,7 @@ const LinesLineIdRoute = LinesLineIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assignments': typeof AssignmentsRoute
+  '/audit': typeof AuditRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assignments': typeof AssignmentsRoute
+  '/audit': typeof AuditRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assignments': typeof AssignmentsRoute
+  '/audit': typeof AuditRoute
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assignments'
+    | '/audit'
     | '/downtime'
     | '/execution'
     | '/genealogy'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assignments'
+    | '/audit'
     | '/downtime'
     | '/execution'
     | '/genealogy'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assignments'
+    | '/audit'
     | '/downtime'
     | '/execution'
     | '/genealogy'
@@ -198,6 +210,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssignmentsRoute: typeof AssignmentsRoute
+  AuditRoute: typeof AuditRoute
   DowntimeRoute: typeof DowntimeRoute
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DowntimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assignments': {
       id: '/assignments'
       path: '/assignments'
@@ -327,6 +347,7 @@ const LinesRouteWithChildren = LinesRoute._addFileChildren(LinesRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssignmentsRoute: AssignmentsRoute,
+  AuditRoute: AuditRoute,
   DowntimeRoute: DowntimeRoute,
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
