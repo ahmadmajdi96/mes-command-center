@@ -30,6 +30,10 @@ export interface Field {
   options?: { value: string; label: string }[];
   required?: boolean;
   span?: 1 | 2;
+  /** Show this field only when another field equals one of these values */
+  visibleWhen?: { field: string; equals: string | string[] };
+  /** Logical section header rendered before the field */
+  section?: string;
 }
 
 export function EntityFormDialog<T extends Record<string, any>>({
