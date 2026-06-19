@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkOrdersRouteImport } from './routes/work-orders'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
+import { Route as StepTemplatesRouteImport } from './routes/step-templates'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
 import { Route as MasterDataRouteImport } from './routes/master-data'
@@ -36,6 +37,11 @@ const UsersRoute = UsersRouteImport.update({
 const TelemetryRoute = TelemetryRouteImport.update({
   id: '/telemetry',
   path: '/telemetry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StepTemplatesRoute = StepTemplatesRouteImport.update({
+  id: '/step-templates',
+  path: '/step-templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/users': typeof UsersRoute
   '/work-orders': typeof WorkOrdersRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   MasterDataRoute: typeof MasterDataRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
+  StepTemplatesRoute: typeof StepTemplatesRoute
   TelemetryRoute: typeof TelemetryRoute
   UsersRoute: typeof UsersRoute
   WorkOrdersRoute: typeof WorkOrdersRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/telemetry'
       fullPath: '/telemetry'
       preLoaderRoute: typeof TelemetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/step-templates': {
+      id: '/step-templates'
+      path: '/step-templates'
+      fullPath: '/step-templates'
+      preLoaderRoute: typeof StepTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   MasterDataRoute: MasterDataRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
+  StepTemplatesRoute: StepTemplatesRoute,
   TelemetryRoute: TelemetryRoute,
   UsersRoute: UsersRoute,
   WorkOrdersRoute: WorkOrdersRoute,
