@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { workOrders, type WOStatus } from "@/lib/mes-data";
+import { useMes } from "@/lib/mes-store";
+import type { WorkOrder, WOStatus } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, Pencil } from "lucide-react";
+import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
+import { ConfirmDelete } from "@/components/crud/confirm-delete";
 
 export const Route = createFileRoute("/work-orders")({
   head: () => ({
     meta: [
       { title: "Work Orders · Cortanex MES" },
-      { name: "description", content: "Scheduled, running and completed shop-floor work orders across all production lines." },
+      { name: "description", content: "Create, schedule, edit and complete shop-floor work orders synced with ERP production orders." },
     ],
   }),
   component: WorkOrdersPage,
@@ -16,24 +19,51 @@ export const Route = createFileRoute("/work-orders")({
 
 const filters: (WOStatus | "all")[] = ["all", "running", "scheduled", "hold", "paused", "completed"];
 
+function woFields(lines: { id: string; name: string }[]): Field[] {
+  return [
+    { name: "productionOrderId", label: "ERP Production Order", type: "text", placeholder: "PO-99820", required: true },
+    { name: "lineId", label: "Line", type: "select", options: lines.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` })), required: true },
+    { name: "product", label: "Product", type: "text", placeholder: "Granola Bar 60g", required: true, span: 2 },
+    { name: "sku", label: "SKU", type: "text", placeholder: "GRA-060", required: true },
+    { name: "uom", label: "Unit", type: "select", options: [{ value: "ea", label: "each" }, { value: "kg", label: "kg" }, { value: "L", label: "L" }, { value: "btl", label: "bottle" }, { value: "ctn", label: "carton" }, { value: "jar", label: "jar" }], required: true },
+    { name: "qtyTarget", label: "Target Qty", type: "number", required: true },
+    { name: "qtyProduced", label: "Produced Qty", type: "number" },
+    { name: "startedAt", label: "Start", type: "text", placeholder: "06:00" },
+    { name: "endsAt", label: "End", type: "text", placeholder: "14:00" },
+    { name: "operator", label: "Operator", type: "text" },
+    { name: "shift", label: "Shift", type: "select", options: [{ value: "A", label: "A" }, { value: "B", label: "B" }, { value: "C", label: "C" }] },
+    { name: "status", label: "Status", type: "select", options: filters.filter(f => f !== "all").map(s => ({ value: s, label: s })), required: true, span: 2 },
+  ];
+}
+
 function WorkOrdersPage() {
+  const store = useMes();
   const [f, setF] = useState<WOStatus | "all">("all");
-  const list = f === "all" ? workOrders : workOrders.filter((w) => w.status === f);
+  const list = f === "all" ? store.workOrders : store.workOrders.filter((w) => w.status === f);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Work Orders</h1>
-          <p className="text-sm text-muted-foreground">{workOrders.length} orders · synced with ERP production orders</p>
+          <p className="text-sm text-muted-foreground">{store.workOrders.length} orders · synced with ERP production orders</p>
         </div>
         <div className="flex gap-2">
           <button className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">
             <Filter className="h-3.5 w-3.5" /> Shift A
           </button>
-          <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)]">
-            <Plus className="h-3.5 w-3.5" /> New WO
-          </button>
+          <EntityFormDialog<Omit<WorkOrder, "id" | "progress" | "qtyProduced"> & { qtyProduced?: number }>
+            title="New Work Order"
+            description="Create a new shop-floor work order linked to an ERP production order."
+            fields={woFields(store.lines)}
+            initial={{ status: "scheduled", shift: "A", uom: "ea" } as any}
+            onSubmit={(v) => store.createWorkOrder(v as any)}
+            trigger={
+              <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)]">
+                <Plus className="h-3.5 w-3.5" /> New WO
+              </button>
+            }
+          />
         </div>
       </div>
 
@@ -46,7 +76,7 @@ function WorkOrdersPage() {
               f === s ? "border-primary/60 bg-primary/10 text-primary" : "border-border/60 bg-card/60 text-muted-foreground hover:text-foreground"
             }`}
           >
-            {s}
+            {s} {s !== "all" && <span className="ml-1 font-mono opacity-60">{store.workOrders.filter(w => w.status === s).length}</span>}
           </button>
         ))}
       </div>
@@ -64,6 +94,7 @@ function WorkOrdersPage() {
                 <th className="px-4 py-3 text-left font-medium">Operator</th>
                 <th className="px-4 py-3 text-left font-medium">Progress</th>
                 <th className="px-4 py-3 text-left font-medium">Status</th>
+                <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -91,6 +122,26 @@ function WorkOrdersPage() {
                     <div className="mt-1 font-mono text-[10px] text-muted-foreground">{w.qtyProduced.toLocaleString()} / {w.qtyTarget.toLocaleString()} {w.uom}</div>
                   </td>
                   <td className="px-4 py-3"><StatusPill status={w.status} /></td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1.5">
+                      <EntityFormDialog<WorkOrder>
+                        title="Edit Work Order"
+                        fields={woFields(store.lines)}
+                        initial={w}
+                        onSubmit={(v) => store.updateWorkOrder(w.id, v)}
+                        trigger={
+                          <button className="grid h-8 w-8 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground hover:text-primary hover:border-primary/40">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                        }
+                      />
+                      <ConfirmDelete
+                        label={`Delete ${w.id}`}
+                        description="The work order and its progress will be removed."
+                        onConfirm={() => store.deleteWorkOrder(w.id)}
+                      />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

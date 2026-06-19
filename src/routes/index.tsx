@@ -32,12 +32,11 @@ import {
 import {
   andonAlerts,
   downtimeReasons,
-  lines,
   oeeTrend,
   plantKpis,
   sensorSeries,
-  workOrders,
 } from "@/lib/mes-data";
+import { useMes } from "@/lib/mes-store";
 import { StatusPill } from "@/components/status-pill";
 
 export const Route = createFileRoute("/")({
@@ -49,6 +48,7 @@ export const Route = createFileRoute("/")({
   }),
   component: Dashboard,
 });
+
 
 const tooltipStyle = {
   background: "oklch(0.16 0.02 240 / 0.95)",
@@ -103,7 +103,9 @@ function Kpi({
 }
 
 function Dashboard() {
-  const runningWOs = workOrders.filter((w) => w.status === "running");
+  const store = useMes();
+  const runningWOs = store.workOrders.filter((w) => w.status === "running");
+  const lines = store.lines;
 
   return (
     <div className="space-y-6">
