@@ -1,8 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
+import type { StepTemplate } from "@/lib/mes-data";
 import {
   ArrowLeft, Cpu, Hand, Network, Wifi, User as UserIcon, ShieldAlert,
-  ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks,
+  ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks, Plus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/stations/$stationId")({
