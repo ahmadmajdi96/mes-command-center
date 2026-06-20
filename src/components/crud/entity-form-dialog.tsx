@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export type FieldType = "text" | "number" | "textarea" | "select";
+export type FieldType = "text" | "number" | "textarea" | "select" | "multiselect";
 
 export interface Field {
   name: string;
@@ -30,6 +30,8 @@ export interface Field {
   options?: { value: string; label: string }[];
   required?: boolean;
   span?: 1 | 2;
+  /** For multiselect: minimum number of selections required */
+  minSelected?: number;
   /** Show this field only when another field equals one of these values */
   visibleWhen?: { field: string; equals: string | string[] };
   /** Logical section header rendered before the field */
