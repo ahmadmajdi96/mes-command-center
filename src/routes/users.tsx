@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { MesUser, UserRole, UserStatus } from "@/lib/mes-data";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
-import { Plus, Pencil, Search, Mail, Phone, Users as UsersIcon, ShieldCheck, Star } from "lucide-react";
+import { Plus, Pencil, Search, Mail, Phone, Users as UsersIcon, ShieldCheck, Star, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/users")({
   head: () => ({
