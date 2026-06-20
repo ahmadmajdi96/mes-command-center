@@ -598,12 +598,21 @@ function StationCard({
         )}
       </div>
 
-      {/* Templates applied */}
-      {templates.length > 0 && (
-        <div className="mt-3 rounded-lg border border-border/40 bg-background/40 p-2">
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+      {/* Templates applied — always shown so users can add/remove */}
+      <div className="mt-3 rounded-lg border border-border/40 bg-background/40 p-2">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
             <ListChecks className="h-3 w-3" /> Step templates · {templates.length}
-          </div>
+          </span>
+          <AddTemplatePicker
+            assigned={templates.map((t) => t.id)}
+            all={allTemplates}
+            onAdd={onAddTemplate}
+          />
+        </div>
+        {templates.length === 0 ? (
+          <div className="mt-1 text-[11px] text-warning">No templates — add at least one.</div>
+        ) : (
           <div className="mt-1 flex flex-wrap gap-1">
             {templates.map((t) => (
               <span key={t.id} className="group inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 text-[10px]">
@@ -616,8 +625,8 @@ function StationCard({
               </span>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Machine quick stats */}
       {s.machine && (
