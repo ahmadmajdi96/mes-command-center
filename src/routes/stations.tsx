@@ -145,7 +145,7 @@ function StationsPage() {
   const [lineFilter, setLineFilter] = useState<"all" | string>("all");
   const [typeFilter, setTypeFilter] = useState<"all" | StationType>("all");
 
-  const fields = useMemo(() => stationFields(store.lines), [store.lines]);
+  const fields = useMemo(() => stationFields(store.lines, store.stepTemplates), [store.lines, store.stepTemplates]);
 
   const filtered = useMemo(() => {
     return store.stations
