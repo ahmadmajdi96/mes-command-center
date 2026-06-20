@@ -14,6 +14,8 @@ import {
   UserCog,
   ListChecks,
   History,
+  Radio,
+  Cpu,
 } from "lucide-react";
 import {
   Sidebar,
