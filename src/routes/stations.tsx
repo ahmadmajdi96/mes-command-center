@@ -18,13 +18,13 @@ export const Route = createFileRoute("/stations")({
 
 const protocols: CommProtocol[] = ["OPC-UA", "MQTT", "Modbus-TCP", "EtherNet/IP", "Profinet", "REST"];
 
-function stationFields(lines: { id: string; name: string }[]): Field[] {
+function stationFields(lines: { id: string; name: string }[], templates: { id: string; name: string }[]): Field[] {
   return [
     { name: "id", label: "Station ID", type: "text", placeholder: "ST-110", required: true },
     { name: "name", label: "Name", type: "text", required: true },
     { name: "lineId", label: "Line", type: "select", required: true,
       options: lines.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` })) },
-    { name: "sequence", label: "Sequence #", type: "number", required: true },
+    { name: "sequence", label: "Sequence # (same number = parallel in same step)", type: "number", required: true },
     { name: "type", label: "Type", type: "select", required: true, options: [
       { value: "manual", label: "Manual (operator)" },
       { value: "automatic", label: "Automatic (machine)" },
@@ -40,6 +40,10 @@ function stationFields(lines: { id: string; name: string }[]): Field[] {
     { name: "currentValue", label: "Current value", type: "text" },
     { name: "target", label: "Target", type: "text" },
     { name: "oee", label: "OEE %", type: "number" },
+
+    { name: "templateIds", label: "Step templates (select at least one)", type: "multiselect", span: 2,
+      section: "Step templates", required: true, minSelected: 1,
+      options: templates.map((t) => ({ value: t.id, label: `${t.id} · ${t.name}` })) },
 
     { name: "machine_model", label: "Machine model", type: "text", section: "Machine (automatic only)",
       visibleWhen: { field: "type", equals: "automatic" } },
@@ -58,12 +62,32 @@ function stationFields(lines: { id: string; name: string }[]): Field[] {
     { name: "machine_sentDataTypes", label: "Sent data types", type: "textarea", span: 2,
       placeholder: "setpoint_rpm,recipe_id,start,stop",
       visibleWhen: { field: "type", equals: "automatic" } },
+
+    { name: "machine_outputKind", label: "Output kind", type: "select",
+      section: "Output (automatic only)",
+      options: [
+        { value: "none", label: "No output" },
+        { value: "text", label: "Text (e.g. PASS/FAIL, reading)" },
+        { value: "file", label: "File (e.g. inspection image)" },
+      ],
+      visibleWhen: { field: "type", equals: "automatic" } },
+    { name: "machine_outputLabel", label: "Output label / filename pattern", type: "text",
+      placeholder: "inspection_{lot}.png",
+      visibleWhen: { field: "type", equals: "automatic" } },
+    { name: "machine_outputProtocol", label: "Decision protocol", type: "select",
+      options: protocols.map((p) => ({ value: p, label: p })),
+      visibleWhen: { field: "type", equals: "automatic" } },
+    { name: "machine_acceptCommand", label: "Accept command", type: "text", placeholder: "ACK / PASS",
+      visibleWhen: { field: "type", equals: "automatic" } },
+    { name: "machine_rejectCommand", label: "Reject command", type: "text", placeholder: "NAK / REJECT",
+      visibleWhen: { field: "type", equals: "automatic" } },
   ];
 }
 
 export function toFlatStation(s: Partial<Station>) {
   return {
     ...s,
+    templateIds: s.templateIds ?? [],
     machine_model: s.machine?.model ?? "",
     machine_vendor: s.machine?.vendor ?? "",
     machine_ipAddress: s.machine?.ipAddress ?? "",
@@ -72,6 +96,11 @@ export function toFlatStation(s: Partial<Station>) {
     machine_firmware: s.machine?.firmware ?? "",
     machine_receivedDataTypes: s.machine?.receivedDataTypes ?? "",
     machine_sentDataTypes: s.machine?.sentDataTypes ?? "",
+    machine_outputKind: s.machine?.outputKind ?? "none",
+    machine_outputLabel: s.machine?.outputLabel ?? "",
+    machine_outputProtocol: s.machine?.outputProtocol ?? "REST",
+    machine_acceptCommand: s.machine?.acceptCommand ?? "",
+    machine_rejectCommand: s.machine?.rejectCommand ?? "",
   } as any;
 }
 
@@ -88,6 +117,7 @@ export function fromFlatStation(v: any): Station {
     currentValue: v.currentValue || undefined,
     target: v.target || undefined,
     oee: Number(v.oee) || 0,
+    templateIds: Array.isArray(v.templateIds) ? v.templateIds : [],
   };
   if (v.type === "automatic") {
     base.machine = {
@@ -99,6 +129,11 @@ export function fromFlatStation(v: any): Station {
       receivedDataTypes: v.machine_receivedDataTypes,
       sentDataTypes: v.machine_sentDataTypes,
       firmware: v.machine_firmware,
+      outputKind: v.machine_outputKind || "none",
+      outputLabel: v.machine_outputLabel || undefined,
+      outputProtocol: v.machine_outputProtocol as CommProtocol,
+      acceptCommand: v.machine_acceptCommand || undefined,
+      rejectCommand: v.machine_rejectCommand || undefined,
     };
   }
   return base;
