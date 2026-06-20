@@ -1,8 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
+import type { StepTemplate } from "@/lib/mes-data";
 import {
   ArrowLeft, Cpu, Hand, Network, Wifi, User as UserIcon, ShieldAlert,
-  ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks,
+  ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks, Plus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/stations/$stationId")({
@@ -121,22 +123,38 @@ function StationProfile() {
             </div>
           )}
 
-          {templates.length > 0 && (
-            <div className="mt-4">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
                 <ListChecks className="h-3 w-3" /> Step templates · {templates.length}
-              </div>
+              </span>
+              <TemplatePicker
+                assigned={templates.map((t) => t.id)}
+                all={store.stepTemplates}
+                onAdd={(tid: string) => store.applyTemplateToStation(station.id, tid)}
+              />
+            </div>
+            {templates.length === 0 ? (
+              <div className="mt-1.5 text-xs text-warning">No templates attached. Add at least one.</div>
+            ) : (
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {templates.map((t) => (
-                  <span key={t.id} className="inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px]">
+                  <span key={t.id} className="group inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px]">
                     {t.isCCP && <ShieldAlert className="h-2.5 w-2.5 text-destructive" />}
                     <span className="font-mono">{t.id}</span>
                     <span>{t.name}</span>
+                    <button
+                      onClick={() => store.removeTemplateFromStation(station.id, t.id)}
+                      className="ml-1 text-destructive opacity-0 transition group-hover:opacity-100"
+                      title="Remove"
+                    >
+                      ✕
+                    </button>
                   </span>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Operator + machine */}
@@ -178,6 +196,29 @@ function StationProfile() {
                 <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Sent tags</div>
                 <div className="mt-0.5 font-mono text-accent">↑ {station.machine.sentDataTypes}</div>
               </div>
+              {station.machine.outputKind && station.machine.outputKind !== "none" && (
+                <div className="mt-3 rounded-lg border border-info/30 bg-info/5 p-2 text-[11px]">
+                  <div className="text-[10px] uppercase tracking-wider text-info">
+                    Output · {station.machine.outputKind}
+                    {station.machine.outputProtocol ? ` · via ${station.machine.outputProtocol}` : ""}
+                  </div>
+                  {station.machine.outputLabel && (
+                    <div className="mt-0.5 truncate font-mono">{station.machine.outputLabel}</div>
+                  )}
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {station.machine.acceptCommand && (
+                      <span className="rounded border border-success/40 bg-success/10 px-1.5 py-0.5 font-mono text-[10px] text-success">
+                        ACCEPT → {station.machine.acceptCommand}
+                      </span>
+                    )}
+                    {station.machine.rejectCommand && (
+                      <span className="rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
+                        REJECT → {station.machine.rejectCommand}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="glass-panel rounded-2xl p-4">
@@ -239,6 +280,37 @@ function Info({ label, icon, value }: { label: string; icon: React.ReactNode; va
     <div className="rounded-md border border-border/40 bg-background/40 p-2">
       <div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground">{icon} {label}</div>
       <div className="mt-0.5 truncate font-mono">{value}</div>
+    </div>
+  );
+}
+
+function TemplatePicker({ assigned, all, onAdd }: { assigned: string[]; all: StepTemplate[]; onAdd: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const available = all.filter((t) => !assigned.includes(t.id));
+  if (available.length === 0) return null;
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-0.5 rounded border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] text-primary hover:bg-primary/20"
+      >
+        <Plus className="h-3 w-3" /> Add template
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 max-h-56 w-64 overflow-y-auto rounded-lg border border-border/60 bg-card p-1 shadow-xl">
+          {available.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => { onAdd(t.id); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-[11px] hover:bg-primary/10"
+            >
+              <span className="font-mono text-[10px] text-muted-foreground">{t.id}</span> · {t.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

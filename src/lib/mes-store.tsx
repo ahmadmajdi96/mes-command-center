@@ -65,6 +65,8 @@ type Actions = {
   createStation: (s: Omit<Station, "id"> & { id?: string }) => void;
   updateStation: (id: string, patch: Partial<Station>) => void;
   deleteStation: (id: string) => void;
+  /** Duplicate a station at the same sequence (parallel station in the same step) */
+  duplicateStation: (id: string) => void;
   createUser: (u: Omit<MesUser, "id"> & { id?: string }) => void;
   updateUser: (id: string, patch: Partial<MesUser>) => void;
   deleteUser: (id: string) => void;
@@ -87,7 +89,7 @@ type Actions = {
 };
 
 const Ctx = createContext<(State & Actions) | null>(null);
-const KEY = "cortanex-mes-v3";
+const KEY = "cortanex-mes-v4";
 
 function nextId(prefix: string, list: { id: string }[]) {
   const nums = list
@@ -381,6 +383,19 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
         assignments: s.assignments.filter((a) => !(a.targetType === "station" && a.targetId === id)),
       }));
       audit("station", id, "delete", before, null, `Deleted station ${id}`);
+    },
+    duplicateStation: (id) => {
+      const src = state.stations.find((x) => x.id === id);
+      if (!src) return;
+      const newId = nextId("ST-", state.stations);
+      const copy: Station = {
+        ...src,
+        id: newId,
+        name: `${src.name} (copy)`,
+        // Same sequence → renders as a parallel station in the same step
+      };
+      setState((s) => ({ ...s, stations: [...s.stations, copy] }));
+      audit("station", newId, "create", null, copy, `Duplicated ${id} → ${newId} at seq ${src.sequence}`);
     },
 
     // ---------- Users

@@ -30,10 +30,10 @@ export const Route = createFileRoute("/lines/$lineId")({
 
 const protocols: CommProtocol[] = ["OPC-UA", "MQTT", "Modbus-TCP", "EtherNet/IP", "Profinet", "REST"];
 
-const baseStationFields = (lineId: string): Field[] => [
+const baseStationFields = (lineId: string, templates: { id: string; name: string }[]): Field[] => [
   { name: "id", label: "Station ID", type: "text", placeholder: "ST-110", required: true },
   { name: "name", label: "Name", type: "text", required: true },
-  { name: "sequence", label: "Sequence #", type: "number", required: true },
+  { name: "sequence", label: "Sequence # (same number = parallel station in same step)", type: "number", required: true },
   { name: "type", label: "Type", type: "select", required: true, options: [
     { value: "manual", label: "Manual (operator)" },
     { value: "automatic", label: "Automatic (machine)" },
@@ -49,10 +49,12 @@ const baseStationFields = (lineId: string): Field[] => [
   { name: "currentValue", label: "Current value", type: "text" },
   { name: "target", label: "Target", type: "text" },
   { name: "oee", label: "OEE %", type: "number" },
-  // Hidden derived
   { name: "lineId", label: "Line ID", type: "text", placeholder: lineId },
 
-  // Machine block (visible only when automatic)
+  { name: "templateIds", label: "Step templates (select at least one)", type: "multiselect", span: 2,
+    section: "Step templates", required: true, minSelected: 1,
+    options: templates.map((t) => ({ value: t.id, label: `${t.id} · ${t.name}` })) },
+
   { name: "machine_model", label: "Machine model", type: "text", section: "Machine (automatic only)",
     visibleWhen: { field: "type", equals: "automatic" } },
   { name: "machine_vendor", label: "Vendor", type: "text",
@@ -72,11 +74,31 @@ const baseStationFields = (lineId: string): Field[] => [
   { name: "machine_sentDataTypes", label: "Sent data types (comma list)", type: "textarea", span: 2,
     placeholder: "setpoint_rpm,recipe_id,start,stop",
     visibleWhen: { field: "type", equals: "automatic" } },
+
+  { name: "machine_outputKind", label: "Output kind", type: "select",
+    section: "Output (automatic only)",
+    options: [
+      { value: "none", label: "No output" },
+      { value: "text", label: "Text (e.g. PASS/FAIL, reading)" },
+      { value: "file", label: "File (e.g. inspection image, report)" },
+    ],
+    visibleWhen: { field: "type", equals: "automatic" } },
+  { name: "machine_outputLabel", label: "Output label / filename pattern", type: "text",
+    placeholder: "inspection_{lot}.png",
+    visibleWhen: { field: "type", equals: "automatic" } },
+  { name: "machine_outputProtocol", label: "Decision protocol", type: "select",
+    options: protocols.map((p) => ({ value: p, label: p })),
+    visibleWhen: { field: "type", equals: "automatic" } },
+  { name: "machine_acceptCommand", label: "Accept command", type: "text", placeholder: "ACK / PASS",
+    visibleWhen: { field: "type", equals: "automatic" } },
+  { name: "machine_rejectCommand", label: "Reject command", type: "text", placeholder: "NAK / REJECT",
+    visibleWhen: { field: "type", equals: "automatic" } },
 ];
 
 function toFlat(s: Partial<Station>) {
   return {
     ...s,
+    templateIds: s.templateIds ?? [],
     machine_model: s.machine?.model ?? "",
     machine_vendor: s.machine?.vendor ?? "",
     machine_ipAddress: s.machine?.ipAddress ?? "",
@@ -85,6 +107,11 @@ function toFlat(s: Partial<Station>) {
     machine_firmware: s.machine?.firmware ?? "",
     machine_receivedDataTypes: s.machine?.receivedDataTypes ?? "",
     machine_sentDataTypes: s.machine?.sentDataTypes ?? "",
+    machine_outputKind: s.machine?.outputKind ?? "none",
+    machine_outputLabel: s.machine?.outputLabel ?? "",
+    machine_outputProtocol: s.machine?.outputProtocol ?? "REST",
+    machine_acceptCommand: s.machine?.acceptCommand ?? "",
+    machine_rejectCommand: s.machine?.rejectCommand ?? "",
   } as any;
 }
 
@@ -101,6 +128,7 @@ function fromFlat(v: any, lineId: string): Station {
     currentValue: v.currentValue || undefined,
     target: v.target || undefined,
     oee: Number(v.oee) || 0,
+    templateIds: Array.isArray(v.templateIds) ? v.templateIds : [],
   };
   if (v.type === "automatic") {
     base.machine = {
@@ -112,6 +140,11 @@ function fromFlat(v: any, lineId: string): Station {
       receivedDataTypes: v.machine_receivedDataTypes,
       sentDataTypes: v.machine_sentDataTypes,
       firmware: v.machine_firmware,
+      outputKind: v.machine_outputKind || "none",
+      outputLabel: v.machine_outputLabel || undefined,
+      outputProtocol: v.machine_outputProtocol as CommProtocol,
+      acceptCommand: v.machine_acceptCommand || undefined,
+      rejectCommand: v.machine_rejectCommand || undefined,
     };
   }
   return base;
@@ -128,7 +161,18 @@ function LineDetailPage() {
     [store.stations, lineId],
   );
 
-  const stationFields = baseStationFields(lineId);
+  // Group stations by sequence — same sequence = parallel stations in the same step
+  const stepsGrouped = useMemo(() => {
+    const map = new Map<number, Station[]>();
+    for (const s of lineStations) {
+      const arr = map.get(s.sequence) ?? [];
+      arr.push(s);
+      map.set(s.sequence, arr);
+    }
+    return [...map.entries()].sort((a, b) => a[0] - b[0]);
+  }, [lineStations]);
+
+  const stationFields = baseStationFields(lineId, store.stepTemplates);
 
   // Resolve assignments → user(s) per station/team — recomputes on every assignment change
   const stationOperators = (stationId: string) =>
@@ -254,51 +298,69 @@ function LineDetailPage() {
         ) : (
           <div className="relative overflow-x-auto pb-2">
             <div className="flex min-w-max items-stretch gap-3">
-              {lineStations.map((s, idx) => {
-                const operators = stationOperators(s.id);
-                return (
-                  <div key={s.id} className="flex items-stretch gap-3">
-                    <StationCard
-                      station={s}
-                      operatorNames={operators.map((o) => o!.name)}
-                      templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
-                      openDowntime={openByStation[s.id] ?? []}
-                      onEdit={(patch) => store.updateStation(s.id, patch)}
-                      onDelete={() => store.deleteStation(s.id)}
-                      onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
-                      onLogDowntime={(reason, category, durationMin) => {
-                        const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
-                        const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
-                        store.createDowntime({
-                          lineId,
-                          lineName: line.name,
-                          stationId: s.id,
-                          assignmentId: activeAsmt?.id,
-                          operatorId: op?.id,
-                          operatorName: op?.name,
-                          reasonCode: reason,
-                          category,
-                          startedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                          durationMin,
-                          status: "open",
-                        });
-                        store.updateStation(s.id, { status: category === "equipment_failure" ? "down" : s.status });
-                        toast.error(`Downtime logged on ${s.id}`);
-                      }}
-                      fields={stationFields}
-                      lineId={lineId}
-                    />
-                    {idx < lineStations.length - 1 && (
-                      <div className="flex w-6 items-center justify-center">
-                        <div className="relative h-px w-full bg-gradient-to-r from-primary/60 to-info/60">
-                          <ArrowRight className="absolute -right-1 -top-2 h-4 w-4 text-primary" />
-                        </div>
-                      </div>
-                    )}
+              {stepsGrouped.map(([seq, group], idx) => (
+                <div key={seq} className="flex items-stretch gap-3">
+                  {/* Step column: stack parallel stations vertically */}
+                  <div className="flex w-72 flex-col gap-3">
+                    <div className="flex items-center justify-between rounded-md border border-primary/20 bg-primary/5 px-2 py-1 text-[10px] uppercase tracking-wider text-primary/80">
+                      <span>Step {seq}</span>
+                      {group.length > 1 && (
+                        <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[9px] text-primary">
+                          {group.length} parallel
+                        </span>
+                      )}
+                    </div>
+                    {group.map((s) => {
+                      const operators = stationOperators(s.id);
+                      return (
+                        <StationCard
+                          key={s.id}
+                          station={s}
+                          operatorNames={operators.map((o) => o!.name)}
+                          templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
+                          allTemplates={store.stepTemplates}
+                          openDowntime={openByStation[s.id] ?? []}
+                          onEdit={(patch) => store.updateStation(s.id, patch)}
+                          onDelete={() => store.deleteStation(s.id)}
+                          onDuplicate={() => { store.duplicateStation(s.id); toast.success(`Duplicated ${s.id} at step ${s.sequence}`); }}
+                          onAddTemplate={(tid) => store.applyTemplateToStation(s.id, tid)}
+                          onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
+                          onLogDowntime={(reason, category, durationMin) => {
+                            const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
+                            const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
+                            store.createDowntime({
+                              lineId,
+                              lineName: line.name,
+                              stationId: s.id,
+                              assignmentId: activeAsmt?.id,
+                              operatorId: op?.id,
+                              operatorName: op?.name,
+                              reasonCode: reason,
+                              category,
+                              startedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                              durationMin,
+                              status: "open",
+                            });
+                            store.updateStation(s.id, { status: category === "equipment_failure" ? "down" : s.status });
+                            toast.error(`Downtime logged on ${s.id}`);
+                          }}
+                          fields={stationFields}
+                          lineId={lineId}
+                        />
+                      );
+                    })}
                   </div>
-                );
-              })}
+                  {idx < stepsGrouped.length - 1 && (
+                    <div className="flex w-6 items-center justify-center">
+                      <div className="relative h-px w-full bg-gradient-to-r from-primary/60 to-info/60">
+                        <ArrowRight className="absolute -right-1 -top-2 h-4 w-4 text-primary" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
+
           </div>
         )}
       </div>
@@ -422,22 +484,28 @@ function StationCard({
   station: s,
   operatorNames,
   templates,
+  allTemplates,
   openDowntime,
   fields,
   lineId,
   onEdit,
   onDelete,
+  onDuplicate,
+  onAddTemplate,
   onRemoveTemplate,
   onLogDowntime,
 }: {
   station: Station;
   operatorNames: string[];
   templates: StepTemplate[];
+  allTemplates: StepTemplate[];
   openDowntime: DowntimeEvent[];
   fields: Field[];
   lineId: string;
   onEdit: (patch: Partial<Station>) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
+  onAddTemplate: (templateId: string) => void;
   onRemoveTemplate: (templateId: string) => void;
   onLogDowntime: (reason: string, category: DowntimeEvent["category"], durationMin: number) => void;
 }) {
@@ -530,12 +598,21 @@ function StationCard({
         )}
       </div>
 
-      {/* Templates applied */}
-      {templates.length > 0 && (
-        <div className="mt-3 rounded-lg border border-border/40 bg-background/40 p-2">
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+      {/* Templates applied — always shown so users can add/remove */}
+      <div className="mt-3 rounded-lg border border-border/40 bg-background/40 p-2">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
             <ListChecks className="h-3 w-3" /> Step templates · {templates.length}
-          </div>
+          </span>
+          <AddTemplatePicker
+            assigned={templates.map((t) => t.id)}
+            all={allTemplates}
+            onAdd={onAddTemplate}
+          />
+        </div>
+        {templates.length === 0 ? (
+          <div className="mt-1 text-[11px] text-warning">No templates — add at least one.</div>
+        ) : (
           <div className="mt-1 flex flex-wrap gap-1">
             {templates.map((t) => (
               <span key={t.id} className="group inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 text-[10px]">
@@ -548,8 +625,8 @@ function StationCard({
               </span>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Machine quick stats */}
       {s.machine && (
@@ -565,9 +642,39 @@ function StationCard({
         </div>
       )}
 
+      {/* Output config (automatic) */}
+      {s.machine && s.machine.outputKind && s.machine.outputKind !== "none" && (
+        <div className="mt-3 rounded-lg border border-info/30 bg-info/5 p-2 text-[11px]">
+          <div className="text-[9px] uppercase tracking-wider text-info">
+            Output · {s.machine.outputKind}
+            {s.machine.outputProtocol ? ` · via ${s.machine.outputProtocol}` : ""}
+          </div>
+          {s.machine.outputLabel && <div className="mt-0.5 font-mono truncate">{s.machine.outputLabel}</div>}
+          <div className="mt-1 flex flex-wrap gap-1">
+            {s.machine.acceptCommand && (
+              <span className="rounded border border-success/40 bg-success/10 px-1.5 py-0.5 font-mono text-[10px] text-success">
+                ACCEPT → {s.machine.acceptCommand}
+              </span>
+            )}
+            {s.machine.rejectCommand && (
+              <span className="rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
+                REJECT → {s.machine.rejectCommand}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="mt-3 flex items-center justify-between gap-1.5">
         <LogDowntimeButton onSubmit={onLogDowntime} />
         <div className="flex gap-1.5">
+          <button
+            onClick={onDuplicate}
+            title="Duplicate at same step (parallel station)"
+            className="grid h-7 w-7 place-items-center rounded-md border border-info/40 bg-info/10 text-info hover:bg-info/20"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
           <EntityFormDialog<Station>
             title={`Edit ${s.id}`}
             fields={fields}
@@ -582,6 +689,37 @@ function StationCard({
           <ConfirmDelete label={`Delete ${s.id}`} onConfirm={onDelete} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function AddTemplatePicker({ assigned, all, onAdd }: { assigned: string[]; all: StepTemplate[]; onAdd: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const available = all.filter((t) => !assigned.includes(t.id));
+  if (available.length === 0) return null;
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-0.5 rounded border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary hover:bg-primary/20"
+      >
+        <Plus className="h-2.5 w-2.5" /> Add
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 max-h-48 w-56 overflow-y-auto rounded-lg border border-border/60 bg-card p-1 shadow-xl">
+          {available.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => { onAdd(t.id); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-[11px] hover:bg-primary/10"
+            >
+              <span className="font-mono text-[10px] text-muted-foreground">{t.id}</span> · {t.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

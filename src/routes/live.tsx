@@ -110,7 +110,7 @@ function LivePage() {
               </div>
 
               {/* Body: WO + operators + stations */}
-              <div className="grid gap-4 p-4 lg:grid-cols-[320px_1fr]">
+              <div className="grid gap-4 p-4 lg:grid-cols-[320px_minmax(0,1fr)]">
                 {/* Work order + operators column */}
                 <div className="space-y-3">
                   <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
@@ -194,7 +194,7 @@ function LivePage() {
                 </div>
 
                 {/* Live station flow */}
-                <div className="rounded-xl border border-border/40 bg-background/30 p-3">
+                <div className="min-w-0 rounded-xl border border-border/40 bg-background/30 p-3">
                   <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
                     <span>Live station flow · {stations.length}</span>
                     <Link to="/lines/$lineId" params={{ lineId: line.id }} className="inline-flex items-center gap-1 text-primary hover:underline">

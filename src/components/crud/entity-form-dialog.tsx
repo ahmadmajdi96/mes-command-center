@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export type FieldType = "text" | "number" | "textarea" | "select";
+export type FieldType = "text" | "number" | "textarea" | "select" | "multiselect";
 
 export interface Field {
   name: string;
@@ -30,6 +30,8 @@ export interface Field {
   options?: { value: string; label: string }[];
   required?: boolean;
   span?: 1 | 2;
+  /** For multiselect: minimum number of selections required */
+  minSelected?: number;
   /** Show this field only when another field equals one of these values */
   visibleWhen?: { field: string; equals: string | string[] };
   /** Logical section header rendered before the field */
@@ -60,7 +62,9 @@ export function EntityFormDialog<T extends Record<string, any>>({
     if (open) {
       const seed: Record<string, any> = {};
       fields.forEach((f) => {
-        seed[f.name] = (initial as any)?.[f.name] ?? (f.type === "number" ? 0 : "");
+        const init = (initial as any)?.[f.name];
+        if (f.type === "multiselect") seed[f.name] = Array.isArray(init) ? init : [];
+        else seed[f.name] = init ?? (f.type === "number" ? 0 : "");
       });
       setValues(seed);
     }
@@ -69,7 +73,14 @@ export function EntityFormDialog<T extends Record<string, any>>({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     for (const f of fields) {
-      if (f.required && (values[f.name] === "" || values[f.name] == null)) {
+      const v = values[f.name];
+      if (f.type === "multiselect") {
+        const min = f.minSelected ?? (f.required ? 1 : 0);
+        if (Array.isArray(v) && v.length < min) {
+          toast.error(`${f.label}: select at least ${min}`);
+          return;
+        }
+      } else if (f.required && (v === "" || v == null)) {
         toast.error(`${f.label} is required`);
         return;
       }
@@ -132,6 +143,35 @@ export function EntityFormDialog<T extends Record<string, any>>({
                         ))}
                       </SelectContent>
                     </Select>
+                  ) : f.type === "multiselect" ? (
+                    <div className="flex flex-wrap gap-1.5 rounded-lg border border-border/60 bg-card/60 p-2">
+                      {f.options?.map((o) => {
+                        const cur: string[] = Array.isArray(values[f.name]) ? values[f.name] : [];
+                        const on = cur.includes(o.value);
+                        return (
+                          <button
+                            type="button"
+                            key={o.value}
+                            onClick={() =>
+                              setValues((v) => {
+                                const arr: string[] = Array.isArray(v[f.name]) ? v[f.name] : [];
+                                return { ...v, [f.name]: on ? arr.filter((x) => x !== o.value) : [...arr, o.value] };
+                              })
+                            }
+                            className={`rounded-md border px-2 py-1 text-[11px] transition ${
+                              on
+                                ? "border-primary/60 bg-primary/15 text-primary"
+                                : "border-border/60 bg-background/40 text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {o.label}
+                          </button>
+                        );
+                      })}
+                      {(!f.options || f.options.length === 0) && (
+                        <span className="text-[11px] text-muted-foreground">No options available</span>
+                      )}
+                    </div>
                   ) : (
                     <Input
                       id={f.name}
