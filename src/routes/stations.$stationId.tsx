@@ -194,6 +194,29 @@ function StationProfile() {
                 <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Sent tags</div>
                 <div className="mt-0.5 font-mono text-accent">↑ {station.machine.sentDataTypes}</div>
               </div>
+              {station.machine.outputKind && station.machine.outputKind !== "none" && (
+                <div className="mt-3 rounded-lg border border-info/30 bg-info/5 p-2 text-[11px]">
+                  <div className="text-[10px] uppercase tracking-wider text-info">
+                    Output · {station.machine.outputKind}
+                    {station.machine.outputProtocol ? ` · via ${station.machine.outputProtocol}` : ""}
+                  </div>
+                  {station.machine.outputLabel && (
+                    <div className="mt-0.5 truncate font-mono">{station.machine.outputLabel}</div>
+                  )}
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {station.machine.acceptCommand && (
+                      <span className="rounded border border-success/40 bg-success/10 px-1.5 py-0.5 font-mono text-[10px] text-success">
+                        ACCEPT → {station.machine.acceptCommand}
+                      </span>
+                    )}
+                    {station.machine.rejectCommand && (
+                      <span className="rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
+                        REJECT → {station.machine.rejectCommand}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="glass-panel rounded-2xl p-4">
