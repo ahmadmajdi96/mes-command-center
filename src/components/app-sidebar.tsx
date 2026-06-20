@@ -32,7 +32,9 @@ import {
 
 const overview = [
   { title: "Control Center", url: "/", icon: LayoutDashboard },
+  { title: "Live Shop Floor", url: "/live", icon: Radio },
   { title: "Production Lines", url: "/lines", icon: Factory },
+  { title: "Stations", url: "/stations", icon: Cpu },
 ];
 
 const execution = [
