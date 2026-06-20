@@ -298,51 +298,69 @@ function LineDetailPage() {
         ) : (
           <div className="relative overflow-x-auto pb-2">
             <div className="flex min-w-max items-stretch gap-3">
-              {lineStations.map((s, idx) => {
-                const operators = stationOperators(s.id);
-                return (
-                  <div key={s.id} className="flex items-stretch gap-3">
-                    <StationCard
-                      station={s}
-                      operatorNames={operators.map((o) => o!.name)}
-                      templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
-                      openDowntime={openByStation[s.id] ?? []}
-                      onEdit={(patch) => store.updateStation(s.id, patch)}
-                      onDelete={() => store.deleteStation(s.id)}
-                      onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
-                      onLogDowntime={(reason, category, durationMin) => {
-                        const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
-                        const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
-                        store.createDowntime({
-                          lineId,
-                          lineName: line.name,
-                          stationId: s.id,
-                          assignmentId: activeAsmt?.id,
-                          operatorId: op?.id,
-                          operatorName: op?.name,
-                          reasonCode: reason,
-                          category,
-                          startedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                          durationMin,
-                          status: "open",
-                        });
-                        store.updateStation(s.id, { status: category === "equipment_failure" ? "down" : s.status });
-                        toast.error(`Downtime logged on ${s.id}`);
-                      }}
-                      fields={stationFields}
-                      lineId={lineId}
-                    />
-                    {idx < lineStations.length - 1 && (
-                      <div className="flex w-6 items-center justify-center">
-                        <div className="relative h-px w-full bg-gradient-to-r from-primary/60 to-info/60">
-                          <ArrowRight className="absolute -right-1 -top-2 h-4 w-4 text-primary" />
-                        </div>
-                      </div>
-                    )}
+              {stepsGrouped.map(([seq, group], idx) => (
+                <div key={seq} className="flex items-stretch gap-3">
+                  {/* Step column: stack parallel stations vertically */}
+                  <div className="flex w-72 flex-col gap-3">
+                    <div className="flex items-center justify-between rounded-md border border-primary/20 bg-primary/5 px-2 py-1 text-[10px] uppercase tracking-wider text-primary/80">
+                      <span>Step {seq}</span>
+                      {group.length > 1 && (
+                        <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[9px] text-primary">
+                          {group.length} parallel
+                        </span>
+                      )}
+                    </div>
+                    {group.map((s) => {
+                      const operators = stationOperators(s.id);
+                      return (
+                        <StationCard
+                          key={s.id}
+                          station={s}
+                          operatorNames={operators.map((o) => o!.name)}
+                          templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
+                          allTemplates={store.stepTemplates}
+                          openDowntime={openByStation[s.id] ?? []}
+                          onEdit={(patch) => store.updateStation(s.id, patch)}
+                          onDelete={() => store.deleteStation(s.id)}
+                          onDuplicate={() => { store.duplicateStation(s.id); toast.success(`Duplicated ${s.id} at step ${s.sequence}`); }}
+                          onAddTemplate={(tid) => store.applyTemplateToStation(s.id, tid)}
+                          onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
+                          onLogDowntime={(reason, category, durationMin) => {
+                            const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
+                            const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
+                            store.createDowntime({
+                              lineId,
+                              lineName: line.name,
+                              stationId: s.id,
+                              assignmentId: activeAsmt?.id,
+                              operatorId: op?.id,
+                              operatorName: op?.name,
+                              reasonCode: reason,
+                              category,
+                              startedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                              durationMin,
+                              status: "open",
+                            });
+                            store.updateStation(s.id, { status: category === "equipment_failure" ? "down" : s.status });
+                            toast.error(`Downtime logged on ${s.id}`);
+                          }}
+                          fields={stationFields}
+                          lineId={lineId}
+                        />
+                      );
+                    })}
                   </div>
-                );
-              })}
+                  {idx < stepsGrouped.length - 1 && (
+                    <div className="flex w-6 items-center justify-center">
+                      <div className="relative h-px w-full bg-gradient-to-r from-primary/60 to-info/60">
+                        <ArrowRight className="absolute -right-1 -top-2 h-4 w-4 text-primary" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
+
           </div>
         )}
       </div>
