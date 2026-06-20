@@ -283,3 +283,34 @@ function Info({ label, icon, value }: { label: string; icon: React.ReactNode; va
     </div>
   );
 }
+
+function TemplatePicker({ assigned, all, onAdd }: { assigned: string[]; all: StepTemplate[]; onAdd: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const available = all.filter((t) => !assigned.includes(t.id));
+  if (available.length === 0) return null;
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-0.5 rounded border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] text-primary hover:bg-primary/20"
+      >
+        <Plus className="h-3 w-3" /> Add template
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 max-h-56 w-64 overflow-y-auto rounded-lg border border-border/60 bg-card p-1 shadow-xl">
+          {available.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => { onAdd(t.id); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-[11px] hover:bg-primary/10"
+            >
+              <span className="font-mono text-[10px] text-muted-foreground">{t.id}</span> · {t.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
