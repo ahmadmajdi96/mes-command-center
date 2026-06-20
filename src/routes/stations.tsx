@@ -310,6 +310,13 @@ function StationsPage() {
                         >
                           Profile <ArrowRight className="h-3 w-3" />
                         </Link>
+                        <button
+                          onClick={() => store.duplicateStation(s.id)}
+                          title="Duplicate at same step"
+                          className="grid h-8 w-8 place-items-center rounded-lg border border-info/40 bg-info/10 text-info hover:bg-info/20"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
                         <EntityFormDialog<Station>
                           title={`Edit ${s.id}`}
                           fields={fields}
