@@ -194,7 +194,7 @@ function LivePage() {
                 </div>
 
                 {/* Live station flow */}
-                <div className="rounded-xl border border-border/40 bg-background/30 p-3">
+                <div className="min-w-0 rounded-xl border border-border/40 bg-background/30 p-3">
                   <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
                     <span>Live station flow · {stations.length}</span>
                     <Link to="/lines/$lineId" params={{ lineId: line.id }} className="inline-flex items-center gap-1 text-primary hover:underline">
