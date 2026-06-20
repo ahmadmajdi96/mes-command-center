@@ -185,6 +185,9 @@ function UsersPage() {
               </div>
 
               <div className="mt-3 flex justify-end gap-1.5">
+                <Link to="/users/$userId" params={{ userId: u.id }} className="inline-flex h-8 items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/20">
+                  Profile <ArrowRight className="h-3 w-3" />
+                </Link>
                 <EntityFormDialog<MesUser>
                   title={`Edit ${u.name}`}
                   fields={userFields}
