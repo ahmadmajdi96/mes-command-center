@@ -101,7 +101,7 @@ function WorkOrdersPage() {
               {list.map((w) => (
                 <tr key={w.id} className="border-t border-border/40 hover:bg-card/40">
                   <td className="px-4 py-3">
-                    <div className="font-mono text-xs">{w.id}</div>
+                    <Link to="/work-orders/$woId" params={{ woId: w.id }} className="font-mono text-xs hover:text-primary">{w.id}</Link>
                     <div className="text-[10px] text-muted-foreground">{w.productionOrderId}</div>
                   </td>
                   <td className="px-4 py-3">
