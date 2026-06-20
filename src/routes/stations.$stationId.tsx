@@ -129,7 +129,7 @@ function StationProfile() {
               <TemplatePicker
                 assigned={templates.map((t) => t.id)}
                 all={store.stepTemplates}
-                onAdd={(tid) => store.applyTemplateToStation(station.id, tid)}
+                onAdd={(tid: string) => store.applyTemplateToStation(station.id, tid)}
               />
             </div>
             {templates.length === 0 ? (
