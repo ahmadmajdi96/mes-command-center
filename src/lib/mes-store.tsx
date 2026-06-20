@@ -65,6 +65,8 @@ type Actions = {
   createStation: (s: Omit<Station, "id"> & { id?: string }) => void;
   updateStation: (id: string, patch: Partial<Station>) => void;
   deleteStation: (id: string) => void;
+  /** Duplicate a station at the same sequence (parallel station in the same step) */
+  duplicateStation: (id: string) => void;
   createUser: (u: Omit<MesUser, "id"> & { id?: string }) => void;
   updateUser: (id: string, patch: Partial<MesUser>) => void;
   deleteUser: (id: string) => void;
