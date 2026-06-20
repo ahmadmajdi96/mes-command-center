@@ -4,7 +4,7 @@ import { useMes } from "@/lib/mes-store";
 import type { Station, CommProtocol, StationStatus, StationType } from "@/lib/mes-data";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
-import { Plus, Pencil, Search, Cpu, Hand, Network, Wifi, ArrowRight } from "lucide-react";
+import { Plus, Pencil, Search, Cpu, Hand, Network, Wifi, ArrowRight, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/stations")({
   head: () => ({
