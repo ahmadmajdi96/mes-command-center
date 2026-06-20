@@ -98,6 +98,7 @@ const baseStationFields = (lineId: string, templates: { id: string; name: string
 function toFlat(s: Partial<Station>) {
   return {
     ...s,
+    templateIds: s.templateIds ?? [],
     machine_model: s.machine?.model ?? "",
     machine_vendor: s.machine?.vendor ?? "",
     machine_ipAddress: s.machine?.ipAddress ?? "",
@@ -106,6 +107,11 @@ function toFlat(s: Partial<Station>) {
     machine_firmware: s.machine?.firmware ?? "",
     machine_receivedDataTypes: s.machine?.receivedDataTypes ?? "",
     machine_sentDataTypes: s.machine?.sentDataTypes ?? "",
+    machine_outputKind: s.machine?.outputKind ?? "none",
+    machine_outputLabel: s.machine?.outputLabel ?? "",
+    machine_outputProtocol: s.machine?.outputProtocol ?? "REST",
+    machine_acceptCommand: s.machine?.acceptCommand ?? "",
+    machine_rejectCommand: s.machine?.rejectCommand ?? "",
   } as any;
 }
 
@@ -122,6 +128,7 @@ function fromFlat(v: any, lineId: string): Station {
     currentValue: v.currentValue || undefined,
     target: v.target || undefined,
     oee: Number(v.oee) || 0,
+    templateIds: Array.isArray(v.templateIds) ? v.templateIds : [],
   };
   if (v.type === "automatic") {
     base.machine = {
@@ -133,6 +140,11 @@ function fromFlat(v: any, lineId: string): Station {
       receivedDataTypes: v.machine_receivedDataTypes,
       sentDataTypes: v.machine_sentDataTypes,
       firmware: v.machine_firmware,
+      outputKind: v.machine_outputKind || "none",
+      outputLabel: v.machine_outputLabel || undefined,
+      outputProtocol: v.machine_outputProtocol as CommProtocol,
+      acceptCommand: v.machine_acceptCommand || undefined,
+      rejectCommand: v.machine_rejectCommand || undefined,
     };
   }
   return base;
@@ -149,7 +161,18 @@ function LineDetailPage() {
     [store.stations, lineId],
   );
 
-  const stationFields = baseStationFields(lineId);
+  // Group stations by sequence — same sequence = parallel stations in the same step
+  const stepsGrouped = useMemo(() => {
+    const map = new Map<number, Station[]>();
+    for (const s of lineStations) {
+      const arr = map.get(s.sequence) ?? [];
+      arr.push(s);
+      map.set(s.sequence, arr);
+    }
+    return [...map.entries()].sort((a, b) => a[0] - b[0]);
+  }, [lineStations]);
+
+  const stationFields = baseStationFields(lineId, store.stepTemplates);
 
   // Resolve assignments → user(s) per station/team — recomputes on every assignment change
   const stationOperators = (stationId: string) =>
