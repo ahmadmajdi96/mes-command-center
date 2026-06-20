@@ -153,7 +153,7 @@ function UsersPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="truncate font-semibold">{u.name}</h3>
+                    <Link to="/users/$userId" params={{ userId: u.id }} className="truncate font-semibold hover:text-primary">{u.name}</Link>
                     {statusDot(u.status)}
                   </div>
                   <div className="font-mono text-[11px] text-muted-foreground">{u.id} · Shift {u.shift}</div>
