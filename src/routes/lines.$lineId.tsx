@@ -642,9 +642,39 @@ function StationCard({
         </div>
       )}
 
+      {/* Output config (automatic) */}
+      {s.machine && s.machine.outputKind && s.machine.outputKind !== "none" && (
+        <div className="mt-3 rounded-lg border border-info/30 bg-info/5 p-2 text-[11px]">
+          <div className="text-[9px] uppercase tracking-wider text-info">
+            Output · {s.machine.outputKind}
+            {s.machine.outputProtocol ? ` · via ${s.machine.outputProtocol}` : ""}
+          </div>
+          {s.machine.outputLabel && <div className="mt-0.5 font-mono truncate">{s.machine.outputLabel}</div>}
+          <div className="mt-1 flex flex-wrap gap-1">
+            {s.machine.acceptCommand && (
+              <span className="rounded border border-success/40 bg-success/10 px-1.5 py-0.5 font-mono text-[10px] text-success">
+                ACCEPT → {s.machine.acceptCommand}
+              </span>
+            )}
+            {s.machine.rejectCommand && (
+              <span className="rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
+                REJECT → {s.machine.rejectCommand}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="mt-3 flex items-center justify-between gap-1.5">
         <LogDowntimeButton onSubmit={onLogDowntime} />
         <div className="flex gap-1.5">
+          <button
+            onClick={onDuplicate}
+            title="Duplicate at same step (parallel station)"
+            className="grid h-7 w-7 place-items-center rounded-md border border-info/40 bg-info/10 text-info hover:bg-info/20"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
           <EntityFormDialog<Station>
             title={`Edit ${s.id}`}
             fields={fields}
@@ -659,6 +689,37 @@ function StationCard({
           <ConfirmDelete label={`Delete ${s.id}`} onConfirm={onDelete} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function AddTemplatePicker({ assigned, all, onAdd }: { assigned: string[]; all: StepTemplate[]; onAdd: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const available = all.filter((t) => !assigned.includes(t.id));
+  if (available.length === 0) return null;
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-0.5 rounded border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary hover:bg-primary/20"
+      >
+        <Plus className="h-2.5 w-2.5" /> Add
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 max-h-48 w-56 overflow-y-auto rounded-lg border border-border/60 bg-card p-1 shadow-xl">
+          {available.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => { onAdd(t.id); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-[11px] hover:bg-primary/10"
+            >
+              <span className="font-mono text-[10px] text-muted-foreground">{t.id}</span> · {t.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
