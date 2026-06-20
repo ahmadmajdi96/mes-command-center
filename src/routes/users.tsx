@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { MesUser, UserRole, UserStatus } from "@/lib/mes-data";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
-import { Plus, Pencil, Search, Mail, Phone, Users as UsersIcon, ShieldCheck, Star } from "lucide-react";
+import { Plus, Pencil, Search, Mail, Phone, Users as UsersIcon, ShieldCheck, Star, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/users")({
   head: () => ({
@@ -153,7 +153,7 @@ function UsersPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="truncate font-semibold">{u.name}</h3>
+                    <Link to="/users/$userId" params={{ userId: u.id }} className="truncate font-semibold hover:text-primary">{u.name}</Link>
                     {statusDot(u.status)}
                   </div>
                   <div className="font-mono text-[11px] text-muted-foreground">{u.id} · Shift {u.shift}</div>
@@ -185,6 +185,9 @@ function UsersPage() {
               </div>
 
               <div className="mt-3 flex justify-end gap-1.5">
+                <Link to="/users/$userId" params={{ userId: u.id }} className="inline-flex h-8 items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/20">
+                  Profile <ArrowRight className="h-3 w-3" />
+                </Link>
                 <EntityFormDialog<MesUser>
                   title={`Edit ${u.name}`}
                   fields={userFields}

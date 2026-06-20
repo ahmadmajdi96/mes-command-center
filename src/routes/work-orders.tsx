@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { WorkOrder, WOStatus } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
-import { Plus, Filter, Pencil } from "lucide-react";
+import { Plus, Filter, Pencil, ArrowRight } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
 
@@ -101,7 +101,7 @@ function WorkOrdersPage() {
               {list.map((w) => (
                 <tr key={w.id} className="border-t border-border/40 hover:bg-card/40">
                   <td className="px-4 py-3">
-                    <div className="font-mono text-xs">{w.id}</div>
+                    <Link to="/work-orders/$woId" params={{ woId: w.id }} className="font-mono text-xs hover:text-primary">{w.id}</Link>
                     <div className="text-[10px] text-muted-foreground">{w.productionOrderId}</div>
                   </td>
                   <td className="px-4 py-3">
@@ -124,6 +124,9 @@ function WorkOrdersPage() {
                   <td className="px-4 py-3"><StatusPill status={w.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1.5">
+                      <Link to="/work-orders/$woId" params={{ woId: w.id }} className="inline-flex h-8 items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/20">
+                        Open <ArrowRight className="h-3 w-3" />
+                      </Link>
                       <EntityFormDialog<WorkOrder>
                         title="Edit Work Order"
                         fields={woFields(store.lines)}

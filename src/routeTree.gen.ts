@@ -13,9 +13,11 @@ import { Route as WorkOrdersRouteImport } from './routes/work-orders'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
 import { Route as StepTemplatesRouteImport } from './routes/step-templates'
+import { Route as StationsRouteImport } from './routes/stations'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
 import { Route as MasterDataRouteImport } from './routes/master-data'
+import { Route as LiveRouteImport } from './routes/live'
 import { Route as LinesRouteImport } from './routes/lines'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
@@ -23,6 +25,9 @@ import { Route as DowntimeRouteImport } from './routes/downtime'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
+import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
+import { Route as StationsStationIdRouteImport } from './routes/stations.$stationId'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 
 const WorkOrdersRoute = WorkOrdersRouteImport.update({
@@ -45,6 +50,11 @@ const StepTemplatesRoute = StepTemplatesRouteImport.update({
   path: '/step-templates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StationsRoute = StationsRouteImport.update({
+  id: '/stations',
+  path: '/stations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -58,6 +68,11 @@ const QualityRoute = QualityRouteImport.update({
 const MasterDataRoute = MasterDataRouteImport.update({
   id: '/master-data',
   path: '/master-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LinesRoute = LinesRouteImport.update({
@@ -95,6 +110,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
+  id: '/$woId',
+  path: '/$woId',
+  getParentRoute: () => WorkOrdersRoute,
+} as any)
+const UsersUserIdRoute = UsersUserIdRouteImport.update({
+  id: '/$userId',
+  path: '/$userId',
+  getParentRoute: () => UsersRoute,
+} as any)
+const StationsStationIdRoute = StationsStationIdRouteImport.update({
+  id: '/$stationId',
+  path: '/$stationId',
+  getParentRoute: () => StationsRoute,
+} as any)
 const LinesLineIdRoute = LinesLineIdRouteImport.update({
   id: '/$lineId',
   path: '/$lineId',
@@ -109,14 +139,19 @@ export interface FileRoutesByFullPath {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRouteWithChildren
+  '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/stations': typeof StationsRouteWithChildren
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
-  '/users': typeof UsersRoute
-  '/work-orders': typeof WorkOrdersRoute
+  '/users': typeof UsersRouteWithChildren
+  '/work-orders': typeof WorkOrdersRouteWithChildren
   '/lines/$lineId': typeof LinesLineIdRoute
+  '/stations/$stationId': typeof StationsStationIdRoute
+  '/users/$userId': typeof UsersUserIdRoute
+  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,14 +161,19 @@ export interface FileRoutesByTo {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRouteWithChildren
+  '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/stations': typeof StationsRouteWithChildren
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
-  '/users': typeof UsersRoute
-  '/work-orders': typeof WorkOrdersRoute
+  '/users': typeof UsersRouteWithChildren
+  '/work-orders': typeof WorkOrdersRouteWithChildren
   '/lines/$lineId': typeof LinesLineIdRoute
+  '/stations/$stationId': typeof StationsStationIdRoute
+  '/users/$userId': typeof UsersUserIdRoute
+  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -144,14 +184,19 @@ export interface FileRoutesById {
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
   '/lines': typeof LinesRouteWithChildren
+  '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/stations': typeof StationsRouteWithChildren
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
-  '/users': typeof UsersRoute
-  '/work-orders': typeof WorkOrdersRoute
+  '/users': typeof UsersRouteWithChildren
+  '/work-orders': typeof WorkOrdersRouteWithChildren
   '/lines/$lineId': typeof LinesLineIdRoute
+  '/stations/$stationId': typeof StationsStationIdRoute
+  '/users/$userId': typeof UsersUserIdRoute
+  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -163,14 +208,19 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/live'
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/stations'
     | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
     | '/lines/$lineId'
+    | '/stations/$stationId'
+    | '/users/$userId'
+    | '/work-orders/$woId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -180,14 +230,19 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/live'
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/stations'
     | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
     | '/lines/$lineId'
+    | '/stations/$stationId'
+    | '/users/$userId'
+    | '/work-orders/$woId'
   id:
     | '__root__'
     | '/'
@@ -197,14 +252,19 @@ export interface FileRouteTypes {
     | '/execution'
     | '/genealogy'
     | '/lines'
+    | '/live'
     | '/master-data'
     | '/quality'
     | '/settings'
+    | '/stations'
     | '/step-templates'
     | '/telemetry'
     | '/users'
     | '/work-orders'
     | '/lines/$lineId'
+    | '/stations/$stationId'
+    | '/users/$userId'
+    | '/work-orders/$woId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,13 +275,15 @@ export interface RootRouteChildren {
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
   LinesRoute: typeof LinesRouteWithChildren
+  LiveRoute: typeof LiveRoute
   MasterDataRoute: typeof MasterDataRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
+  StationsRoute: typeof StationsRouteWithChildren
   StepTemplatesRoute: typeof StepTemplatesRoute
   TelemetryRoute: typeof TelemetryRoute
-  UsersRoute: typeof UsersRoute
-  WorkOrdersRoute: typeof WorkOrdersRoute
+  UsersRoute: typeof UsersRouteWithChildren
+  WorkOrdersRoute: typeof WorkOrdersRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -254,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StepTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stations': {
+      id: '/stations'
+      path: '/stations'
+      fullPath: '/stations'
+      preLoaderRoute: typeof StationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -273,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/master-data'
       fullPath: '/master-data'
       preLoaderRoute: typeof MasterDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lines': {
@@ -324,6 +400,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/work-orders/$woId': {
+      id: '/work-orders/$woId'
+      path: '/$woId'
+      fullPath: '/work-orders/$woId'
+      preLoaderRoute: typeof WorkOrdersWoIdRouteImport
+      parentRoute: typeof WorkOrdersRoute
+    }
+    '/users/$userId': {
+      id: '/users/$userId'
+      path: '/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof UsersUserIdRouteImport
+      parentRoute: typeof UsersRoute
+    }
+    '/stations/$stationId': {
+      id: '/stations/$stationId'
+      path: '/$stationId'
+      fullPath: '/stations/$stationId'
+      preLoaderRoute: typeof StationsStationIdRouteImport
+      parentRoute: typeof StationsRoute
+    }
     '/lines/$lineId': {
       id: '/lines/$lineId'
       path: '/$lineId'
@@ -344,6 +441,40 @@ const LinesRouteChildren: LinesRouteChildren = {
 
 const LinesRouteWithChildren = LinesRoute._addFileChildren(LinesRouteChildren)
 
+interface StationsRouteChildren {
+  StationsStationIdRoute: typeof StationsStationIdRoute
+}
+
+const StationsRouteChildren: StationsRouteChildren = {
+  StationsStationIdRoute: StationsStationIdRoute,
+}
+
+const StationsRouteWithChildren = StationsRoute._addFileChildren(
+  StationsRouteChildren,
+)
+
+interface UsersRouteChildren {
+  UsersUserIdRoute: typeof UsersUserIdRoute
+}
+
+const UsersRouteChildren: UsersRouteChildren = {
+  UsersUserIdRoute: UsersUserIdRoute,
+}
+
+const UsersRouteWithChildren = UsersRoute._addFileChildren(UsersRouteChildren)
+
+interface WorkOrdersRouteChildren {
+  WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
+}
+
+const WorkOrdersRouteChildren: WorkOrdersRouteChildren = {
+  WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
+}
+
+const WorkOrdersRouteWithChildren = WorkOrdersRoute._addFileChildren(
+  WorkOrdersRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssignmentsRoute: AssignmentsRoute,
@@ -352,13 +483,15 @@ const rootRouteChildren: RootRouteChildren = {
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
   LinesRoute: LinesRouteWithChildren,
+  LiveRoute: LiveRoute,
   MasterDataRoute: MasterDataRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
+  StationsRoute: StationsRouteWithChildren,
   StepTemplatesRoute: StepTemplatesRoute,
   TelemetryRoute: TelemetryRoute,
-  UsersRoute: UsersRoute,
-  WorkOrdersRoute: WorkOrdersRoute,
+  UsersRoute: UsersRouteWithChildren,
+  WorkOrdersRoute: WorkOrdersRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
