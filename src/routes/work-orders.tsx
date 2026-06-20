@@ -124,6 +124,9 @@ function WorkOrdersPage() {
                   <td className="px-4 py-3"><StatusPill status={w.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1.5">
+                      <Link to="/work-orders/$woId" params={{ woId: w.id }} className="inline-flex h-8 items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/20">
+                        Open <ArrowRight className="h-3 w-3" />
+                      </Link>
                       <EntityFormDialog<WorkOrder>
                         title="Edit Work Order"
                         fields={woFields(store.lines)}
