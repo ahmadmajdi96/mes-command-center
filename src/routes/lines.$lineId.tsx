@@ -484,22 +484,28 @@ function StationCard({
   station: s,
   operatorNames,
   templates,
+  allTemplates,
   openDowntime,
   fields,
   lineId,
   onEdit,
   onDelete,
+  onDuplicate,
+  onAddTemplate,
   onRemoveTemplate,
   onLogDowntime,
 }: {
   station: Station;
   operatorNames: string[];
   templates: StepTemplate[];
+  allTemplates: StepTemplate[];
   openDowntime: DowntimeEvent[];
   fields: Field[];
   lineId: string;
   onEdit: (patch: Partial<Station>) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
+  onAddTemplate: (templateId: string) => void;
   onRemoveTemplate: (templateId: string) => void;
   onLogDowntime: (reason: string, category: DowntimeEvent["category"], durationMin: number) => void;
 }) {
