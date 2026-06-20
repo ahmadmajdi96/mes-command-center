@@ -143,6 +143,35 @@ export function EntityFormDialog<T extends Record<string, any>>({
                         ))}
                       </SelectContent>
                     </Select>
+                  ) : f.type === "multiselect" ? (
+                    <div className="flex flex-wrap gap-1.5 rounded-lg border border-border/60 bg-card/60 p-2">
+                      {f.options?.map((o) => {
+                        const cur: string[] = Array.isArray(values[f.name]) ? values[f.name] : [];
+                        const on = cur.includes(o.value);
+                        return (
+                          <button
+                            type="button"
+                            key={o.value}
+                            onClick={() =>
+                              setValues((v) => {
+                                const arr: string[] = Array.isArray(v[f.name]) ? v[f.name] : [];
+                                return { ...v, [f.name]: on ? arr.filter((x) => x !== o.value) : [...arr, o.value] };
+                              })
+                            }
+                            className={`rounded-md border px-2 py-1 text-[11px] transition ${
+                              on
+                                ? "border-primary/60 bg-primary/15 text-primary"
+                                : "border-border/60 bg-background/40 text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {o.label}
+                          </button>
+                        );
+                      })}
+                      {(!f.options || f.options.length === 0) && (
+                        <span className="text-[11px] text-muted-foreground">No options available</span>
+                      )}
+                    </div>
                   ) : (
                     <Input
                       id={f.name}
