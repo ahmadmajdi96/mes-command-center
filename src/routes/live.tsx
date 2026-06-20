@@ -110,7 +110,7 @@ function LivePage() {
               </div>
 
               {/* Body: WO + operators + stations */}
-              <div className="grid gap-4 p-4 lg:grid-cols-[320px_1fr]">
+              <div className="grid gap-4 p-4 lg:grid-cols-[320px_minmax(0,1fr)]">
                 {/* Work order + operators column */}
                 <div className="space-y-3">
                   <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
