@@ -121,22 +121,38 @@ function StationProfile() {
             </div>
           )}
 
-          {templates.length > 0 && (
-            <div className="mt-4">
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
                 <ListChecks className="h-3 w-3" /> Step templates · {templates.length}
-              </div>
+              </span>
+              <TemplatePicker
+                assigned={templates.map((t) => t.id)}
+                all={store.stepTemplates}
+                onAdd={(tid) => store.applyTemplateToStation(station.id, tid)}
+              />
+            </div>
+            {templates.length === 0 ? (
+              <div className="mt-1.5 text-xs text-warning">No templates attached. Add at least one.</div>
+            ) : (
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {templates.map((t) => (
-                  <span key={t.id} className="inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px]">
+                  <span key={t.id} className="group inline-flex items-center gap-1 rounded border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px]">
                     {t.isCCP && <ShieldAlert className="h-2.5 w-2.5 text-destructive" />}
                     <span className="font-mono">{t.id}</span>
                     <span>{t.name}</span>
+                    <button
+                      onClick={() => store.removeTemplateFromStation(station.id, t.id)}
+                      className="ml-1 text-destructive opacity-0 transition group-hover:opacity-100"
+                      title="Remove"
+                    >
+                      ✕
+                    </button>
                   </span>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Operator + machine */}
