@@ -31,6 +31,8 @@ export type StationType = "manual" | "automatic";
 export type StationStatus = "running" | "idle" | "down" | "maintenance";
 export type CommProtocol = "OPC-UA" | "MQTT" | "Modbus-TCP" | "EtherNet/IP" | "Profinet" | "REST";
 
+export type OutputKind = "text" | "file" | "none";
+
 export interface Machine {
   model: string;
   vendor: string;
@@ -40,6 +42,16 @@ export interface Machine {
   receivedDataTypes: string;   // comma-separated tag list ingested from the machine
   sentDataTypes: string;       // comma-separated commands/setpoints written to the machine
   firmware?: string;
+  /** What this station emits as output of the step */
+  outputKind?: OutputKind;
+  /** Filename pattern or text label of the output payload */
+  outputLabel?: string;
+  /** Protocol used to deliver accept/reject decisions back to the machine */
+  outputProtocol?: CommProtocol;
+  /** Command string sent on ACCEPT decision (e.g. "ACK", "PASS") */
+  acceptCommand?: string;
+  /** Command string sent on REJECT decision (e.g. "NAK", "REJ") */
+  rejectCommand?: string;
 }
 
 export interface Station {
@@ -55,7 +67,7 @@ export interface Station {
   target?: string;
   oee?: number;
   machine?: Machine;
-  /** Step templates applied to this station (comma-stored as id[] in form layer) */
+  /** Step templates applied to this station (must contain at least one on creation) */
   templateIds?: string[];
   /** Timestamp of last live telemetry tick — drives the "live" badge */
   lastTickAt?: string;
