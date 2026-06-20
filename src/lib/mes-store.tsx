@@ -384,6 +384,19 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
       }));
       audit("station", id, "delete", before, null, `Deleted station ${id}`);
     },
+    duplicateStation: (id) => {
+      const src = state.stations.find((x) => x.id === id);
+      if (!src) return;
+      const newId = nextId("ST-", state.stations);
+      const copy: Station = {
+        ...src,
+        id: newId,
+        name: `${src.name} (copy)`,
+        // Same sequence → renders as a parallel station in the same step
+      };
+      setState((s) => ({ ...s, stations: [...s.stations, copy] }));
+      audit("station", newId, "create", null, copy, `Duplicated ${id} → ${newId} at seq ${src.sequence}`);
+    },
 
     // ---------- Users
     createUser: (u) => {
