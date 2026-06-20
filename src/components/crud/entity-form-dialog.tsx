@@ -62,7 +62,9 @@ export function EntityFormDialog<T extends Record<string, any>>({
     if (open) {
       const seed: Record<string, any> = {};
       fields.forEach((f) => {
-        seed[f.name] = (initial as any)?.[f.name] ?? (f.type === "number" ? 0 : "");
+        const init = (initial as any)?.[f.name];
+        if (f.type === "multiselect") seed[f.name] = Array.isArray(init) ? init : [];
+        else seed[f.name] = init ?? (f.type === "number" ? 0 : "");
       });
       setValues(seed);
     }
@@ -71,7 +73,14 @@ export function EntityFormDialog<T extends Record<string, any>>({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     for (const f of fields) {
-      if (f.required && (values[f.name] === "" || values[f.name] == null)) {
+      const v = values[f.name];
+      if (f.type === "multiselect") {
+        const min = f.minSelected ?? (f.required ? 1 : 0);
+        if (Array.isArray(v) && v.length < min) {
+          toast.error(`${f.label}: select at least ${min}`);
+          return;
+        }
+      } else if (f.required && (v === "" || v == null)) {
         toast.error(`${f.label} is required`);
         return;
       }
