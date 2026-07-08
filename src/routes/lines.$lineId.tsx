@@ -719,29 +719,52 @@ function StationCard({
           {s.machine.outputLabel && <div className="mt-0.5 truncate font-mono">{s.machine.outputLabel}</div>}
 
           {/* Uploaded output files (for outputKind=file) */}
-          {s.machine.outputKind === "file" && outputs.length > 0 && (
-            <ul className="mt-1.5 space-y-1">
-              {outputs.slice(0, 3).map((o) => (
-                <li key={o.id} className="flex items-center gap-1 rounded border border-border/40 bg-background/40 px-1.5 py-1">
-                  <FileText className="h-3 w-3 text-muted-foreground shrink-0" />
-                  <a href={o.dataUrl} download={o.name} className="min-w-0 flex-1 truncate font-mono text-[10px] hover:text-primary" title={o.name}>
-                    {o.name}
-                  </a>
-                  <span className="font-mono text-[9px] text-muted-foreground">{Math.round(o.size / 1024)}KB</span>
-                  {o.decision && (
-                    <span className={`rounded px-1 py-0 font-mono text-[9px] uppercase ${
-                      o.decision === "accept" ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
-                    }`}>{o.decision}</span>
-                  )}
-                  <button onClick={() => onDeleteOutput(o.id)} className="text-destructive/70 hover:text-destructive" title="Remove">
-                    <X className="h-2.5 w-2.5" />
-                  </button>
-                </li>
-              ))}
-              {outputs.length > 3 && (
-                <li className="text-[10px] text-muted-foreground">+ {outputs.length - 3} more</li>
+          {s.machine.outputKind === "file" && (
+            <div className="mt-1.5">
+              <div className="mb-1 flex items-center justify-between text-[9px] uppercase tracking-wider text-muted-foreground">
+                <span>Output history · {outputs.length}</span>
+                {outputs.length > 3 && (
+                  <Link to="/stations/$stationId" params={{ stationId: s.id }} className="text-primary hover:underline">
+                    view all
+                  </Link>
+                )}
+              </div>
+              {outputs.length === 0 ? (
+                <div className="rounded border border-dashed border-border/60 px-1.5 py-1 text-[10px] text-muted-foreground">
+                  no output files yet
+                </div>
+              ) : (
+                <ul className="space-y-1">
+                  {outputs.slice(0, 3).map((o) => (
+                    <li key={o.id} className="rounded border border-border/40 bg-background/40 px-1.5 py-1">
+                      <div className="flex items-center gap-1">
+                        <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
+                        <a href={o.dataUrl} download={o.name} className="min-w-0 flex-1 truncate font-mono text-[10px] hover:text-primary" title={o.name}>
+                          {o.name}
+                        </a>
+                        <span className="font-mono text-[9px] text-muted-foreground">{Math.round(o.size / 1024)}KB</span>
+                        {o.decision ? (
+                          <span className={`rounded px-1 py-0 font-mono text-[9px] uppercase ${
+                            o.decision === "accept" ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                          }`}>{o.decision}</span>
+                        ) : (
+                          <span className="rounded bg-muted/40 px-1 py-0 font-mono text-[9px] uppercase text-muted-foreground">pending</span>
+                        )}
+                        <a href={o.dataUrl} download={o.name} className="text-muted-foreground hover:text-primary" title="Download">
+                          <Download className="h-2.5 w-2.5" />
+                        </a>
+                        <button onClick={() => onDeleteOutput(o.id)} className="text-destructive/70 hover:text-destructive" title="Remove">
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                      <div className="mt-0.5 font-mono text-[9px] text-muted-foreground">
+                        {new Date(o.uploadedAt).toLocaleString([], { dateStyle: "short", timeStyle: "medium" })} · {o.actorName}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               )}
-            </ul>
+            </div>
           )}
 
           {/* Send accept/reject */}
