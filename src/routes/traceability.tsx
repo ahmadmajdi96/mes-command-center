@@ -348,7 +348,7 @@ function TraceabilityPage() {
       <div className="hidden print:block">
         <h1 className="text-xl font-semibold">Cortanex MES · Traceability report</h1>
         <p className="text-xs text-muted-foreground">
-          Generated {new Date().toLocaleString()} · {filtered.length} events
+          Generated {mounted ? new Date().toLocaleString() : "—"} · {filtered.length} events
           {lineId !== "all" && ` · Line ${lineId}`}
           {stationId !== "all" && ` · Station ${stationId}`}
           {actorId !== "all" && ` · Actor ${actorId}`}
