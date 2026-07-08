@@ -11,7 +11,7 @@ RUN bun install --frozen-lockfile || bun install
 # Copy the rest of the source
 COPY . .
 
-EXPOSE 8080
+EXPOSE 8111
 
 # Vite dev server, bound to 0.0.0.0 so it's reachable from the host
-CMD ["bun", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["bun", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8111"]

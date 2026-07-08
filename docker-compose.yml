@@ -9,11 +9,11 @@ services:
     build: .
     container_name: cortanex-mes
     ports:
-      - "8080:8080"
+      - "8111:8111"
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
-      - PORT=8080
+      - PORT=8111
     volumes:
       # Live-reload: mount source, keep container's node_modules
       - .:/app
