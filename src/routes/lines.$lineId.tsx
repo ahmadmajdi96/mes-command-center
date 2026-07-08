@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { Station, CommProtocol, StationStatus, StationType, DowntimeEvent, StepTemplate, StationOutputFile, StationCommand } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
