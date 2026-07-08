@@ -132,6 +132,8 @@ function TraceabilityPage() {
   const [action, setAction] = useState<AuditAction | "all">("all");
   const [from, setFrom] = useState<string>("");
   const [to, setTo] = useState<string>("");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const stationToLine = useMemo(() => {
     const m = new Map<string, string>();
