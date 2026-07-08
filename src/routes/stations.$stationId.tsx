@@ -346,12 +346,12 @@ function StationProfile() {
         </div>
       )}
 
-      {/* Output files (outputKind=file) */}
+      {/* Output history (outputKind=file) */}
       {station.machine && station.machine.outputKind === "file" && (
         <div className="glass-panel rounded-2xl p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <FileText className="h-3 w-3" /> Station outputs · {outputs.length}
+              <History className="h-3 w-3" /> Output history · {outputs.length}
               {station.machine.outputLabel && (
                 <span className="ml-1 font-mono text-muted-foreground">pattern: {station.machine.outputLabel}</span>
               )}
@@ -364,35 +364,69 @@ function StationProfile() {
               No output files yet. Upload the payload the machine emits (image, report, batch record…).
             </div>
           ) : (
-            <div className="mt-3 space-y-1.5">
-              {outputs.map((o) => (
-                <div key={o.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-background/40 p-2">
-                  <FileText className="h-4 w-4 text-info shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <a href={o.dataUrl} download={o.name} className="block truncate text-sm font-medium hover:text-primary">
-                      {o.name}
-                    </a>
-                    <div className="font-mono text-[10px] text-muted-foreground">
-                      {Math.round(o.size / 1024)} KB · {o.mime ?? "binary"} · uploaded {new Date(o.uploadedAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })} by {o.actorName}
-                    </div>
-                  </div>
-                  {o.decision ? (
-                    <span className={`rounded-md border px-2 py-0.5 text-[10px] font-mono uppercase ${
-                      o.decision === "accept"
-                        ? "border-success/40 bg-success/10 text-success"
-                        : "border-destructive/40 bg-destructive/10 text-destructive"
-                    }`}>{o.decision}</span>
-                  ) : (
-                    <span className="rounded-md border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] font-mono uppercase text-muted-foreground">pending</span>
-                  )}
-                  <a href={o.dataUrl} download={o.name} className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card/60 hover:text-primary" title="Download">
-                    <span className="text-[10px]">↓</span>
-                  </a>
-                  <button onClick={() => { store.deleteStationOutput(o.id); toast.success("Removed"); }} className="grid h-7 w-7 place-items-center rounded-md border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20" title="Delete">
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-2 py-1 text-left">File</th>
+                    <th className="px-2 py-1 text-left">Size</th>
+                    <th className="px-2 py-1 text-left">Decision</th>
+                    <th className="px-2 py-1 text-left">Uploaded by</th>
+                    <th className="px-2 py-1 text-left">Uploaded at</th>
+                    <th className="px-2 py-1 text-left">Decided at</th>
+                    <th className="px-2 py-1 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {outputs.map((o) => (
+                    <tr key={o.id} className="border-t border-border/40">
+                      <td className="px-2 py-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <FileText className="h-3.5 w-3.5 text-info shrink-0" />
+                          <a href={o.dataUrl} download={o.name} className="truncate font-medium hover:text-primary" title={o.name}>
+                            {o.name}
+                          </a>
+                        </div>
+                        <div className="font-mono text-[10px] text-muted-foreground">{o.mime ?? "binary"} · {o.id}</div>
+                      </td>
+                      <td className="px-2 py-1.5 font-mono text-[11px]">{Math.round(o.size / 1024)} KB</td>
+                      <td className="px-2 py-1.5">
+                        {o.decision ? (
+                          <span className={`rounded-md border px-2 py-0.5 text-[10px] font-mono uppercase ${
+                            o.decision === "accept"
+                              ? "border-success/40 bg-success/10 text-success"
+                              : "border-destructive/40 bg-destructive/10 text-destructive"
+                          }`}>{o.decision}</span>
+                        ) : (
+                          <span className="rounded-md border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] font-mono uppercase text-muted-foreground">pending</span>
+                        )}
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <div>{o.actorName}</div>
+                        <div className="font-mono text-[10px] text-muted-foreground">{o.actorId}</div>
+                      </td>
+                      <td className="px-2 py-1.5 font-mono text-[11px]">
+                        {new Date(o.uploadedAt).toLocaleString([], { dateStyle: "short", timeStyle: "medium" })}
+                      </td>
+                      <td className="px-2 py-1.5 font-mono text-[11px] text-muted-foreground">
+                        {o.decidedAt
+                          ? new Date(o.decidedAt).toLocaleString([], { dateStyle: "short", timeStyle: "medium" })
+                          : "—"}
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <div className="flex justify-end gap-1">
+                          <a href={o.dataUrl} download={o.name} className="grid h-6 w-6 place-items-center rounded-md border border-border/60 bg-card/60 hover:text-primary" title="Download">
+                            <span className="text-[10px]">↓</span>
+                          </a>
+                          <button onClick={() => { store.deleteStationOutput(o.id); toast.success("Removed"); }} className="grid h-6 w-6 place-items-center rounded-md border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20" title="Delete">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

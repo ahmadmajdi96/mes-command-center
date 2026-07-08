@@ -1,13 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import { StatusPill } from "@/components/status-pill";
 import {
   Factory, Activity, Cpu, Hand, User as UserIcon, Radio, ArrowRight,
   Package, ClipboardList, Gauge, AlertOctagon, ShieldAlert, Clock,
-  RefreshCw, Check, Ban,
+  RefreshCw, Check, Ban, Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
+
+function relTime(iso?: string, now = Date.now()) {
+  if (!iso) return "—";
+  const t = new Date(iso).getTime();
+  const s = Math.max(0, Math.round((now - t) / 1000));
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  return `${h}h ago`;
+}
 
 export const Route = createFileRoute("/live")({
   head: () => ({
@@ -26,6 +37,21 @@ function initials(n: string) {
 function LivePage() {
   const store = useMes();
 
+  // Heartbeat clock: forces re-render every 1s so relative timestamps and
+  // "auto-refresh in Xs" stay accurate without any user interaction.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Auto-poll: bump refreshedAt every 5s. The live tick (3s) already jitters
+  // running stations, but this ensures any purely derived state re-flows too.
+  useEffect(() => {
+    const id = window.setInterval(() => store.refreshLive(), 5000);
+    return () => window.clearInterval(id);
+  }, [store]);
+
   const lastTick = useMemo(() => {
     const ticks = store.stations.map((s) => s.lastTickAt).filter(Boolean) as string[];
     return ticks.sort().at(-1);
@@ -35,6 +61,8 @@ function LivePage() {
   const down = store.lines.filter((l) => l.status === "down").length;
   const openDt = store.downtime.filter((d) => d.status === "open").length;
   const activeOps = store.assignments.filter((a) => a.active && a.targetType === "station").length;
+
+  const nextRefreshIn = 5 - Math.floor(((now - store.refreshedAt) / 1000)) % 5;
 
   return (
     <div className="space-y-6">
@@ -47,11 +75,16 @@ function LivePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs text-muted-foreground">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin [animation-duration:5s]" />
+            auto-refresh · next in {Math.max(0, nextRefreshIn)}s
+          </div>
           <button
             onClick={() => { store.refreshLive(); toast.success("Live view refreshed"); }}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:border-primary/40 hover:text-primary"
+            title="Force an immediate refresh"
           >
-            <RefreshCw className="h-3.5 w-3.5" /> Refresh live view
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh now
           </button>
           <div className="flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs text-success">
             <Radio className="h-3 w-3 animate-pulse" />
@@ -251,8 +284,16 @@ function LivePage() {
                                     {s.type === "automatic" ? <Cpu className="h-3 w-3" /> : <Hand className="h-3 w-3" />}
                                   </span>
                                 </div>
-                                <div className="mt-1 truncate text-xs font-semibold">{s.name}</div>
+                                <div className="mt-1 flex items-center justify-between gap-1">
+                                  <div className="truncate text-xs font-semibold">{s.name}</div>
+                                  <StatusPill status={s.status} />
+                                </div>
                                 <div className="font-mono text-[10px] text-muted-foreground">{s.id}</div>
+                                {s.status === "running" && s.lastTickAt && (
+                                  <div className="mt-0.5 inline-flex items-center gap-1 font-mono text-[9px] text-success">
+                                    <Radio className="h-2.5 w-2.5 animate-pulse" /> tick {s.lastTickAt}
+                                  </div>
+                                )}
 
                                 <div className="mt-2 rounded bg-background/60 p-1.5">
                                   <div className="truncate text-[10px] text-muted-foreground">{s.currentStep ?? "—"}</div>
@@ -293,13 +334,25 @@ function LivePage() {
                                     )}
                                   </div>
                                   {lastCmd && (
-                                    <div className={`mt-1 truncate font-mono text-[9px] ${
+                                    <div className={`mt-1 rounded bg-background/40 px-1 py-0.5 font-mono text-[9px] leading-tight ${
                                       lastCmd.status === "acknowledged" ? "text-success"
                                       : lastCmd.status === "pending" ? "text-muted-foreground"
                                       : lastCmd.status === "timeout" ? "text-warning"
                                       : "text-destructive"
                                     }`}>
-                                      {lastCmd.kind === "accept" ? "ACK" : "NAK"} · {lastCmd.status === "pending" ? "sending…" : lastCmd.response ?? lastCmd.status}
+                                      <div className="flex items-center justify-between gap-1">
+                                        <span className="truncate">
+                                          <Wifi className="mr-0.5 inline h-2.5 w-2.5" />
+                                          {lastCmd.kind === "accept" ? "ACK" : "NAK"} · {lastCmd.status === "pending" ? "sending…" : lastCmd.status}
+                                        </span>
+                                        <span className="opacity-70">{relTime(lastCmd.respondedAt ?? lastCmd.at, now)}</span>
+                                      </div>
+                                      {lastCmd.response && (
+                                        <div className="truncate opacity-70">{lastCmd.response}</div>
+                                      )}
+                                      <div className="opacity-60">
+                                        {new Date(lastCmd.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                                      </div>
                                     </div>
                                   )}
                                 </div>
