@@ -1,13 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import { StatusPill } from "@/components/status-pill";
 import {
   Factory, Activity, Cpu, Hand, User as UserIcon, Radio, ArrowRight,
   Package, ClipboardList, Gauge, AlertOctagon, ShieldAlert, Clock,
-  RefreshCw, Check, Ban,
+  RefreshCw, Check, Ban, Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
+
+function relTime(iso?: string, now = Date.now()) {
+  if (!iso) return "—";
+  const t = new Date(iso).getTime();
+  const s = Math.max(0, Math.round((now - t) / 1000));
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  return `${h}h ago`;
+}
 
 export const Route = createFileRoute("/live")({
   head: () => ({
