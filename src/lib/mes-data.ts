@@ -84,7 +84,8 @@ export const stations: Station[] = [
       receivedDataTypes: "die_pressure,output_weight,blade_speed", sentDataTypes: "speed_pct,cut_length_mm", firmware: "v2.4.1" } },
   { id: "ST-104", lineId: "L-01", name: "Metal Detector (CCP)", sequence: 4, type: "automatic", status: "running", cycleTimeSec: 1, currentStep: "Inline scan", currentValue: "PASS", target: "PASS", oee: 99,
     machine: { model: "Safeline IQ4", vendor: "Mettler-Toledo", ipAddress: "10.21.4.14", port: 502, protocol: "Modbus-TCP",
-      receivedDataTypes: "ferrous_mv,non_ferrous_mv,reject_count", sentDataTypes: "test_signal,reset" } },
+      receivedDataTypes: "ferrous_mv,non_ferrous_mv,reject_count", sentDataTypes: "test_signal,reset",
+      outputKind: "text", outputLabel: "PASS/FAIL", outputProtocol: "Modbus-TCP", acceptCommand: "PASS", rejectCommand: "REJECT" } },
   { id: "ST-105", lineId: "L-01", name: "Wrap & Seal", sequence: 5, type: "automatic", status: "idle", cycleTimeSec: 4, currentStep: "Awaiting product", currentValue: "148°C", target: "148°C ±3", oee: 86,
     machine: { model: "FlowPack FP-9", vendor: "Bosch", ipAddress: "10.21.4.15", port: 44818, protocol: "EtherNet/IP",
       receivedDataTypes: "jaw_temp,film_tension,seal_count", sentDataTypes: "jaw_setpoint,film_speed" } },
@@ -122,7 +123,8 @@ export const stations: Station[] = [
   // L-05 Cheese Vat E
   { id: "ST-501", lineId: "L-05", name: "Pasteurizer", sequence: 1, type: "automatic", status: "running", cycleTimeSec: 900, currentStep: "HTST 72°C / 15s", currentValue: "72.4°C", target: "72°C ±0.5", oee: 95,
     machine: { model: "Tetra Therm Aseptic", vendor: "Tetra Pak", ipAddress: "10.25.4.51", port: 4840, protocol: "OPC-UA",
-      receivedDataTypes: "in_temp,out_temp,hold_time,flow_lph", sentDataTypes: "temp_setpoint,divert_cmd", firmware: "v4.7.1" } },
+      receivedDataTypes: "in_temp,out_temp,hold_time,flow_lph", sentDataTypes: "temp_setpoint,divert_cmd", firmware: "v4.7.1",
+      outputKind: "file", outputLabel: "batch_report_{lot}.pdf", outputProtocol: "REST", acceptCommand: "RELEASE", rejectCommand: "DIVERT" } },
   { id: "ST-502", lineId: "L-05", name: "Curd Vat", sequence: 2, type: "manual", status: "running", cycleTimeSec: 2400, currentStep: "Cut curd", currentValue: "pH 6.42", target: "pH 6.4 ±0.05", oee: 92 },
   { id: "ST-503", lineId: "L-05", name: "Brining Tank", sequence: 3, type: "automatic", status: "running", cycleTimeSec: 1200, currentStep: "Brine soak", currentValue: "18.1% NaCl", target: "18% ±0.5", oee: 96,
     machine: { model: "BrineCtrl 200", vendor: "Alfa Laval", ipAddress: "10.25.4.53", port: 502, protocol: "Modbus-TCP",
@@ -244,6 +246,42 @@ export const assignments: Assignment[] = [
   { id: "AS-004", userId: "U-003", targetType: "station", targetId: "ST-302", shift: "A", startedAt: "07:10", endsAt: "15:10", active: true },
   { id: "AS-005", userId: "U-004", targetType: "team",    targetId: "T-02",   shift: "A", startedAt: "05:50", endsAt: "13:50", active: true },
 ];
+
+// ============ Station commands (accept/reject send + protocol response) ============
+export type CommandKind = "accept" | "reject";
+export type CommandStatus = "pending" | "acknowledged" | "timeout" | "error";
+
+export interface StationCommand {
+  id: string;
+  stationId: string;
+  at: string;               // ISO timestamp sent
+  kind: CommandKind;
+  protocol?: CommProtocol;
+  command: string;          // literal command string sent to the machine
+  status: CommandStatus;
+  response?: string;        // machine reply, e.g. "OK 200 · 128ms"
+  respondedAt?: string;     // ISO timestamp resolved
+  actorId: string;
+  actorName: string;
+  outputId?: string;        // optional link to the StationOutputFile decided
+}
+export const stationCommands: StationCommand[] = [];
+
+// ============ Station output files ============
+export interface StationOutputFile {
+  id: string;
+  stationId: string;
+  name: string;             // filename
+  size: number;             // bytes
+  mime?: string;
+  dataUrl: string;          // base64 data URL — persisted in localStorage
+  uploadedAt: string;       // ISO
+  actorId: string;
+  actorName: string;
+  decision?: CommandKind | null;
+  decidedAt?: string;
+}
+export const stationOutputs: StationOutputFile[] = [];
 
 export type WOStatus = "scheduled" | "running" | "paused" | "hold" | "completed";
 export interface WorkOrder {

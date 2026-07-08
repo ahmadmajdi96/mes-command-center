@@ -1,12 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
-import type { Station, CommProtocol, StationStatus, StationType, DowntimeEvent, StepTemplate } from "@/lib/mes-data";
+import type { Station, CommProtocol, StationStatus, StationType, DowntimeEvent, StepTemplate, StationOutputFile, StationCommand } from "@/lib/mes-data";
 import { StatusPill } from "@/components/status-pill";
 import {
   Factory, ArrowLeft, ArrowRight, Cpu, Hand, Plus, Pencil, Network, Wifi,
   Activity, User as UserIcon, Gauge, Clock, AlertTriangle, AlertOctagon, ShieldAlert,
-  ListChecks, Radio, X,
+  ListChecks, Radio, X, RefreshCw, ChevronUp, ChevronDown, Check, Ban, FileUp, Download, FileText,
 } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
@@ -93,6 +93,10 @@ const baseStationFields = (lineId: string, templates: { id: string; name: string
     visibleWhen: { field: "type", equals: "automatic" } },
   { name: "machine_rejectCommand", label: "Reject command", type: "text", placeholder: "NAK / REJECT",
     visibleWhen: { field: "type", equals: "automatic" } },
+  { name: "initialOutputFile", label: "Attach an initial output file (optional, max 3MB)", type: "file", span: 2,
+    section: "Initial output payload (file kind only)",
+    accept: "image/*,application/pdf,application/json,text/csv,text/plain",
+    visibleWhen: { field: "machine_outputKind", equals: "file" } },
 ];
 
 function toFlat(s: Partial<Station>) {
@@ -223,18 +227,34 @@ function LineDetailPage() {
             <StatusPill status={line.status} />
           </div>
         </div>
-        <EntityFormDialog<Station>
-          title={`Add Station to ${line.name}`}
-          fields={stationFields}
-          initial={toFlat({ lineId, type: "manual", status: "idle", sequence: lineStations.length + 1, oee: 0, cycleTimeSec: 0 })}
-          onSubmit={(v) => store.createStation(fromFlat(v, lineId) as any)}
-          trigger={
-            <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)]">
-              <Plus className="h-3.5 w-3.5" /> Add station
-            </button>
-          }
-        />
+        <div className="flex gap-2">
+          <button
+            onClick={() => { store.refreshLive(); toast.success("Live view refreshed"); }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:border-primary/40 hover:text-primary"
+          >
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh live view
+          </button>
+          <EntityFormDialog<Station>
+            title={`Add Station to ${line.name}`}
+            fields={stationFields}
+            initial={toFlat({ lineId, type: "manual", status: "idle", sequence: lineStations.length + 1, oee: 0, cycleTimeSec: 0 })}
+            onSubmit={(v: any) => {
+              const st = fromFlat(v, lineId);
+              store.createStation(st as any);
+              if (v.initialOutputFile && typeof v.initialOutputFile === "object") {
+                store.uploadStationOutput(st.id, v.initialOutputFile);
+              }
+            }}
+            trigger={
+              <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)]">
+                <Plus className="h-3.5 w-3.5" /> Add station
+              </button>
+            }
+          />
+        </div>
       </div>
+
+
 
       {/* KPI strip */}
       <div className="grid gap-3 sm:grid-cols-4">
@@ -310,8 +330,10 @@ function LineDetailPage() {
                         </span>
                       )}
                     </div>
-                    {group.map((s) => {
+                    {group.map((s, siblingIdx) => {
                       const operators = stationOperators(s.id);
+                      const stationCmds = store.commands.filter((c) => c.stationId === s.id).slice(0, 3);
+                      const stationOutputs = store.outputs.filter((o) => o.stationId === s.id);
                       return (
                         <StationCard
                           key={s.id}
@@ -320,11 +342,26 @@ function LineDetailPage() {
                           templates={(s.templateIds ?? []).map((id) => store.stepTemplates.find((t) => t.id === id)).filter(Boolean) as StepTemplate[]}
                           allTemplates={store.stepTemplates}
                           openDowntime={openByStation[s.id] ?? []}
+                          recentCommands={stationCmds}
+                          outputs={stationOutputs}
+                          siblingsCount={group.length}
+                          siblingPosition={siblingIdx}
                           onEdit={(patch) => store.updateStation(s.id, patch)}
                           onDelete={() => store.deleteStation(s.id)}
                           onDuplicate={() => { store.duplicateStation(s.id); toast.success(`Duplicated ${s.id} at step ${s.sequence}`); }}
+                          onMoveUp={() => store.moveStationSibling(s.id, "up")}
+                          onMoveDown={() => store.moveStationSibling(s.id, "down")}
                           onAddTemplate={(tid) => store.applyTemplateToStation(s.id, tid)}
                           onRemoveTemplate={(tid) => store.removeTemplateFromStation(s.id, tid)}
+                          onSendCommand={(kind, outId) => {
+                            store.sendStationCommand(s.id, kind, outId);
+                            toast.success(`${kind === "accept" ? "ACCEPT" : "REJECT"} sent to ${s.id}`);
+                          }}
+                          onUploadOutput={(file) => {
+                            store.uploadStationOutput(s.id, file);
+                            toast.success(`Uploaded ${file.name}`);
+                          }}
+                          onDeleteOutput={(oid) => store.deleteStationOutput(oid)}
                           onLogDowntime={(reason, category, durationMin) => {
                             const activeAsmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
                             const op = activeAsmt ? store.users.find((u) => u.id === activeAsmt.userId) : undefined;
@@ -486,13 +523,22 @@ function StationCard({
   templates,
   allTemplates,
   openDowntime,
+  recentCommands,
+  outputs,
+  siblingsCount,
+  siblingPosition,
   fields,
   lineId,
   onEdit,
   onDelete,
   onDuplicate,
+  onMoveUp,
+  onMoveDown,
   onAddTemplate,
   onRemoveTemplate,
+  onSendCommand,
+  onUploadOutput,
+  onDeleteOutput,
   onLogDowntime,
 }: {
   station: Station;
@@ -500,13 +546,22 @@ function StationCard({
   templates: StepTemplate[];
   allTemplates: StepTemplate[];
   openDowntime: DowntimeEvent[];
+  recentCommands: StationCommand[];
+  outputs: StationOutputFile[];
+  siblingsCount: number;
+  siblingPosition: number;
   fields: Field[];
   lineId: string;
   onEdit: (patch: Partial<Station>) => void;
   onDelete: () => void;
   onDuplicate: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   onAddTemplate: (templateId: string) => void;
   onRemoveTemplate: (templateId: string) => void;
+  onSendCommand: (kind: "accept" | "reject", outputId?: string) => void;
+  onUploadOutput: (file: { name: string; size: number; mime?: string; dataUrl: string }) => void;
+  onDeleteOutput: (outputId: string) => void;
   onLogDowntime: (reason: string, category: DowntimeEvent["category"], durationMin: number) => void;
 }) {
   const statusTone =
@@ -642,32 +697,102 @@ function StationCard({
         </div>
       )}
 
-      {/* Output config (automatic) */}
+      {/* Output config + live send controls (automatic only) */}
       {s.machine && s.machine.outputKind && s.machine.outputKind !== "none" && (
         <div className="mt-3 rounded-lg border border-info/30 bg-info/5 p-2 text-[11px]">
-          <div className="text-[9px] uppercase tracking-wider text-info">
-            Output · {s.machine.outputKind}
-            {s.machine.outputProtocol ? ` · via ${s.machine.outputProtocol}` : ""}
+          <div className="flex items-center justify-between text-[9px] uppercase tracking-wider text-info">
+            <span>
+              Output · {s.machine.outputKind}
+              {s.machine.outputProtocol ? ` · via ${s.machine.outputProtocol}` : ""}
+            </span>
+            {s.machine.outputKind === "file" && (
+              <UploadFileButton onUpload={onUploadOutput} label={s.machine.outputLabel} />
+            )}
           </div>
-          {s.machine.outputLabel && <div className="mt-0.5 font-mono truncate">{s.machine.outputLabel}</div>}
-          <div className="mt-1 flex flex-wrap gap-1">
+          {s.machine.outputLabel && <div className="mt-0.5 truncate font-mono">{s.machine.outputLabel}</div>}
+
+          {/* Uploaded output files (for outputKind=file) */}
+          {s.machine.outputKind === "file" && outputs.length > 0 && (
+            <ul className="mt-1.5 space-y-1">
+              {outputs.slice(0, 3).map((o) => (
+                <li key={o.id} className="flex items-center gap-1 rounded border border-border/40 bg-background/40 px-1.5 py-1">
+                  <FileText className="h-3 w-3 text-muted-foreground shrink-0" />
+                  <a href={o.dataUrl} download={o.name} className="min-w-0 flex-1 truncate font-mono text-[10px] hover:text-primary" title={o.name}>
+                    {o.name}
+                  </a>
+                  <span className="font-mono text-[9px] text-muted-foreground">{Math.round(o.size / 1024)}KB</span>
+                  {o.decision && (
+                    <span className={`rounded px-1 py-0 font-mono text-[9px] uppercase ${
+                      o.decision === "accept" ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                    }`}>{o.decision}</span>
+                  )}
+                  <button onClick={() => onDeleteOutput(o.id)} className="text-destructive/70 hover:text-destructive" title="Remove">
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                </li>
+              ))}
+              {outputs.length > 3 && (
+                <li className="text-[10px] text-muted-foreground">+ {outputs.length - 3} more</li>
+              )}
+            </ul>
+          )}
+
+          {/* Send accept/reject */}
+          <div className="mt-1.5 flex gap-1">
             {s.machine.acceptCommand && (
-              <span className="rounded border border-success/40 bg-success/10 px-1.5 py-0.5 font-mono text-[10px] text-success">
-                ACCEPT → {s.machine.acceptCommand}
-              </span>
+              <button
+                onClick={() => onSendCommand("accept", outputs[0]?.id)}
+                className="inline-flex items-center gap-1 rounded border border-success/40 bg-success/10 px-2 py-0.5 font-mono text-[10px] text-success hover:bg-success/20"
+                title={`Send ${s.machine.acceptCommand} via ${s.machine.outputProtocol ?? "protocol"}`}
+              >
+                <Check className="h-2.5 w-2.5" /> Send ACCEPT
+              </button>
             )}
             {s.machine.rejectCommand && (
-              <span className="rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive">
-                REJECT → {s.machine.rejectCommand}
-              </span>
+              <button
+                onClick={() => onSendCommand("reject", outputs[0]?.id)}
+                className="inline-flex items-center gap-1 rounded border border-destructive/40 bg-destructive/10 px-2 py-0.5 font-mono text-[10px] text-destructive hover:bg-destructive/20"
+                title={`Send ${s.machine.rejectCommand} via ${s.machine.outputProtocol ?? "protocol"}`}
+              >
+                <Ban className="h-2.5 w-2.5" /> Send REJECT
+              </button>
             )}
           </div>
+
+          {/* Latest command result */}
+          {recentCommands.length > 0 && (
+            <div className="mt-1.5 space-y-0.5">
+              {recentCommands.slice(0, 2).map((c) => (
+                <CommandResultRow key={c.id} c={c} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       <div className="mt-3 flex items-center justify-between gap-1.5">
         <LogDowntimeButton onSubmit={onLogDowntime} />
         <div className="flex gap-1.5">
+          {siblingsCount > 1 && (
+            <>
+              <button
+                onClick={onMoveUp}
+                disabled={siblingPosition === 0}
+                title="Move up in parallel step"
+                className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-primary disabled:opacity-30"
+              >
+                <ChevronUp className="h-3 w-3" />
+              </button>
+              <button
+                onClick={onMoveDown}
+                disabled={siblingPosition === siblingsCount - 1}
+                title="Move down in parallel step"
+                className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-primary disabled:opacity-30"
+              >
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </>
+          )}
           <button
             onClick={onDuplicate}
             title="Duplicate at same step (parallel station)"
@@ -689,6 +814,52 @@ function StationCard({
           <ConfirmDelete label={`Delete ${s.id}`} onConfirm={onDelete} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function UploadFileButton({ onUpload, label }: { onUpload: (f: { name: string; size: number; mime?: string; dataUrl: string }) => void; label?: string }) {
+  return (
+    <label className="inline-flex cursor-pointer items-center gap-1 rounded border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-primary hover:bg-primary/20">
+      <FileUp className="h-2.5 w-2.5" />
+      <span>Upload</span>
+      <input
+        type="file"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.currentTarget.value = "";
+          if (!file) return;
+          const max = 3 * 1024 * 1024;
+          if (file.size > max) {
+            toast.error(`File too large — max 3MB (${label ?? "output"})`);
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => onUpload({
+            name: file.name, size: file.size, mime: file.type, dataUrl: reader.result as string,
+          });
+          reader.readAsDataURL(file);
+        }}
+      />
+    </label>
+  );
+}
+
+function CommandResultRow({ c }: { c: StationCommand }) {
+  const tone =
+    c.status === "acknowledged" ? "text-success"
+    : c.status === "pending" ? "text-muted-foreground"
+    : c.status === "timeout" ? "text-warning"
+    : "text-destructive";
+  const time = new Date(c.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return (
+    <div className={`flex items-center justify-between gap-1 rounded bg-background/40 px-1.5 py-0.5 font-mono text-[9px] ${tone}`}>
+      <span className="truncate">
+        {c.kind === "accept" ? "→ ACK" : "→ NAK"} <span className="opacity-70">{c.command}</span>
+      </span>
+      <span className="truncate opacity-80">{c.status === "pending" ? "sending…" : c.response ?? c.status}</span>
+      <span className="opacity-60">{time}</span>
     </div>
   );
 }

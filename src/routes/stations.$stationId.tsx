@@ -1,11 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
-import type { StepTemplate } from "@/lib/mes-data";
+import type { StepTemplate, StationCommand } from "@/lib/mes-data";
 import {
   ArrowLeft, Cpu, Hand, Network, Wifi, User as UserIcon, ShieldAlert,
   ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks, Plus,
+  Check, Ban, FileUp, FileText, X, History, RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/stations/$stationId")({
   head: ({ params }) => ({
@@ -36,6 +38,18 @@ function StationProfile() {
   const templates = (station.templateIds ?? [])
     .map((id) => store.stepTemplates.find((t) => t.id === id))
     .filter(Boolean) as NonNullable<ReturnType<typeof store.stepTemplates.find>>[];
+  const outputs = store.outputs.filter((o) => o.stationId === station.id);
+  const commands = store.commands.filter((c) => c.stationId === station.id).slice(0, 15);
+
+  // Assignment history: audit entries that involved this station as a target
+  const assignmentHistory = store.audit.filter((e) => {
+    if (e.entity !== "assignment") return false;
+    const t = (e.after as any)?.targetId ?? (e.before as any)?.targetId;
+    if (t === station.id) return true;
+    // fallback: match assignment id from summary that ever targeted this station
+    const asmtIds = new Set(store.assignments.filter((a) => a.targetId === station.id && a.targetType === "station").map((a) => a.id));
+    return asmtIds.has(e.entityId);
+  }).slice(0, 20);
 
   const statusTone =
     station.status === "running" ? "border-success/40 bg-success/10 text-success"
@@ -267,6 +281,177 @@ function StationProfile() {
           </table>
         )}
       </div>
+
+      {/* Machine communication: send accept/reject + result log (automatic + configured only) */}
+      {station.machine && station.machine.outputKind && station.machine.outputKind !== "none" && (
+        <div className="glass-panel rounded-2xl p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <Wifi className="h-3 w-3" /> Machine communication
+              <span className="ml-1 font-mono text-info">{station.machine.outputProtocol ?? "—"}</span>
+              <span className="ml-1 font-mono text-muted-foreground">
+                {station.machine.ipAddress}:{station.machine.port}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              {station.machine.acceptCommand && (
+                <button
+                  onClick={() => {
+                    store.sendStationCommand(station.id, "accept", outputs[0]?.id);
+                    toast.success(`ACCEPT sent → ${station.machine!.acceptCommand}`);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-success/40 bg-success/10 px-3 py-1.5 text-xs font-medium text-success hover:bg-success/20"
+                >
+                  <Check className="h-3.5 w-3.5" /> Send ACCEPT <span className="font-mono text-[10px] opacity-70">{station.machine.acceptCommand}</span>
+                </button>
+              )}
+              {station.machine.rejectCommand && (
+                <button
+                  onClick={() => {
+                    store.sendStationCommand(station.id, "reject", outputs[0]?.id);
+                    toast.error(`REJECT sent → ${station.machine!.rejectCommand}`);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/20"
+                >
+                  <Ban className="h-3.5 w-3.5" /> Send REJECT <span className="font-mono text-[10px] opacity-70">{station.machine.rejectCommand}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {commands.length === 0 ? (
+            <div className="mt-3 rounded-lg border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">
+              No commands sent yet. Use ACCEPT or REJECT above to test the machine protocol.
+            </div>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-2 py-1 text-left">Time</th>
+                    <th className="px-2 py-1 text-left">Kind</th>
+                    <th className="px-2 py-1 text-left">Command</th>
+                    <th className="px-2 py-1 text-left">Protocol</th>
+                    <th className="px-2 py-1 text-left">Status</th>
+                    <th className="px-2 py-1 text-left">Response</th>
+                    <th className="px-2 py-1 text-left">Sent by</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {commands.map((c) => <CommandRow key={c.id} c={c} />)}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Output files (outputKind=file) */}
+      {station.machine && station.machine.outputKind === "file" && (
+        <div className="glass-panel rounded-2xl p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <FileText className="h-3 w-3" /> Station outputs · {outputs.length}
+              {station.machine.outputLabel && (
+                <span className="ml-1 font-mono text-muted-foreground">pattern: {station.machine.outputLabel}</span>
+              )}
+            </div>
+            <UploadOutputButton onUpload={(f) => { store.uploadStationOutput(station.id, f); toast.success(`Uploaded ${f.name}`); }} />
+          </div>
+
+          {outputs.length === 0 ? (
+            <div className="mt-3 rounded-lg border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">
+              No output files yet. Upload the payload the machine emits (image, report, batch record…).
+            </div>
+          ) : (
+            <div className="mt-3 space-y-1.5">
+              {outputs.map((o) => (
+                <div key={o.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-background/40 p-2">
+                  <FileText className="h-4 w-4 text-info shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <a href={o.dataUrl} download={o.name} className="block truncate text-sm font-medium hover:text-primary">
+                      {o.name}
+                    </a>
+                    <div className="font-mono text-[10px] text-muted-foreground">
+                      {Math.round(o.size / 1024)} KB · {o.mime ?? "binary"} · uploaded {new Date(o.uploadedAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })} by {o.actorName}
+                    </div>
+                  </div>
+                  {o.decision ? (
+                    <span className={`rounded-md border px-2 py-0.5 text-[10px] font-mono uppercase ${
+                      o.decision === "accept"
+                        ? "border-success/40 bg-success/10 text-success"
+                        : "border-destructive/40 bg-destructive/10 text-destructive"
+                    }`}>{o.decision}</span>
+                  ) : (
+                    <span className="rounded-md border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] font-mono uppercase text-muted-foreground">pending</span>
+                  )}
+                  <a href={o.dataUrl} download={o.name} className="grid h-7 w-7 place-items-center rounded-md border border-border/60 bg-card/60 hover:text-primary" title="Download">
+                    <span className="text-[10px]">↓</span>
+                  </a>
+                  <button onClick={() => { store.deleteStationOutput(o.id); toast.success("Removed"); }} className="grid h-7 w-7 place-items-center rounded-md border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20" title="Delete">
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Assignment history */}
+      <div className="glass-panel rounded-2xl p-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <History className="h-3 w-3" /> Operator assignment history · {assignmentHistory.length}
+          </div>
+          <button
+            onClick={() => { store.refreshLive(); toast.success("Refreshed"); }}
+            className="inline-flex items-center gap-1 rounded border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] hover:border-primary/40 hover:text-primary"
+          >
+            <RefreshCw className="h-3 w-3" /> Refresh
+          </button>
+        </div>
+        {assignmentHistory.length === 0 ? (
+          <div className="mt-2 text-xs text-muted-foreground">No assignment changes recorded yet.</div>
+        ) : (
+          <ol className="mt-3 space-y-1.5">
+            {assignmentHistory.map((e) => {
+              const t = new Date(e.at).toLocaleString([], { dateStyle: "short", timeStyle: "medium" });
+              const uid = (e.after as any)?.userId ?? (e.before as any)?.userId;
+              const user = uid ? store.users.find((u) => u.id === uid) : undefined;
+              const tone =
+                e.action === "create" ? "border-success/40 bg-success/10 text-success"
+                : e.action === "activate" ? "border-primary/40 bg-primary/10 text-primary"
+                : e.action === "deactivate" ? "border-warning/40 bg-warning/10 text-warning"
+                : e.action === "delete" ? "border-destructive/40 bg-destructive/10 text-destructive"
+                : "border-info/40 bg-info/10 text-info";
+              const label =
+                e.action === "create" ? "Assigned"
+                : e.action === "activate" ? "Reactivated"
+                : e.action === "deactivate" ? "Unassigned"
+                : e.action === "delete" ? "Removed"
+                : "Updated";
+              return (
+                <li key={e.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-background/40 p-2 text-xs">
+                  <span className={`rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase ${tone}`}>{label}</span>
+                  {user ? (
+                    <Link to="/users/$userId" params={{ userId: user.id }} className="font-medium hover:text-primary">
+                      {user.name}
+                    </Link>
+                  ) : (
+                    <span className="font-mono text-muted-foreground">{uid ?? "—"}</span>
+                  )}
+                  <span className="ml-auto font-mono text-[10px] text-muted-foreground">{t}</span>
+                  <span className="w-full text-[11px] text-muted-foreground">
+                    by <span className="text-foreground">{e.actorName}</span>
+                    <span className="ml-1 font-mono text-[10px]">{e.entityId}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }
@@ -368,5 +553,58 @@ function AssignOperatorPicker({ stationId, currentUserId }: { stationId: string;
         </div>
       )}
     </div>
+  );
+}
+
+function CommandRow({ c }: { c: StationCommand }) {
+  const tone =
+    c.status === "acknowledged" ? "border-success/40 bg-success/10 text-success"
+    : c.status === "pending" ? "border-border/60 bg-card/60 text-muted-foreground"
+    : c.status === "timeout" ? "border-warning/40 bg-warning/10 text-warning"
+    : "border-destructive/40 bg-destructive/10 text-destructive";
+  const at = new Date(c.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return (
+    <tr className="border-t border-border/40">
+      <td className="px-2 py-1.5 font-mono text-[11px]">{at}</td>
+      <td className="px-2 py-1.5">
+        <span className={`rounded px-1.5 py-0.5 text-[10px] font-mono uppercase ${
+          c.kind === "accept" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+        }`}>{c.kind}</span>
+      </td>
+      <td className="px-2 py-1.5 font-mono text-[11px]">{c.command}</td>
+      <td className="px-2 py-1.5 font-mono text-[11px] text-muted-foreground">{c.protocol ?? "—"}</td>
+      <td className="px-2 py-1.5">
+        <span className={`rounded-md border px-1.5 py-0.5 text-[10px] font-mono uppercase ${tone}`}>
+          {c.status === "pending" ? "sending…" : c.status}
+        </span>
+      </td>
+      <td className="px-2 py-1.5 font-mono text-[11px] text-muted-foreground">{c.response ?? "—"}</td>
+      <td className="px-2 py-1.5 text-[11px]">{c.actorName}</td>
+    </tr>
+  );
+}
+
+function UploadOutputButton({ onUpload }: { onUpload: (f: { name: string; size: number; mime?: string; dataUrl: string }) => void }) {
+  return (
+    <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+      <FileUp className="h-3.5 w-3.5" /> Upload output file
+      <input
+        type="file"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.currentTarget.value = "";
+          if (!file) return;
+          const max = 3 * 1024 * 1024;
+          if (file.size > max) {
+            toast.error("File too large — max 3MB");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => onUpload({ name: file.name, size: file.size, mime: file.type, dataUrl: reader.result as string });
+          reader.readAsDataURL(file);
+        }}
+      />
+    </label>
   );
 }

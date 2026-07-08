@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
-import type { AuditEntity, AuditEntry } from "@/lib/mes-data";
+import type { AuditAction, AuditEntity, AuditEntry } from "@/lib/mes-data";
 import {
   Activity, Search, Factory, Cpu, User as UserIcon, ClipboardList,
   ShieldAlert, AlertOctagon, GitBranch, ListChecks, UsersRound,
+  Download, Printer, X,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/traceability")({
   head: () => ({
@@ -29,6 +31,15 @@ const entityFilters: { value: AuditEntity | "all"; label: string }[] = [
   { value: "downtime", label: "Downtime" },
   { value: "hold", label: "Quality holds" },
   { value: "genealogy", label: "Genealogy" },
+];
+
+const actionFilters: { value: AuditAction | "all"; label: string }[] = [
+  { value: "all", label: "any" },
+  { value: "create", label: "create" },
+  { value: "update", label: "update" },
+  { value: "delete", label: "delete" },
+  { value: "activate", label: "activate" },
+  { value: "deactivate", label: "deactivate" },
 ];
 
 const entityIcon: Record<AuditEntity, React.ReactNode> = {
@@ -77,11 +88,50 @@ function entityLinkFor(e: AuditEntry): { to: string; params?: any } | null {
   }
 }
 
+function csvEscape(v: unknown): string {
+  const s = v == null ? "" : String(v);
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function downloadCsv(rows: AuditEntry[], stationOf: Map<string, string | undefined>) {
+  const headers = [
+    "id", "timestamp_iso", "date", "time", "entity", "entity_id",
+    "related_line", "action", "actor_id", "actor_name", "summary",
+    "before_json", "after_json",
+  ];
+  const lines = [headers.join(",")];
+  for (const e of rows) {
+    const t = fmt(e.at);
+    lines.push([
+      e.id, e.at, t.date, t.time, e.entity, e.entityId,
+      stationOf.get(e.id) ?? "",
+      e.action, e.actorId, e.actorName, e.summary,
+      e.before ? JSON.stringify(e.before) : "",
+      e.after ? JSON.stringify(e.after) : "",
+    ].map(csvEscape).join(","));
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `traceability-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function TraceabilityPage() {
   const store = useMes();
   const [q, setQ] = useState("");
   const [entity, setEntity] = useState<AuditEntity | "all">("all");
   const [lineId, setLineId] = useState<string | "all">("all");
+  const [stationId, setStationId] = useState<string | "all">("all");
+  const [actorId, setActorId] = useState<string | "all">("all");
+  const [action, setAction] = useState<AuditAction | "all">("all");
+  const [from, setFrom] = useState<string>("");
+  const [to, setTo] = useState<string>("");
 
   const stationToLine = useMemo(() => {
     const m = new Map<string, string>();
@@ -95,20 +145,53 @@ function TraceabilityPage() {
     return m;
   }, [store.workOrders]);
 
+  // Resolve the "related line" for each audit entry — used for filtering, CSV, and grouping.
+  const relatedLineForEntry = (e: AuditEntry): string | undefined => {
+    if (e.entity === "line") return e.entityId;
+    if (e.entity === "station") return stationToLine.get(e.entityId);
+    if (e.entity === "work_order") return woToLine.get(e.entityId);
+    if (e.entity === "downtime") {
+      const dt = store.downtime.find((d) => d.id === e.entityId);
+      return dt?.lineId ?? (dt?.stationId ? stationToLine.get(dt.stationId) : undefined);
+    }
+    if (e.entity === "assignment") {
+      const t = (e.after as any)?.targetId ?? (e.before as any)?.targetId;
+      if (t) return stationToLine.get(t);
+    }
+    return undefined;
+  };
+
+  const relatedStationForEntry = (e: AuditEntry): string | undefined => {
+    if (e.entity === "station") return e.entityId;
+    if (e.entity === "downtime") return store.downtime.find((d) => d.id === e.entityId)?.stationId;
+    if (e.entity === "assignment") {
+      const t = (e.after as any)?.targetId ?? (e.before as any)?.targetId;
+      const tType = (e.after as any)?.targetType ?? (e.before as any)?.targetType;
+      if (tType === "station") return t;
+    }
+    return undefined;
+  };
+
   const filtered = useMemo(() => {
+    const fromMs = from ? new Date(from).getTime() : -Infinity;
+    const toMs = to ? new Date(to).getTime() : Infinity;
     return store.audit.filter((e) => {
       if (entity !== "all" && e.entity !== entity) return false;
-      if (lineId !== "all") {
-        let related: string | undefined;
-        if (e.entity === "line") related = e.entityId;
-        else if (e.entity === "station") related = stationToLine.get(e.entityId);
-        else if (e.entity === "work_order") related = woToLine.get(e.entityId);
-        else if (e.entity === "downtime") {
-          const dt = store.downtime.find((d) => d.id === e.entityId);
-          related = dt?.lineId ?? (dt?.stationId ? stationToLine.get(dt.stationId) : undefined);
-        }
-        if (related !== lineId) return false;
+      if (action !== "all" && e.action !== action) return false;
+      if (actorId !== "all" && e.actorId !== actorId) return false;
+
+      const ts = new Date(e.at).getTime();
+      if (!isNaN(ts)) {
+        if (ts < fromMs || ts > toMs) return false;
       }
+
+      if (lineId !== "all") {
+        if (relatedLineForEntry(e) !== lineId) return false;
+      }
+      if (stationId !== "all") {
+        if (relatedStationForEntry(e) !== stationId) return false;
+      }
+
       if (!q) return true;
       const s = q.toLowerCase();
       return e.summary.toLowerCase().includes(s)
@@ -116,9 +199,8 @@ function TraceabilityPage() {
         || e.entityId.toLowerCase().includes(s)
         || e.id.toLowerCase().includes(s);
     });
-  }, [store.audit, store.downtime, entity, lineId, q, stationToLine, woToLine]);
+  }, [store.audit, store.downtime, entity, action, actorId, lineId, stationId, q, from, to, stationToLine, woToLine]);
 
-  // Group by day
   const groups = useMemo(() => {
     const map = new Map<string, AuditEntry[]>();
     for (const e of filtered) {
@@ -130,44 +212,109 @@ function TraceabilityPage() {
     return [...map.entries()];
   }, [filtered]);
 
+  const relatedLineIndex = useMemo(() => {
+    const m = new Map<string, string | undefined>();
+    for (const e of filtered) m.set(e.id, relatedLineForEntry(e));
+    return m;
+  }, [filtered]);
+
+  const clearAll = () => {
+    setQ(""); setEntity("all"); setLineId("all"); setStationId("all");
+    setActorId("all"); setAction("all"); setFrom(""); setTo("");
+  };
+
+  const stationOptions = useMemo(() => {
+    return store.stations
+      .filter((s) => lineId === "all" || s.lineId === lineId)
+      .sort((a, b) => a.id.localeCompare(b.id));
+  }, [store.stations, lineId]);
+
+  const activeFilterCount =
+    (q ? 1 : 0) + (entity !== "all" ? 1 : 0) + (lineId !== "all" ? 1 : 0)
+    + (stationId !== "all" ? 1 : 0) + (actorId !== "all" ? 1 : 0)
+    + (action !== "all" ? 1 : 0) + (from ? 1 : 0) + (to ? 1 : 0);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Traceability</h1>
-        <p className="text-sm text-muted-foreground">
-          Full chronological record of every action across all production lines and stations —
-          exact date &amp; time, entity involved, and the operator or engineer responsible.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3 print:hidden">
+        <div>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Traceability</h1>
+          <p className="text-sm text-muted-foreground">
+            Full chronological record of every action across all production lines and stations —
+            exact date &amp; time, entity involved, and the operator or engineer responsible.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => {
+              if (filtered.length === 0) { toast.error("Nothing to export"); return; }
+              downloadCsv(filtered, relatedLineIndex);
+              toast.success(`Exported ${filtered.length} events to CSV`);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
+          >
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </button>
+          <button
+            onClick={() => { toast.info("Opening print / PDF dialog…"); setTimeout(() => window.print(), 50); }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-info/40 bg-info/10 px-3 py-1.5 text-xs font-medium text-info hover:bg-info/20"
+          >
+            <Printer className="h-3.5 w-3.5" /> Export PDF (print)
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="glass-panel rounded-2xl p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 min-w-[220px]">
+      <div className="glass-panel rounded-2xl p-4 print:hidden">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative sm:col-span-2 lg:col-span-2">
             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search action, actor, entity ID…"
+              placeholder="Search summary, actor, ID…"
               className="w-full rounded-lg border border-border/60 bg-background/40 py-1.5 pl-8 pr-3 text-xs outline-none focus:border-primary/60"
             />
           </div>
-          <select
-            value={lineId}
-            onChange={(e) => setLineId(e.target.value as any)}
-            className="rounded-lg border border-border/60 bg-background/40 px-2 py-1.5 text-xs"
-          >
-            <option value="all">All lines</option>
-            {store.lines.map((l) => (
-              <option key={l.id} value={l.id}>{l.id} · {l.name}</option>
-            ))}
-          </select>
-          <span className="ml-auto font-mono text-[10px] text-muted-foreground">
-            {filtered.length} of {store.audit.length} events
-          </span>
+
+          <FilterSelect label="Line" value={lineId} onChange={(v) => { setLineId(v); setStationId("all"); }} options={[
+            { value: "all", label: "All lines" },
+            ...store.lines.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` })),
+          ]} />
+
+          <FilterSelect label="Station" value={stationId} onChange={setStationId} options={[
+            { value: "all", label: "All stations" },
+            ...stationOptions.map((s) => ({ value: s.id, label: `${s.id} · ${s.name}` })),
+          ]} />
+
+          <FilterSelect label="Actor (operator / engineer)" value={actorId} onChange={setActorId} options={[
+            { value: "all", label: "Anyone" },
+            ...store.users.map((u) => ({ value: u.id, label: `${u.name} · ${u.role.replace("_", " ")}` })),
+          ]} />
+
+          <FilterSelect label="Action" value={action} onChange={(v) => setAction(v as AuditAction | "all")} options={actionFilters.map(a => ({ value: a.value, label: a.label }))} />
+
+          <div>
+            <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">From</div>
+            <input
+              type="datetime-local"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="w-full rounded-lg border border-border/60 bg-background/40 px-2 py-1.5 text-xs"
+            />
+          </div>
+          <div>
+            <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">To</div>
+            <input
+              type="datetime-local"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="w-full rounded-lg border border-border/60 bg-background/40 px-2 py-1.5 text-xs"
+            />
+          </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
           {entityFilters.map((f) => (
             <button
               key={f.value}
@@ -181,15 +328,36 @@ function TraceabilityPage() {
               {f.label}
             </button>
           ))}
+          <div className="ml-auto flex items-center gap-2 font-mono text-[10px] text-muted-foreground">
+            {activeFilterCount > 0 && (
+              <button
+                onClick={clearAll}
+                className="inline-flex items-center gap-1 rounded border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] hover:text-foreground"
+              >
+                <X className="h-3 w-3" /> Clear {activeFilterCount}
+              </button>
+            )}
+            <span>{filtered.length} of {store.audit.length} events</span>
+          </div>
         </div>
+      </div>
+
+      {/* Print-only header */}
+      <div className="hidden print:block">
+        <h1 className="text-xl font-semibold">Cortanex MES · Traceability report</h1>
+        <p className="text-xs text-muted-foreground">
+          Generated {new Date().toLocaleString()} · {filtered.length} events
+          {lineId !== "all" && ` · Line ${lineId}`}
+          {stationId !== "all" && ` · Station ${stationId}`}
+          {actorId !== "all" && ` · Actor ${actorId}`}
+        </p>
       </div>
 
       {/* Timeline */}
       {filtered.length === 0 ? (
         <div className="glass-panel rounded-2xl p-10 text-center text-sm text-muted-foreground">
           <Activity className="mx-auto mb-2 h-5 w-5" />
-          No traceable events match the current filter yet. Perform any action across the system —
-          creating a work order, assigning an operator, logging downtime — and it will appear here instantly.
+          No traceable events match the current filter yet.
         </div>
       ) : (
         <div className="space-y-6">
@@ -203,14 +371,14 @@ function TraceabilityPage() {
                 <div className="h-px flex-1 bg-border/40" />
               </div>
               <ol className="relative space-y-2 pl-4">
-                <div className="absolute left-1 top-1 bottom-1 w-px bg-border/50" />
+                <div className="absolute left-1 top-1 bottom-1 w-px bg-border/50 print:hidden" />
                 {items.map((e) => {
                   const t = fmt(e.at);
                   const link = entityLinkFor(e);
                   return (
                     <li key={e.id} className="relative">
-                      <span className="absolute -left-3 top-3 grid h-2 w-2 place-items-center rounded-full bg-primary shadow-[0_0_0_3px_hsl(var(--background))]" />
-                      <div className="glass-panel rounded-xl p-3">
+                      <span className="absolute -left-3 top-3 grid h-2 w-2 place-items-center rounded-full bg-primary shadow-[0_0_0_3px_hsl(var(--background))] print:hidden" />
+                      <div className="glass-panel rounded-xl p-3 print:rounded-none print:border-b print:border-t-0 print:border-l-0 print:border-r-0 print:p-2 print:shadow-none print:bg-transparent">
                         <div className="flex flex-wrap items-start justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${actionTone[e.action] ?? ""}`}>
@@ -234,7 +402,7 @@ function TraceabilityPage() {
                         </div>
                         <p className="mt-1.5 text-sm">{e.summary}</p>
                         <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
-                          <div className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-primary to-info text-[9px] font-bold text-primary-foreground">
+                          <div className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-primary to-info text-[9px] font-bold text-primary-foreground print:hidden">
                             {e.actorName.split(" ").map((p) => p[0]).join("").slice(0, 2)}
                           </div>
                           <Link to="/users/$userId" params={{ userId: e.actorId }} className="text-muted-foreground hover:text-foreground">
@@ -251,6 +419,30 @@ function TraceabilityPage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function FilterSelect({
+  label, value, onChange, options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div>
+      <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-border/60 bg-background/40 px-2 py-1.5 text-xs"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
     </div>
   );
 }
