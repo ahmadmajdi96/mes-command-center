@@ -111,7 +111,7 @@ type Actions = {
 };
 
 const Ctx = createContext<(State & Actions) | null>(null);
-const KEY = "cortanex-mes-v5";
+const KEY = "cortanex-mes-v6";
 
 function nextId(prefix: string, list: { id: string }[]) {
   const nums = list
@@ -240,8 +240,8 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
         after: after ?? null,
         summary,
       };
-      // Cap log to most recent 500 entries
-      const next = [entry, ...s.audit].slice(0, 500);
+      // Cap log to most recent 5000 entries (keeps ~3 months of seed history)
+      const next = [entry, ...s.audit].slice(0, 5000);
       return { ...s, audit: next };
     });
   };
