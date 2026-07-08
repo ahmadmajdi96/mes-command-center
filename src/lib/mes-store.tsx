@@ -111,7 +111,7 @@ type Actions = {
 };
 
 const Ctx = createContext<(State & Actions) | null>(null);
-const KEY = "cortanex-mes-v5";
+const KEY = "cortanex-mes-v6";
 
 function nextId(prefix: string, list: { id: string }[]) {
   const nums = list
