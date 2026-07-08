@@ -334,13 +334,25 @@ function LivePage() {
                                     )}
                                   </div>
                                   {lastCmd && (
-                                    <div className={`mt-1 truncate font-mono text-[9px] ${
+                                    <div className={`mt-1 rounded bg-background/40 px-1 py-0.5 font-mono text-[9px] leading-tight ${
                                       lastCmd.status === "acknowledged" ? "text-success"
                                       : lastCmd.status === "pending" ? "text-muted-foreground"
                                       : lastCmd.status === "timeout" ? "text-warning"
                                       : "text-destructive"
                                     }`}>
-                                      {lastCmd.kind === "accept" ? "ACK" : "NAK"} · {lastCmd.status === "pending" ? "sending…" : lastCmd.response ?? lastCmd.status}
+                                      <div className="flex items-center justify-between gap-1">
+                                        <span className="truncate">
+                                          <Wifi className="mr-0.5 inline h-2.5 w-2.5" />
+                                          {lastCmd.kind === "accept" ? "ACK" : "NAK"} · {lastCmd.status === "pending" ? "sending…" : lastCmd.status}
+                                        </span>
+                                        <span className="opacity-70">{relTime(lastCmd.respondedAt ?? lastCmd.at, now)}</span>
+                                      </div>
+                                      {lastCmd.response && (
+                                        <div className="truncate opacity-70">{lastCmd.response}</div>
+                                      )}
+                                      <div className="opacity-60">
+                                        {new Date(lastCmd.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                                      </div>
                                     </div>
                                   )}
                                 </div>
