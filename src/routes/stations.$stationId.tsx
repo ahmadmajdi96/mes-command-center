@@ -160,8 +160,11 @@ function StationProfile() {
         {/* Operator + machine */}
         <div className="space-y-4">
           <div className="glass-panel rounded-2xl p-4">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <UserIcon className="h-3 w-3" /> Operator on station
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <UserIcon className="h-3 w-3" /> Operator on station
+              </div>
+              <AssignOperatorPicker stationId={station.id} currentUserId={op?.id} />
             </div>
             {op ? (
               <div className="mt-2 flex items-center gap-3">
@@ -175,9 +178,15 @@ function StationProfile() {
                   <div className="truncate text-[11px] text-muted-foreground">{op.role.replace("_", " ")} · Shift {op.shift}</div>
                   <div className="truncate font-mono text-[11px] text-muted-foreground">{op.mobile}</div>
                 </div>
+                <button
+                  onClick={() => asmt && store.updateAssignment(asmt.id, { active: false })}
+                  className="rounded border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] text-destructive hover:bg-destructive/20"
+                >
+                  Unassign
+                </button>
               </div>
             ) : (
-              <div className="mt-2 text-xs text-warning">No operator currently assigned. Assign from the Assignments page.</div>
+              <div className="mt-2 text-xs text-warning">No operator currently assigned. Use "Assign" above.</div>
             )}
           </div>
 
@@ -307,6 +316,53 @@ function TemplatePicker({ assigned, all, onAdd }: { assigned: string[]; all: Ste
               className="block w-full rounded px-2 py-1 text-left text-[11px] hover:bg-primary/10"
             >
               <span className="font-mono text-[10px] text-muted-foreground">{t.id}</span> · {t.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssignOperatorPicker({ stationId, currentUserId }: { stationId: string; currentUserId?: string }) {
+  const store = useMes();
+  const [open, setOpen] = useState(false);
+  const candidates = store.users.filter((u) => u.role === "operator" || u.role === "team_lead");
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-0.5 rounded border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] text-primary hover:bg-primary/20"
+      >
+        <Plus className="h-3 w-3" /> {currentUserId ? "Reassign" : "Assign"}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 max-h-56 w-64 overflow-y-auto rounded-lg border border-border/60 bg-card p-1 shadow-xl">
+          {candidates.map((u) => (
+            <button
+              key={u.id}
+              type="button"
+              onClick={() => {
+                // deactivate any current active assignment for this station
+                store.assignments
+                  .filter((a) => a.active && a.targetType === "station" && a.targetId === stationId)
+                  .forEach((a) => store.updateAssignment(a.id, { active: false }));
+                store.createAssignment({
+                  userId: u.id,
+                  targetType: "station",
+                  targetId: stationId,
+                  shift: u.shift,
+                  startedAt: new Date().toTimeString().slice(0, 5),
+                  active: true,
+                });
+                setOpen(false);
+              }}
+              className="block w-full rounded px-2 py-1 text-left text-[11px] hover:bg-primary/10"
+              disabled={u.id === currentUserId}
+            >
+              <span className="font-mono text-[10px] text-muted-foreground">{u.id}</span> · {u.name}
+              <span className="ml-1 text-[9px] uppercase text-muted-foreground">{u.role.replace("_", " ")}</span>
             </button>
           ))}
         </div>

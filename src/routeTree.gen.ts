@@ -9,35 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkOrdersRouteImport } from './routes/work-orders'
-import { Route as UsersRouteImport } from './routes/users'
+import { Route as TraceabilityRouteImport } from './routes/traceability'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
 import { Route as StepTemplatesRouteImport } from './routes/step-templates'
-import { Route as StationsRouteImport } from './routes/stations'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
 import { Route as MasterDataRouteImport } from './routes/master-data'
 import { Route as LiveRouteImport } from './routes/live'
-import { Route as LinesRouteImport } from './routes/lines'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
 import { Route as ExecutionRouteImport } from './routes/execution'
 import { Route as DowntimeRouteImport } from './routes/downtime'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkOrdersIndexRouteImport } from './routes/work-orders.index'
+import { Route as UsersIndexRouteImport } from './routes/users.index'
+import { Route as StationsIndexRouteImport } from './routes/stations.index'
+import { Route as LinesIndexRouteImport } from './routes/lines.index'
 import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as StationsStationIdRouteImport } from './routes/stations.$stationId'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 
-const WorkOrdersRoute = WorkOrdersRouteImport.update({
-  id: '/work-orders',
-  path: '/work-orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
+const TraceabilityRoute = TraceabilityRouteImport.update({
+  id: '/traceability',
+  path: '/traceability',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TelemetryRoute = TelemetryRouteImport.update({
@@ -48,11 +44,6 @@ const TelemetryRoute = TelemetryRouteImport.update({
 const StepTemplatesRoute = StepTemplatesRouteImport.update({
   id: '/step-templates',
   path: '/step-templates',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StationsRoute = StationsRouteImport.update({
-  id: '/stations',
-  path: '/stations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -73,11 +64,6 @@ const MasterDataRoute = MasterDataRouteImport.update({
 const LiveRoute = LiveRouteImport.update({
   id: '/live',
   path: '/live',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LinesRoute = LinesRouteImport.update({
-  id: '/lines',
-  path: '/lines',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GenealogyRoute = GenealogyRouteImport.update({
@@ -110,25 +96,45 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkOrdersIndexRoute = WorkOrdersIndexRouteImport.update({
+  id: '/work-orders/',
+  path: '/work-orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersIndexRoute = UsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StationsIndexRoute = StationsIndexRouteImport.update({
+  id: '/stations/',
+  path: '/stations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinesIndexRoute = LinesIndexRouteImport.update({
+  id: '/lines/',
+  path: '/lines/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
-  id: '/$woId',
-  path: '/$woId',
-  getParentRoute: () => WorkOrdersRoute,
+  id: '/work-orders/$woId',
+  path: '/work-orders/$woId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
-  id: '/$userId',
-  path: '/$userId',
-  getParentRoute: () => UsersRoute,
+  id: '/users/$userId',
+  path: '/users/$userId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StationsStationIdRoute = StationsStationIdRouteImport.update({
-  id: '/$stationId',
-  path: '/$stationId',
-  getParentRoute: () => StationsRoute,
+  id: '/stations/$stationId',
+  path: '/stations/$stationId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LinesLineIdRoute = LinesLineIdRouteImport.update({
-  id: '/$lineId',
-  path: '/$lineId',
-  getParentRoute: () => LinesRoute,
+  id: '/lines/$lineId',
+  path: '/lines/$lineId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -138,20 +144,21 @@ export interface FileRoutesByFullPath {
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
-  '/lines': typeof LinesRouteWithChildren
   '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
-  '/stations': typeof StationsRouteWithChildren
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
-  '/users': typeof UsersRouteWithChildren
-  '/work-orders': typeof WorkOrdersRouteWithChildren
+  '/traceability': typeof TraceabilityRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/stations/$stationId': typeof StationsStationIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/lines/': typeof LinesIndexRoute
+  '/stations/': typeof StationsIndexRoute
+  '/users/': typeof UsersIndexRoute
+  '/work-orders/': typeof WorkOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -160,20 +167,21 @@ export interface FileRoutesByTo {
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
-  '/lines': typeof LinesRouteWithChildren
   '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
-  '/stations': typeof StationsRouteWithChildren
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
-  '/users': typeof UsersRouteWithChildren
-  '/work-orders': typeof WorkOrdersRouteWithChildren
+  '/traceability': typeof TraceabilityRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/stations/$stationId': typeof StationsStationIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/lines': typeof LinesIndexRoute
+  '/stations': typeof StationsIndexRoute
+  '/users': typeof UsersIndexRoute
+  '/work-orders': typeof WorkOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -183,20 +191,21 @@ export interface FileRoutesById {
   '/downtime': typeof DowntimeRoute
   '/execution': typeof ExecutionRoute
   '/genealogy': typeof GenealogyRoute
-  '/lines': typeof LinesRouteWithChildren
   '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
-  '/stations': typeof StationsRouteWithChildren
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
-  '/users': typeof UsersRouteWithChildren
-  '/work-orders': typeof WorkOrdersRouteWithChildren
+  '/traceability': typeof TraceabilityRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/stations/$stationId': typeof StationsStationIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/lines/': typeof LinesIndexRoute
+  '/stations/': typeof StationsIndexRoute
+  '/users/': typeof UsersIndexRoute
+  '/work-orders/': typeof WorkOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -207,20 +216,21 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
-    | '/lines'
     | '/live'
     | '/master-data'
     | '/quality'
     | '/settings'
-    | '/stations'
     | '/step-templates'
     | '/telemetry'
-    | '/users'
-    | '/work-orders'
+    | '/traceability'
     | '/lines/$lineId'
     | '/stations/$stationId'
     | '/users/$userId'
     | '/work-orders/$woId'
+    | '/lines/'
+    | '/stations/'
+    | '/users/'
+    | '/work-orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -229,20 +239,21 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
-    | '/lines'
     | '/live'
     | '/master-data'
     | '/quality'
     | '/settings'
-    | '/stations'
     | '/step-templates'
     | '/telemetry'
-    | '/users'
-    | '/work-orders'
+    | '/traceability'
     | '/lines/$lineId'
     | '/stations/$stationId'
     | '/users/$userId'
     | '/work-orders/$woId'
+    | '/lines'
+    | '/stations'
+    | '/users'
+    | '/work-orders'
   id:
     | '__root__'
     | '/'
@@ -251,20 +262,21 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
-    | '/lines'
     | '/live'
     | '/master-data'
     | '/quality'
     | '/settings'
-    | '/stations'
     | '/step-templates'
     | '/telemetry'
-    | '/users'
-    | '/work-orders'
+    | '/traceability'
     | '/lines/$lineId'
     | '/stations/$stationId'
     | '/users/$userId'
     | '/work-orders/$woId'
+    | '/lines/'
+    | '/stations/'
+    | '/users/'
+    | '/work-orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -274,32 +286,30 @@ export interface RootRouteChildren {
   DowntimeRoute: typeof DowntimeRoute
   ExecutionRoute: typeof ExecutionRoute
   GenealogyRoute: typeof GenealogyRoute
-  LinesRoute: typeof LinesRouteWithChildren
   LiveRoute: typeof LiveRoute
   MasterDataRoute: typeof MasterDataRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
-  StationsRoute: typeof StationsRouteWithChildren
   StepTemplatesRoute: typeof StepTemplatesRoute
   TelemetryRoute: typeof TelemetryRoute
-  UsersRoute: typeof UsersRouteWithChildren
-  WorkOrdersRoute: typeof WorkOrdersRouteWithChildren
+  TraceabilityRoute: typeof TraceabilityRoute
+  LinesLineIdRoute: typeof LinesLineIdRoute
+  StationsStationIdRoute: typeof StationsStationIdRoute
+  UsersUserIdRoute: typeof UsersUserIdRoute
+  WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
+  LinesIndexRoute: typeof LinesIndexRoute
+  StationsIndexRoute: typeof StationsIndexRoute
+  UsersIndexRoute: typeof UsersIndexRoute
+  WorkOrdersIndexRoute: typeof WorkOrdersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/work-orders': {
-      id: '/work-orders'
-      path: '/work-orders'
-      fullPath: '/work-orders'
-      preLoaderRoute: typeof WorkOrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
+    '/traceability': {
+      id: '/traceability'
+      path: '/traceability'
+      fullPath: '/traceability'
+      preLoaderRoute: typeof TraceabilityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/telemetry': {
@@ -314,13 +324,6 @@ declare module '@tanstack/react-router' {
       path: '/step-templates'
       fullPath: '/step-templates'
       preLoaderRoute: typeof StepTemplatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stations': {
-      id: '/stations'
-      path: '/stations'
-      fullPath: '/stations'
-      preLoaderRoute: typeof StationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -349,13 +352,6 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/live'
       preLoaderRoute: typeof LiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lines': {
-      id: '/lines'
-      path: '/lines'
-      fullPath: '/lines'
-      preLoaderRoute: typeof LinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/genealogy': {
@@ -400,80 +396,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/work-orders/': {
+      id: '/work-orders/'
+      path: '/work-orders'
+      fullPath: '/work-orders/'
+      preLoaderRoute: typeof WorkOrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/': {
+      id: '/users/'
+      path: '/users'
+      fullPath: '/users/'
+      preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stations/': {
+      id: '/stations/'
+      path: '/stations'
+      fullPath: '/stations/'
+      preLoaderRoute: typeof StationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lines/': {
+      id: '/lines/'
+      path: '/lines'
+      fullPath: '/lines/'
+      preLoaderRoute: typeof LinesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/work-orders/$woId': {
       id: '/work-orders/$woId'
-      path: '/$woId'
+      path: '/work-orders/$woId'
       fullPath: '/work-orders/$woId'
       preLoaderRoute: typeof WorkOrdersWoIdRouteImport
-      parentRoute: typeof WorkOrdersRoute
+      parentRoute: typeof rootRouteImport
     }
     '/users/$userId': {
       id: '/users/$userId'
-      path: '/$userId'
+      path: '/users/$userId'
       fullPath: '/users/$userId'
       preLoaderRoute: typeof UsersUserIdRouteImport
-      parentRoute: typeof UsersRoute
+      parentRoute: typeof rootRouteImport
     }
     '/stations/$stationId': {
       id: '/stations/$stationId'
-      path: '/$stationId'
+      path: '/stations/$stationId'
       fullPath: '/stations/$stationId'
       preLoaderRoute: typeof StationsStationIdRouteImport
-      parentRoute: typeof StationsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/lines/$lineId': {
       id: '/lines/$lineId'
-      path: '/$lineId'
+      path: '/lines/$lineId'
       fullPath: '/lines/$lineId'
       preLoaderRoute: typeof LinesLineIdRouteImport
-      parentRoute: typeof LinesRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface LinesRouteChildren {
-  LinesLineIdRoute: typeof LinesLineIdRoute
-}
-
-const LinesRouteChildren: LinesRouteChildren = {
-  LinesLineIdRoute: LinesLineIdRoute,
-}
-
-const LinesRouteWithChildren = LinesRoute._addFileChildren(LinesRouteChildren)
-
-interface StationsRouteChildren {
-  StationsStationIdRoute: typeof StationsStationIdRoute
-}
-
-const StationsRouteChildren: StationsRouteChildren = {
-  StationsStationIdRoute: StationsStationIdRoute,
-}
-
-const StationsRouteWithChildren = StationsRoute._addFileChildren(
-  StationsRouteChildren,
-)
-
-interface UsersRouteChildren {
-  UsersUserIdRoute: typeof UsersUserIdRoute
-}
-
-const UsersRouteChildren: UsersRouteChildren = {
-  UsersUserIdRoute: UsersUserIdRoute,
-}
-
-const UsersRouteWithChildren = UsersRoute._addFileChildren(UsersRouteChildren)
-
-interface WorkOrdersRouteChildren {
-  WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
-}
-
-const WorkOrdersRouteChildren: WorkOrdersRouteChildren = {
-  WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
-}
-
-const WorkOrdersRouteWithChildren = WorkOrdersRoute._addFileChildren(
-  WorkOrdersRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -482,16 +462,21 @@ const rootRouteChildren: RootRouteChildren = {
   DowntimeRoute: DowntimeRoute,
   ExecutionRoute: ExecutionRoute,
   GenealogyRoute: GenealogyRoute,
-  LinesRoute: LinesRouteWithChildren,
   LiveRoute: LiveRoute,
   MasterDataRoute: MasterDataRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
-  StationsRoute: StationsRouteWithChildren,
   StepTemplatesRoute: StepTemplatesRoute,
   TelemetryRoute: TelemetryRoute,
-  UsersRoute: UsersRouteWithChildren,
-  WorkOrdersRoute: WorkOrdersRouteWithChildren,
+  TraceabilityRoute: TraceabilityRoute,
+  LinesLineIdRoute: LinesLineIdRoute,
+  StationsStationIdRoute: StationsStationIdRoute,
+  UsersUserIdRoute: UsersUserIdRoute,
+  WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
+  LinesIndexRoute: LinesIndexRoute,
+  StationsIndexRoute: StationsIndexRoute,
+  UsersIndexRoute: UsersIndexRoute,
+  WorkOrdersIndexRoute: WorkOrdersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
