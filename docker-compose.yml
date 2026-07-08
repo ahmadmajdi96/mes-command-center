@@ -1,0 +1,21 @@
+# Run the whole project with:  docker compose up
+#
+# This app stores all state in the browser's localStorage
+# (see src/lib/mes-store.tsx, key "cortanex-mes-v5"), so there is
+# no database container to run — the "DB connection" is unchanged.
+
+services:
+  app:
+    build: .
+    container_name: cortanex-mes
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=8080
+    volumes:
+      # Live-reload: mount source, keep container's node_modules
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
