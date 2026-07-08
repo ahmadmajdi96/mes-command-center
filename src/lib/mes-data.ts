@@ -182,7 +182,8 @@ export interface AuditEntry {
   after?: Record<string, any> | null;
   summary: string;
 }
-export const auditEntries: AuditEntry[] = [];
+// Seeded 3-month audit-log history (see audit-seed.ts)
+export { seededAuditLog as auditEntries } from "./audit-seed";
 
 // ============ Users ============
 export type UserRole = "operator" | "supervisor" | "team_lead";
