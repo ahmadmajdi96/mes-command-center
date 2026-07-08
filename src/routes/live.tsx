@@ -284,8 +284,16 @@ function LivePage() {
                                     {s.type === "automatic" ? <Cpu className="h-3 w-3" /> : <Hand className="h-3 w-3" />}
                                   </span>
                                 </div>
-                                <div className="mt-1 truncate text-xs font-semibold">{s.name}</div>
+                                <div className="mt-1 flex items-center justify-between gap-1">
+                                  <div className="truncate text-xs font-semibold">{s.name}</div>
+                                  <StatusPill status={s.status} />
+                                </div>
                                 <div className="font-mono text-[10px] text-muted-foreground">{s.id}</div>
+                                {s.status === "running" && s.lastTickAt && (
+                                  <div className="mt-0.5 inline-flex items-center gap-1 font-mono text-[9px] text-success">
+                                    <Radio className="h-2.5 w-2.5 animate-pulse" /> tick {s.lastTickAt}
+                                  </div>
+                                )}
 
                                 <div className="mt-2 rounded bg-background/60 p-1.5">
                                   <div className="truncate text-[10px] text-muted-foreground">{s.currentStep ?? "—"}</div>
