@@ -7,7 +7,7 @@ import { Factory, Plus, Pencil, ArrowRight, Cpu, Hand } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
 
-export const Route = createFileRoute("/lines")({
+export const Route = createFileRoute("/lines/")({
   head: () => ({
     meta: [
       { title: "Production Lines · Cortanex MES" },

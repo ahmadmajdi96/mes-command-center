@@ -57,6 +57,7 @@ const workforce = [
 
 const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
+  { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
