@@ -5,7 +5,9 @@ import { StatusPill } from "@/components/status-pill";
 import {
   Factory, Activity, Cpu, Hand, User as UserIcon, Radio, ArrowRight,
   Package, ClipboardList, Gauge, AlertOctagon, ShieldAlert, Clock,
+  RefreshCw, Check, Ban,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/live")({
   head: () => ({
@@ -44,9 +46,17 @@ function LivePage() {
             Real-time view of every line, work order and operator on the floor.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs text-success">
-          <Radio className="h-3 w-3 animate-pulse" />
-          live{lastTick ? ` · last tick ${lastTick}` : ""}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { store.refreshLive(); toast.success("Live view refreshed"); }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:border-primary/40 hover:text-primary"
+          >
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh live view
+          </button>
+          <div className="flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs text-success">
+            <Radio className="h-3 w-3 animate-pulse" />
+            live{lastTick ? ` · last tick ${lastTick}` : ""}
+          </div>
         </div>
       </div>
 
@@ -222,42 +232,79 @@ function LivePage() {
                           : s.status === "down" ? "border-destructive/40"
                           : s.status === "maintenance" ? "border-warning/40"
                           : "border-border/60";
+                        const lastCmd = store.commands.find((c) => c.stationId === s.id);
+                        const hasCommands = s.machine && s.machine.outputKind && s.machine.outputKind !== "none";
                         return (
                           <div key={s.id} className="flex items-stretch gap-1">
-                            <Link
-                              to="/stations/$stationId"
-                              params={{ stationId: s.id }}
-                              className={`block w-56 shrink-0 rounded-lg border bg-card/60 p-2.5 transition hover:border-primary/50 ${ring}`}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                                  <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-                                  Seq {s.sequence}
+                            <div className={`flex w-56 shrink-0 flex-col rounded-lg border bg-card/60 transition hover:border-primary/50 ${ring}`}>
+                              <Link
+                                to="/stations/$stationId"
+                                params={{ stationId: s.id }}
+                                className="block p-2.5"
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                                    <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                                    Seq {s.sequence}
+                                  </div>
+                                  <span className={`grid h-5 w-5 place-items-center rounded border ${s.type === "automatic" ? "border-primary/40 text-primary" : "border-accent/40 text-accent"}`}>
+                                    {s.type === "automatic" ? <Cpu className="h-3 w-3" /> : <Hand className="h-3 w-3" />}
+                                  </span>
                                 </div>
-                                <span className={`grid h-5 w-5 place-items-center rounded border ${s.type === "automatic" ? "border-primary/40 text-primary" : "border-accent/40 text-accent"}`}>
-                                  {s.type === "automatic" ? <Cpu className="h-3 w-3" /> : <Hand className="h-3 w-3" />}
-                                </span>
-                              </div>
-                              <div className="mt-1 truncate text-xs font-semibold">{s.name}</div>
-                              <div className="font-mono text-[10px] text-muted-foreground">{s.id}</div>
+                                <div className="mt-1 truncate text-xs font-semibold">{s.name}</div>
+                                <div className="font-mono text-[10px] text-muted-foreground">{s.id}</div>
 
-                              <div className="mt-2 rounded bg-background/60 p-1.5">
-                                <div className="truncate text-[10px] text-muted-foreground">{s.currentStep ?? "—"}</div>
-                                <div className="mt-0.5 flex items-baseline justify-between">
-                                  <span className="font-mono text-sm font-semibold text-primary">{s.currentValue ?? "—"}</span>
-                                  <span className="font-mono text-[10px] text-muted-foreground">/ {s.target ?? "—"}</span>
+                                <div className="mt-2 rounded bg-background/60 p-1.5">
+                                  <div className="truncate text-[10px] text-muted-foreground">{s.currentStep ?? "—"}</div>
+                                  <div className="mt-0.5 flex items-baseline justify-between">
+                                    <span className="font-mono text-sm font-semibold text-primary">{s.currentValue ?? "—"}</span>
+                                    <span className="font-mono text-[10px] text-muted-foreground">/ {s.target ?? "—"}</span>
+                                  </div>
                                 </div>
-                              </div>
 
-                              <div className="mt-2 flex items-center gap-1.5 border-t border-border/40 pt-1.5 text-[11px]">
-                                <UserIcon className="h-3 w-3 text-muted-foreground" />
-                                {opUser ? (
-                                  <span className="truncate">{opUser.name}</span>
-                                ) : (
-                                  <span className="text-warning">unassigned</span>
-                                )}
-                              </div>
-                            </Link>
+                                <div className="mt-2 flex items-center gap-1.5 border-t border-border/40 pt-1.5 text-[11px]">
+                                  <UserIcon className="h-3 w-3 text-muted-foreground" />
+                                  {opUser ? (
+                                    <span className="truncate">{opUser.name}</span>
+                                  ) : (
+                                    <span className="text-warning">unassigned</span>
+                                  )}
+                                </div>
+                              </Link>
+
+                              {hasCommands && (
+                                <div className="border-t border-border/40 p-1.5">
+                                  <div className="flex gap-1">
+                                    {s.machine!.acceptCommand && (
+                                      <button
+                                        onClick={() => { store.sendStationCommand(s.id, "accept"); toast.success(`ACCEPT → ${s.id}`); }}
+                                        className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-success/40 bg-success/10 px-1 py-0.5 font-mono text-[9px] text-success hover:bg-success/20"
+                                      >
+                                        <Check className="h-2.5 w-2.5" /> ACCEPT
+                                      </button>
+                                    )}
+                                    {s.machine!.rejectCommand && (
+                                      <button
+                                        onClick={() => { store.sendStationCommand(s.id, "reject"); toast.error(`REJECT → ${s.id}`); }}
+                                        className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-destructive/40 bg-destructive/10 px-1 py-0.5 font-mono text-[9px] text-destructive hover:bg-destructive/20"
+                                      >
+                                        <Ban className="h-2.5 w-2.5" /> REJECT
+                                      </button>
+                                    )}
+                                  </div>
+                                  {lastCmd && (
+                                    <div className={`mt-1 truncate font-mono text-[9px] ${
+                                      lastCmd.status === "acknowledged" ? "text-success"
+                                      : lastCmd.status === "pending" ? "text-muted-foreground"
+                                      : lastCmd.status === "timeout" ? "text-warning"
+                                      : "text-destructive"
+                                    }`}>
+                                      {lastCmd.kind === "accept" ? "ACK" : "NAK"} · {lastCmd.status === "pending" ? "sending…" : lastCmd.response ?? lastCmd.status}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                             {idx < stations.length - 1 && (
                               <div className="flex items-center"><ArrowRight className="h-3 w-3 text-muted-foreground/60" /></div>
                             )}

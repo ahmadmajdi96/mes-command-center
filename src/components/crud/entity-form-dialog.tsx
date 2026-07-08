@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export type FieldType = "text" | "number" | "textarea" | "select" | "multiselect";
+export type FieldType = "text" | "number" | "textarea" | "select" | "multiselect" | "file";
 
 export interface Field {
   name: string;
@@ -32,6 +32,10 @@ export interface Field {
   span?: 1 | 2;
   /** For multiselect: minimum number of selections required */
   minSelected?: number;
+  /** For file: accept attribute, e.g. "image/*,application/pdf" */
+  accept?: string;
+  /** For file: max size in bytes (default 3MB — larger crashes localStorage) */
+  maxBytes?: number;
   /** Show this field only when another field equals one of these values */
   visibleWhen?: { field: string; equals: string | string[] };
   /** Logical section header rendered before the field */
@@ -57,6 +61,7 @@ export function EntityFormDialog<T extends Record<string, any>>({
 }) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (open) {
@@ -64,26 +69,41 @@ export function EntityFormDialog<T extends Record<string, any>>({
       fields.forEach((f) => {
         const init = (initial as any)?.[f.name];
         if (f.type === "multiselect") seed[f.name] = Array.isArray(init) ? init : [];
+        else if (f.type === "file") seed[f.name] = init ?? null;
         else seed[f.name] = init ?? (f.type === "number" ? 0 : "");
       });
       setValues(seed);
+      setErrors({});
     }
   }, [open]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    const errs: Record<string, string> = {};
     for (const f of fields) {
+      // Skip validation for fields hidden by visibleWhen
+      if (f.visibleWhen) {
+        const v = values[f.visibleWhen.field];
+        const want = f.visibleWhen.equals;
+        const ok = Array.isArray(want) ? want.includes(v) : v === want;
+        if (!ok) continue;
+      }
       const v = values[f.name];
       if (f.type === "multiselect") {
         const min = f.minSelected ?? (f.required ? 1 : 0);
-        if (Array.isArray(v) && v.length < min) {
-          toast.error(`${f.label}: select at least ${min}`);
-          return;
+        if (min > 0 && (!Array.isArray(v) || v.length < min)) {
+          errs[f.name] = `Select at least ${min} option${min === 1 ? "" : "s"}`;
         }
+      } else if (f.type === "file") {
+        if (f.required && !v) errs[f.name] = "File is required";
       } else if (f.required && (v === "" || v == null)) {
-        toast.error(`${f.label} is required`);
-        return;
+        errs[f.name] = `${f.label} is required`;
       }
+    }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      toast.error(`Fix ${Object.keys(errs).length} field${Object.keys(errs).length === 1 ? "" : "s"} before saving`);
+      return;
     }
     onSubmit(values as T);
     toast.success(`${title.replace(/^(Create|New|Edit) /, "")} saved`);
@@ -144,7 +164,11 @@ export function EntityFormDialog<T extends Record<string, any>>({
                       </SelectContent>
                     </Select>
                   ) : f.type === "multiselect" ? (
-                    <div className="flex flex-wrap gap-1.5 rounded-lg border border-border/60 bg-card/60 p-2">
+                    <div
+                      className={`flex flex-wrap gap-1.5 rounded-lg border bg-card/60 p-2 ${
+                        errors[f.name] ? "border-destructive/60" : "border-border/60"
+                      }`}
+                    >
                       {f.options?.map((o) => {
                         const cur: string[] = Array.isArray(values[f.name]) ? values[f.name] : [];
                         const on = cur.includes(o.value);
@@ -172,6 +196,46 @@ export function EntityFormDialog<T extends Record<string, any>>({
                         <span className="text-[11px] text-muted-foreground">No options available</span>
                       )}
                     </div>
+                  ) : f.type === "file" ? (
+                    <div className={`rounded-lg border bg-card/60 p-2 text-xs ${
+                      errors[f.name] ? "border-destructive/60" : "border-border/60"
+                    }`}>
+                      <input
+                        id={f.name}
+                        type="file"
+                        accept={f.accept}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const max = f.maxBytes ?? 3 * 1024 * 1024;
+                          if (file.size > max) {
+                            toast.error(`File too large — max ${Math.round(max / 1024 / 1024)}MB`);
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = () =>
+                            setValues((v) => ({
+                              ...v,
+                              [f.name]: {
+                                name: file.name,
+                                size: file.size,
+                                mime: file.type,
+                                dataUrl: reader.result as string,
+                              },
+                            }));
+                          reader.readAsDataURL(file);
+                        }}
+                        className="block w-full text-xs file:mr-3 file:rounded file:border file:border-primary/40 file:bg-primary/10 file:px-2 file:py-1 file:text-xs file:font-medium file:text-primary hover:file:bg-primary/20"
+                      />
+                      {values[f.name] && typeof values[f.name] === "object" && (
+                        <div className="mt-1.5 flex items-center justify-between rounded border border-border/60 bg-background/40 px-2 py-1">
+                          <span className="truncate font-mono text-[11px]">{values[f.name].name}</span>
+                          <span className="ml-2 font-mono text-[10px] text-muted-foreground">
+                            {Math.round((values[f.name].size ?? 0) / 1024)} KB
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <Input
                       id={f.name}
@@ -184,10 +248,13 @@ export function EntityFormDialog<T extends Record<string, any>>({
                           [f.name]: f.type === "number" ? Number(e.target.value) : e.target.value,
                         }))
                       }
-                      className="bg-card/60"
+                      className={`bg-card/60 ${errors[f.name] ? "border-destructive/60" : ""}`}
                     />
                   )}
                 </div>
+                {errors[f.name] && (
+                  <div className="mt-1 text-[11px] text-destructive">{errors[f.name]}</div>
+                )}
               </div>
             );
           })}

@@ -12,6 +12,8 @@ import {
   assignments as seedAssignments,
   stepTemplates as seedTemplates,
   auditEntries as seedAudit,
+  stationCommands as seedCommands,
+  stationOutputs as seedOutputs,
   type WorkOrder,
   type DowntimeEvent,
   type QualityHold,
@@ -26,6 +28,10 @@ import {
   type AuditEntry,
   type AuditAction,
   type AuditEntity,
+  type StationCommand,
+  type StationOutputFile,
+  type CommandKind,
+  type CommProtocol,
 } from "./mes-data";
 
 type State = {
@@ -41,6 +47,10 @@ type State = {
   assignments: Assignment[];
   stepTemplates: StepTemplate[];
   audit: AuditEntry[];
+  commands: StationCommand[];
+  outputs: StationOutputFile[];
+  /** Bumped whenever the user hits "Refresh live view" — subscribers depend on it. */
+  refreshedAt: number;
 };
 
 type Actions = {
@@ -83,13 +93,25 @@ type Actions = {
   applyTemplateToStation: (stationId: string, templateId: string) => void;
   /** Remove a step template binding from a station. */
   removeTemplateFromStation: (stationId: string, templateId: string) => void;
+  /** Swap the position of a station with its previous or next parallel sibling (same sequence). */
+  moveStationSibling: (id: string, direction: "up" | "down") => void;
+  /** Send an accept/reject command to the station's machine and simulate the protocol response. */
+  sendStationCommand: (stationId: string, kind: CommandKind, outputId?: string) => void;
+  /** Attach an output file (base64 dataURL) to a station. Returns the new output id. */
+  uploadStationOutput: (
+    stationId: string,
+    file: { name: string; size: number; mime?: string; dataUrl: string },
+  ) => string;
+  deleteStationOutput: (id: string) => void;
+  /** Bump refreshedAt so subscribed views re-read derived state immediately. */
+  refreshLive: () => void;
   /** Identity of the user driving the UI (used for audit attribution). */
   currentActor: { id: string; name: string };
   setCurrentActor: (actor: { id: string; name: string }) => void;
 };
 
 const Ctx = createContext<(State & Actions) | null>(null);
-const KEY = "cortanex-mes-v4";
+const KEY = "cortanex-mes-v5";
 
 function nextId(prefix: string, list: { id: string }[]) {
   const nums = list
@@ -148,6 +170,9 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
     assignments: seedAssignments,
     stepTemplates: seedTemplates,
     audit: seedAudit,
+    commands: seedCommands,
+    outputs: seedOutputs,
+    refreshedAt: Date.now(),
   }));
 
   const [currentActor, setCurrentActor] = useState<{ id: string; name: string }>(
@@ -397,6 +422,102 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, stations: [...s.stations, copy] }));
       audit("station", newId, "create", null, copy, `Duplicated ${id} → ${newId} at seq ${src.sequence}`);
     },
+    moveStationSibling: (id, direction) => {
+      const st = state.stations.find((x) => x.id === id);
+      if (!st) return;
+      // Find siblings (same lineId + sequence) in the current stations array order
+      const siblingIdx: number[] = [];
+      state.stations.forEach((x, i) => {
+        if (x.lineId === st.lineId && x.sequence === st.sequence) siblingIdx.push(i);
+      });
+      const currentPos = siblingIdx.findIndex((i) => state.stations[i].id === id);
+      const targetPos = direction === "up" ? currentPos - 1 : currentPos + 1;
+      if (targetPos < 0 || targetPos >= siblingIdx.length) return;
+      const a = siblingIdx[currentPos];
+      const b = siblingIdx[targetPos];
+      const nextArr = state.stations.slice();
+      [nextArr[a], nextArr[b]] = [nextArr[b], nextArr[a]];
+      setState((s) => ({ ...s, stations: nextArr }));
+      audit("station", id, "update", { order: currentPos }, { order: targetPos },
+        `Reordered ${id} ${direction} within step ${st.sequence}`);
+    },
+
+    // ---------- Station commands (accept/reject sends with simulated protocol reply)
+    sendStationCommand: (stationId, kind, outputId) => {
+      const station = state.stations.find((s) => s.id === stationId);
+      if (!station) return;
+      const cmd = kind === "accept" ? station.machine?.acceptCommand : station.machine?.rejectCommand;
+      const protocol = station.machine?.outputProtocol as CommProtocol | undefined;
+      const now = new Date().toISOString();
+      const id = nextId("CMD-", state.commands);
+      const entry: StationCommand = {
+        id,
+        stationId,
+        at: now,
+        kind,
+        protocol,
+        command: cmd || (kind === "accept" ? "ACK" : "NAK"),
+        status: "pending",
+        actorId: currentActor.id,
+        actorName: currentActor.name,
+        outputId,
+      };
+      setState((s) => ({ ...s, commands: [entry, ...s.commands].slice(0, 500) }));
+      audit("station", stationId, kind === "accept" ? "activate" : "deactivate", null,
+        { command: entry.command, protocol, outputId },
+        `${kind === "accept" ? "ACCEPT" : "REJECT"} sent to ${stationId} via ${protocol ?? "n/a"} (${entry.command})`);
+
+      // Simulate machine reply after a short latency
+      const latency = 120 + Math.floor(Math.random() * 380);
+      window.setTimeout(() => {
+        const roll = Math.random();
+        const status: StationCommand["status"] =
+          roll < 0.85 ? "acknowledged" : roll < 0.95 ? "timeout" : "error";
+        const response =
+          status === "acknowledged" ? `OK · ${latency}ms`
+          : status === "timeout" ? `no reply after ${1500 + Math.floor(Math.random() * 500)}ms`
+          : `NAK · error ${400 + Math.floor(Math.random() * 100)}`;
+        const respondedAt = new Date().toISOString();
+        setState((s) => ({
+          ...s,
+          commands: s.commands.map((c) => (c.id === id ? { ...c, status, response, respondedAt } : c)),
+          outputs: outputId
+            ? s.outputs.map((o) => (o.id === outputId ? { ...o, decision: kind, decidedAt: respondedAt } : o))
+            : s.outputs,
+        }));
+      }, latency);
+    },
+
+    // ---------- Station output files
+    uploadStationOutput: (stationId, file) => {
+      const id = nextId("OUT-", state.outputs);
+      const rec: StationOutputFile = {
+        id, stationId,
+        name: file.name, size: file.size, mime: file.mime, dataUrl: file.dataUrl,
+        uploadedAt: new Date().toISOString(),
+        actorId: currentActor.id, actorName: currentActor.name,
+        decision: null,
+      };
+      setState((s) => ({ ...s, outputs: [rec, ...s.outputs] }));
+      audit("station", stationId, "update", null,
+        { output: { id, name: file.name, size: file.size } },
+        `Uploaded output "${file.name}" (${Math.round(file.size / 1024)} KB) to ${stationId}`);
+      return id;
+    },
+    deleteStationOutput: (id) => {
+      const before = state.outputs.find((o) => o.id === id);
+      if (!before) return;
+      setState((s) => ({ ...s, outputs: s.outputs.filter((o) => o.id !== id) }));
+      audit("station", before.stationId, "update",
+        { output: { id, name: before.name } }, null,
+        `Removed output "${before.name}" from ${before.stationId}`);
+    },
+
+    // ---------- Live refresh signal
+    refreshLive: () => {
+      setState((s) => ({ ...s, refreshedAt: Date.now() }));
+    },
+
 
     // ---------- Users
     createUser: (u) => {
