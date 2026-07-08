@@ -160,6 +160,13 @@ function LineDetailPage() {
   const line = store.lines.find((l) => l.id === lineId);
   if (!line) throw notFound();
 
+  // Auto-poll the live state every 5s (in addition to the 3s store live tick).
+  useEffect(() => {
+    const id = window.setInterval(() => store.refreshLive(), 5000);
+    return () => window.clearInterval(id);
+  }, [store]);
+
+
   const lineStations = useMemo(
     () => store.stations.filter((s) => s.lineId === lineId).sort((a, b) => a.sequence - b.sequence),
     [store.stations, lineId],
