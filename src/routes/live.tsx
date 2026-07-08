@@ -37,6 +37,21 @@ function initials(n: string) {
 function LivePage() {
   const store = useMes();
 
+  // Heartbeat clock: forces re-render every 1s so relative timestamps and
+  // "auto-refresh in Xs" stay accurate without any user interaction.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Auto-poll: bump refreshedAt every 5s. The live tick (3s) already jitters
+  // running stations, but this ensures any purely derived state re-flows too.
+  useEffect(() => {
+    const id = window.setInterval(() => store.refreshLive(), 5000);
+    return () => window.clearInterval(id);
+  }, [store]);
+
   const lastTick = useMemo(() => {
     const ticks = store.stations.map((s) => s.lastTickAt).filter(Boolean) as string[];
     return ticks.sort().at(-1);
@@ -46,6 +61,8 @@ function LivePage() {
   const down = store.lines.filter((l) => l.status === "down").length;
   const openDt = store.downtime.filter((d) => d.status === "open").length;
   const activeOps = store.assignments.filter((a) => a.active && a.targetType === "station").length;
+
+  const nextRefreshIn = 5 - Math.floor(((now - store.refreshedAt) / 1000)) % 5;
 
   return (
     <div className="space-y-6">
