@@ -75,11 +75,16 @@ function LivePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs text-muted-foreground">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin [animation-duration:5s]" />
+            auto-refresh · next in {Math.max(0, nextRefreshIn)}s
+          </div>
           <button
             onClick={() => { store.refreshLive(); toast.success("Live view refreshed"); }}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:border-primary/40 hover:text-primary"
+            title="Force an immediate refresh"
           >
-            <RefreshCw className="h-3.5 w-3.5" /> Refresh live view
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh now
           </button>
           <div className="flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs text-success">
             <Radio className="h-3 w-3 animate-pulse" />
