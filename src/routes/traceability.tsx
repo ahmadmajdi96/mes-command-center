@@ -155,19 +155,21 @@ function downloadCsv(rows: AuditEntry[], stationOf: Map<string, string | undefin
 
 function TraceabilityPage() {
   const store = useMes();
-  const [q, setQ] = useState("");
-  const [entity, setEntity] = useState<AuditEntity | "all">("all");
-  const [plant, setPlant] = useState<string | "all">("all");
-  const [lineId, setLineId] = useState<string | "all">("all");
-  const [stationId, setStationId] = useState<string | "all">("all");
-  const [woId, setWoId] = useState<string | "all">("all");
-  const [actorId, setActorId] = useState<string | "all">("all");
-  const [action, setAction] = useState<AuditAction | "all">("all");
-  const [from, setFrom] = useState<string>("");
-  const [to, setTo] = useState<string>("");
-  const [mode, setMode] = useState<"chronological" | "by_wo">("chronological");
+  const sp = Route.useSearch();
+  const [q, setQ] = useState(sp.q ?? "");
+  const [entity, setEntity] = useState<AuditEntity | "all">(sp.entity ?? "all");
+  const [plant, setPlant] = useState<string | "all">(sp.plant ?? "all");
+  const [lineId, setLineId] = useState<string | "all">(sp.lineId ?? "all");
+  const [stationId, setStationId] = useState<string | "all">(sp.stationId ?? "all");
+  const [woId, setWoId] = useState<string | "all">(sp.woId ?? "all");
+  const [actorId, setActorId] = useState<string | "all">(sp.actorId ?? "all");
+  const [action, setAction] = useState<AuditAction | "all">(sp.action ?? "all");
+  const [from, setFrom] = useState<string>(sp.from ?? "");
+  const [to, setTo] = useState<string>(sp.to ?? "");
+  const [mode, setMode] = useState<"chronological" | "by_wo">(sp.mode ?? "chronological");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
 
   const lineToPlant = useMemo(() => {
     const m = new Map<string, string>();
