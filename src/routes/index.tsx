@@ -655,6 +655,7 @@ function KpiWidgets() {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
