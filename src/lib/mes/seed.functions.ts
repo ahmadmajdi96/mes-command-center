@@ -54,7 +54,7 @@ export const seedMesFromFixtures = createServerFn({ method: "POST" }).handler(as
     current_value: s.currentValue ?? null,
     target: s.target ?? null,
     oee: s.oee ?? null,
-    machine: s.machine ?? null,
+    machine: (s.machine ?? null) as unknown as Record<string, unknown> | null,
     template_ids: s.templateIds ?? null,
     last_tick_at: s.lastTickAt ?? null,
   }));
