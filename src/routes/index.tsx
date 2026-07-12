@@ -537,14 +537,14 @@ function KpiWidgets() {
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
 
-      {/* Uptime */}
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+      {/* Uptime → drill to line/downtime activity */}
+      <Link to="/traceability" search={{ entity: "downtime" }} className="glass-panel relative block overflow-hidden rounded-2xl p-5 transition hover:ring-1 hover:ring-primary/50">
         <div className="absolute inset-0 bg-gradient-to-br from-success/15 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">OEE-like Uptime</h3>
-              <p className="text-xs text-muted-foreground">Weighted availability across all lines</p>
+              <p className="text-xs text-muted-foreground">Weighted availability · click for line events →</p>
             </div>
             <Power className="h-4 w-4 text-success" />
           </div>
@@ -581,16 +581,17 @@ function KpiWidgets() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
-      {/* Downtime Pareto by category */}
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+
+      {/* Downtime Pareto → drill to downtime audit */}
+      <Link to="/traceability" search={{ entity: "downtime", category: topCategory }} className="glass-panel relative block overflow-hidden rounded-2xl p-5 transition hover:ring-1 hover:ring-primary/50">
         <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">Downtime Pareto</h3>
-              <p className="text-xs text-muted-foreground">By category · {paretoTotal}m total</p>
+              <p className="text-xs text-muted-foreground">By category · {paretoTotal}m total · click to drill →</p>
             </div>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </div>
@@ -629,16 +630,17 @@ function KpiWidgets() {
             </>
           )}
         </div>
-      </div>
+      </Link>
 
-      {/* On-time WO completion */}
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+
+      {/* On-time WO completion → drill to work-order audit */}
+      <Link to="/traceability" search={{ entity: "work_order", mode: "by_wo" }} className="glass-panel relative block overflow-hidden rounded-2xl p-5 transition hover:ring-1 hover:ring-primary/50">
         <div className="absolute inset-0 bg-gradient-to-br from-info/15 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">On-time WO Completion</h3>
-              <p className="text-xs text-muted-foreground">Completed at ≥98% of target qty</p>
+              <p className="text-xs text-muted-foreground">Completed at ≥98% of target qty · click for WO timelines →</p>
             </div>
             <CalendarCheck className="h-4 w-4 text-info" />
           </div>
@@ -670,7 +672,8 @@ function KpiWidgets() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
+
       </div>
     </div>
   );
