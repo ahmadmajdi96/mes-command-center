@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Area,
   AreaChart,
@@ -440,6 +441,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 function KpiWidgets() {
   const store = useMes();
   const fetchKpis = useServerFn(getKpiSummary);
+  const qc = useQueryClient();
   const { data: dbKpi } = useQuery({
     queryKey: ["mes", "kpi-summary"],
     queryFn: () => fetchKpis(),
@@ -447,6 +449,21 @@ function KpiWidgets() {
     refetchOnWindowFocus: true,
     staleTime: 15_000,
   });
+
+  // Realtime: invalidate KPI query whenever new downtime, quality holds,
+  // or work-order status changes stream in from Lovable Cloud.
+  useEffect(() => {
+    const bump = () => qc.invalidateQueries({ queryKey: ["mes", "kpi-summary"] });
+    const ch = supabase
+      .channel("mes-kpi-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "downtime_events" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "quality_holds" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "work_orders" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "lines" }, bump)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
+
 
   const useDb = !!dbKpi?.seeded;
 
@@ -507,24 +524,27 @@ function KpiWidgets() {
     ? dbKpi!.linesIdleOrChangeover
     : store.lines.filter((l) => l.status === "changeover" || l.status === "idle").length;
 
+  const topCategory = paretoTop?.category;
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
           <Database className={`h-3 w-3 ${useDb ? "text-success" : "text-muted-foreground"}`} />
-          <span>{useDb ? "Live from Lovable Cloud · auto-refresh 30s" : "In-memory preview — seed the database from Settings to go live"}</span>
+          <span>{useDb ? "Live · Lovable Cloud · realtime + 30s refresh" : "In-memory preview — seed the database from Settings to go live"}</span>
         </div>
         <Link to="/traceability" className="text-[11px] text-primary hover:underline">Open traceability →</Link>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-      {/* Uptime */}
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+
+      {/* Uptime → drill to line/downtime activity */}
+      <Link to="/traceability" search={{ entity: "downtime" }} className="glass-panel relative block overflow-hidden rounded-2xl p-5 transition hover:ring-1 hover:ring-primary/50">
         <div className="absolute inset-0 bg-gradient-to-br from-success/15 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">OEE-like Uptime</h3>
-              <p className="text-xs text-muted-foreground">Weighted availability across all lines</p>
+              <p className="text-xs text-muted-foreground">Weighted availability · click for line events →</p>
             </div>
             <Power className="h-4 w-4 text-success" />
           </div>
@@ -561,16 +581,17 @@ function KpiWidgets() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
-      {/* Downtime Pareto by category */}
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+
+      {/* Downtime Pareto → drill to downtime audit */}
+      <Link to="/traceability" search={{ entity: "downtime", category: topCategory }} className="glass-panel relative block overflow-hidden rounded-2xl p-5 transition hover:ring-1 hover:ring-primary/50">
         <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">Downtime Pareto</h3>
-              <p className="text-xs text-muted-foreground">By category · {paretoTotal}m total</p>
+              <p className="text-xs text-muted-foreground">By category · {paretoTotal}m total · click to drill →</p>
             </div>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </div>
@@ -609,16 +630,17 @@ function KpiWidgets() {
             </>
           )}
         </div>
-      </div>
+      </Link>
 
-      {/* On-time WO completion */}
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+
+      {/* On-time WO completion → drill to work-order audit */}
+      <Link to="/traceability" search={{ entity: "work_order", mode: "by_wo" }} className="glass-panel relative block overflow-hidden rounded-2xl p-5 transition hover:ring-1 hover:ring-primary/50">
         <div className="absolute inset-0 bg-gradient-to-br from-info/15 to-transparent" />
         <div className="relative">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">On-time WO Completion</h3>
-              <p className="text-xs text-muted-foreground">Completed at ≥98% of target qty</p>
+              <p className="text-xs text-muted-foreground">Completed at ≥98% of target qty · click for WO timelines →</p>
             </div>
             <CalendarCheck className="h-4 w-4 text-info" />
           </div>
@@ -650,7 +672,8 @@ function KpiWidgets() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
+
       </div>
     </div>
   );

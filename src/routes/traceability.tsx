@@ -11,12 +11,41 @@ import {
 
 import { toast } from "sonner";
 
+type TraceSearch = {
+  entity?: AuditEntity | "all";
+  plant?: string;
+  lineId?: string;
+  stationId?: string;
+  woId?: string;
+  actorId?: string;
+  action?: AuditAction | "all";
+  from?: string;
+  to?: string;
+  category?: string;
+  mode?: "chronological" | "by_wo";
+  q?: string;
+};
+
 export const Route = createFileRoute("/traceability")({
   head: () => ({
     meta: [
       { title: "Traceability · Cortanex MES" },
       { name: "description", content: "Full chronological trace of every action across production lines and stations — who, what, when." },
     ],
+  }),
+  validateSearch: (s: Record<string, unknown>): TraceSearch => ({
+    entity: typeof s.entity === "string" ? (s.entity as TraceSearch["entity"]) : undefined,
+    plant: typeof s.plant === "string" ? s.plant : undefined,
+    lineId: typeof s.lineId === "string" ? s.lineId : undefined,
+    stationId: typeof s.stationId === "string" ? s.stationId : undefined,
+    woId: typeof s.woId === "string" ? s.woId : undefined,
+    actorId: typeof s.actorId === "string" ? s.actorId : undefined,
+    action: typeof s.action === "string" ? (s.action as TraceSearch["action"]) : undefined,
+    from: typeof s.from === "string" ? s.from : undefined,
+    to: typeof s.to === "string" ? s.to : undefined,
+    category: typeof s.category === "string" ? s.category : undefined,
+    mode: s.mode === "by_wo" || s.mode === "chronological" ? s.mode : undefined,
+    q: typeof s.q === "string" ? s.q : undefined,
   }),
   component: TraceabilityPage,
 });
@@ -126,19 +155,21 @@ function downloadCsv(rows: AuditEntry[], stationOf: Map<string, string | undefin
 
 function TraceabilityPage() {
   const store = useMes();
-  const [q, setQ] = useState("");
-  const [entity, setEntity] = useState<AuditEntity | "all">("all");
-  const [plant, setPlant] = useState<string | "all">("all");
-  const [lineId, setLineId] = useState<string | "all">("all");
-  const [stationId, setStationId] = useState<string | "all">("all");
-  const [woId, setWoId] = useState<string | "all">("all");
-  const [actorId, setActorId] = useState<string | "all">("all");
-  const [action, setAction] = useState<AuditAction | "all">("all");
-  const [from, setFrom] = useState<string>("");
-  const [to, setTo] = useState<string>("");
-  const [mode, setMode] = useState<"chronological" | "by_wo">("chronological");
+  const sp = Route.useSearch();
+  const [q, setQ] = useState(sp.q ?? "");
+  const [entity, setEntity] = useState<AuditEntity | "all">(sp.entity ?? "all");
+  const [plant, setPlant] = useState<string | "all">(sp.plant ?? "all");
+  const [lineId, setLineId] = useState<string | "all">(sp.lineId ?? "all");
+  const [stationId, setStationId] = useState<string | "all">(sp.stationId ?? "all");
+  const [woId, setWoId] = useState<string | "all">(sp.woId ?? "all");
+  const [actorId, setActorId] = useState<string | "all">(sp.actorId ?? "all");
+  const [action, setAction] = useState<AuditAction | "all">(sp.action ?? "all");
+  const [from, setFrom] = useState<string>(sp.from ?? "");
+  const [to, setTo] = useState<string>(sp.to ?? "");
+  const [mode, setMode] = useState<"chronological" | "by_wo">(sp.mode ?? "chronological");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
 
   const lineToPlant = useMemo(() => {
     const m = new Map<string, string>();
