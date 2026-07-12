@@ -548,19 +548,15 @@ function KpiWidgets() {
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted-foreground">
             <div>
-              <div className="font-mono text-sm text-foreground">{activeLines.length}</div>
+              <div className="font-mono text-sm text-foreground">{linesRunning}</div>
               <div>Running</div>
             </div>
             <div>
-              <div className="font-mono text-sm text-foreground">
-                {store.lines.filter((l) => l.status === "down").length}
-              </div>
+              <div className="font-mono text-sm text-foreground">{linesDown}</div>
               <div>Down</div>
             </div>
             <div>
-              <div className="font-mono text-sm text-foreground">
-                {store.lines.filter((l) => l.status === "changeover" || l.status === "idle").length}
-              </div>
+              <div className="font-mono text-sm text-foreground">{linesIdle}</div>
               <div>Idle / CO</div>
             </div>
           </div>
