@@ -14,7 +14,374 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_entries: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_name: string
+          after_data: Json | null
+          at: string
+          before_data: Json | null
+          entity: string
+          entity_id: string
+          id: string
+          summary: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          actor_name: string
+          after_data?: Json | null
+          at: string
+          before_data?: Json | null
+          entity: string
+          entity_id: string
+          id: string
+          summary: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_name?: string
+          after_data?: Json | null
+          at?: string
+          before_data?: Json | null
+          entity?: string
+          entity_id?: string
+          id?: string
+          summary?: string
+        }
+        Relationships: []
+      }
+      downtime_events: {
+        Row: {
+          assignment_id: string | null
+          category: string
+          duration_min: number
+          id: string
+          line_id: string
+          line_name: string
+          notes: string | null
+          operator_id: string | null
+          operator_name: string | null
+          reason_code: string
+          started_at: string
+          started_ts: string | null
+          station_id: string | null
+          status: string
+          work_order_id: string | null
+        }
+        Insert: {
+          assignment_id?: string | null
+          category: string
+          duration_min?: number
+          id: string
+          line_id: string
+          line_name: string
+          notes?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          reason_code: string
+          started_at: string
+          started_ts?: string | null
+          station_id?: string | null
+          status: string
+          work_order_id?: string | null
+        }
+        Update: {
+          assignment_id?: string | null
+          category?: string
+          duration_min?: number
+          id?: string
+          line_id?: string
+          line_name?: string
+          notes?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          reason_code?: string
+          started_at?: string
+          started_ts?: string | null
+          station_id?: string | null
+          status?: string
+          work_order_id?: string | null
+        }
+        Relationships: []
+      }
+      genealogy_records: {
+        Row: {
+          id: string
+          input_lot_id: string
+          material: string
+          output_lot_id: string
+          qty_consumed: number
+          recorded_at: string
+          supplier: string
+          uom: string
+          work_order_id: string
+        }
+        Insert: {
+          id: string
+          input_lot_id: string
+          material: string
+          output_lot_id: string
+          qty_consumed: number
+          recorded_at: string
+          supplier: string
+          uom: string
+          work_order_id: string
+        }
+        Update: {
+          id?: string
+          input_lot_id?: string
+          material?: string
+          output_lot_id?: string
+          qty_consumed?: number
+          recorded_at?: string
+          supplier?: string
+          uom?: string
+          work_order_id?: string
+        }
+        Relationships: []
+      }
+      lines: {
+        Row: {
+          availability: number
+          current_work_order: string | null
+          id: string
+          name: string
+          oee: number
+          output: number
+          performance: number
+          plant: string
+          product: string | null
+          quality: number
+          status: string
+          target: number
+          updated_at: string
+          uptime: string
+        }
+        Insert: {
+          availability?: number
+          current_work_order?: string | null
+          id: string
+          name: string
+          oee?: number
+          output?: number
+          performance?: number
+          plant: string
+          product?: string | null
+          quality?: number
+          status: string
+          target?: number
+          updated_at?: string
+          uptime?: string
+        }
+        Update: {
+          availability?: number
+          current_work_order?: string | null
+          id?: string
+          name?: string
+          oee?: number
+          output?: number
+          performance?: number
+          plant?: string
+          product?: string | null
+          quality?: number
+          status?: string
+          target?: number
+          updated_at?: string
+          uptime?: string
+        }
+        Relationships: []
+      }
+      mes_users: {
+        Row: {
+          email: string
+          id: string
+          mobile: string
+          name: string
+          role: string
+          shift: string
+          skills: string | null
+          status: string
+        }
+        Insert: {
+          email: string
+          id: string
+          mobile: string
+          name: string
+          role: string
+          shift: string
+          skills?: string | null
+          status: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          mobile?: string
+          name?: string
+          role?: string
+          shift?: string
+          skills?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      quality_holds: {
+        Row: {
+          id: string
+          line_id: string
+          lot_id: string
+          raised_at: string
+          raised_by: string
+          raised_ts: string | null
+          reason: string
+          severity: string
+          status: string
+          work_order_id: string
+        }
+        Insert: {
+          id: string
+          line_id: string
+          lot_id: string
+          raised_at: string
+          raised_by: string
+          raised_ts?: string | null
+          reason: string
+          severity: string
+          status: string
+          work_order_id: string
+        }
+        Update: {
+          id?: string
+          line_id?: string
+          lot_id?: string
+          raised_at?: string
+          raised_by?: string
+          raised_ts?: string | null
+          reason?: string
+          severity?: string
+          status?: string
+          work_order_id?: string
+        }
+        Relationships: []
+      }
+      stations: {
+        Row: {
+          current_step: string | null
+          current_value: string | null
+          cycle_time_sec: number
+          id: string
+          last_tick_at: string | null
+          line_id: string
+          machine: Json | null
+          name: string
+          oee: number | null
+          sequence: number
+          status: string
+          target: string | null
+          template_ids: string[] | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          current_step?: string | null
+          current_value?: string | null
+          cycle_time_sec?: number
+          id: string
+          last_tick_at?: string | null
+          line_id: string
+          machine?: Json | null
+          name: string
+          oee?: number | null
+          sequence: number
+          status: string
+          target?: string | null
+          template_ids?: string[] | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          current_step?: string | null
+          current_value?: string | null
+          cycle_time_sec?: number
+          id?: string
+          last_tick_at?: string | null
+          line_id?: string
+          machine?: Json | null
+          name?: string
+          oee?: number | null
+          sequence?: number
+          status?: string
+          target?: string | null
+          template_ids?: string[] | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stations_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          ends_at: string | null
+          id: string
+          line_id: string
+          operator: string | null
+          product: string
+          production_order_id: string
+          progress: number
+          qty_produced: number
+          qty_target: number
+          shift: string
+          sku: string
+          started_at: string | null
+          status: string
+          uom: string
+          updated_at: string
+        }
+        Insert: {
+          ends_at?: string | null
+          id: string
+          line_id: string
+          operator?: string | null
+          product: string
+          production_order_id: string
+          progress?: number
+          qty_produced?: number
+          qty_target: number
+          shift: string
+          sku: string
+          started_at?: string | null
+          status: string
+          uom: string
+          updated_at?: string
+        }
+        Update: {
+          ends_at?: string | null
+          id?: string
+          line_id?: string
+          operator?: string | null
+          product?: string
+          production_order_id?: string
+          progress?: number
+          qty_produced?: number
+          qty_target?: number
+          shift?: string
+          sku?: string
+          started_at?: string | null
+          status?: string
+          uom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
