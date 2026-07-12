@@ -631,7 +631,7 @@ function KpiWidgets() {
             <span className="text-sm text-muted-foreground">%</span>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            {onTime.length} of {completed.length} completed WOs met target
+            {onTimeCount} of {completedCount} completed WOs met target
           </p>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
             <div
