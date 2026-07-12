@@ -348,14 +348,24 @@ function TraceabilityPage() {
             />
           </div>
 
-          <FilterSelect label="Line" value={lineId} onChange={(v) => { setLineId(v); setStationId("all"); }} options={[
+          <FilterSelect label="Plant" value={plant} onChange={(v) => { setPlant(v); setLineId("all"); setStationId("all"); setWoId("all"); }} options={[
+            { value: "all", label: "All plants" },
+            ...plants.map((p) => ({ value: p, label: p })),
+          ]} />
+
+          <FilterSelect label="Line" value={lineId} onChange={(v) => { setLineId(v); setStationId("all"); setWoId("all"); }} options={[
             { value: "all", label: "All lines" },
-            ...store.lines.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` })),
+            ...lineOptions.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` })),
           ]} />
 
           <FilterSelect label="Station" value={stationId} onChange={setStationId} options={[
             { value: "all", label: "All stations" },
             ...stationOptions.map((s) => ({ value: s.id, label: `${s.id} · ${s.name}` })),
+          ]} />
+
+          <FilterSelect label="Work order" value={woId} onChange={setWoId} options={[
+            { value: "all", label: "All work orders" },
+            ...woOptions.map((w) => ({ value: w.id, label: `${w.id} · ${w.product}` })),
           ]} />
 
           <FilterSelect label="Actor (operator / engineer)" value={actorId} onChange={setActorId} options={[
@@ -364,6 +374,7 @@ function TraceabilityPage() {
           ]} />
 
           <FilterSelect label="Action" value={action} onChange={(v) => setAction(v as AuditAction | "all")} options={actionFilters.map(a => ({ value: a.value, label: a.label }))} />
+
 
           <div>
             <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">From</div>
