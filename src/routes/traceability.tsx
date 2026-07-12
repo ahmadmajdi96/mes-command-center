@@ -191,6 +191,16 @@ function TraceabilityPage() {
     return undefined;
   };
 
+  const relatedWorkOrderForEntry = (e: AuditEntry): string | undefined => {
+    if (e.entity === "work_order") return e.entityId;
+    if (e.entity === "downtime") return store.downtime.find((d) => d.id === e.entityId)?.workOrderId;
+    if (e.entity === "hold") return store.holds.find((h) => h.id === e.entityId)?.workOrderId;
+    if (e.entity === "genealogy") return store.genealogy.find((g) => g.id === e.entityId)?.workOrderId;
+    const afterWo = (e.after as any)?.workOrderId ?? (e.before as any)?.workOrderId;
+    if (typeof afterWo === "string") return afterWo;
+    return undefined;
+  };
+
   const filtered = useMemo(() => {
     const fromMs = from ? new Date(from).getTime() : -Infinity;
     const toMs = to ? new Date(to).getTime() : Infinity;
@@ -204,11 +214,19 @@ function TraceabilityPage() {
         if (ts < fromMs || ts > toMs) return false;
       }
 
+      const rLine = relatedLineForEntry(e);
+      if (plant !== "all") {
+        const p = rLine ? lineToPlant.get(rLine) : undefined;
+        if (p !== plant) return false;
+      }
       if (lineId !== "all") {
-        if (relatedLineForEntry(e) !== lineId) return false;
+        if (rLine !== lineId) return false;
       }
       if (stationId !== "all") {
         if (relatedStationForEntry(e) !== stationId) return false;
+      }
+      if (woId !== "all") {
+        if (relatedWorkOrderForEntry(e) !== woId) return false;
       }
 
       if (!q) return true;
@@ -218,7 +236,7 @@ function TraceabilityPage() {
         || e.entityId.toLowerCase().includes(s)
         || e.id.toLowerCase().includes(s);
     });
-  }, [store.audit, store.downtime, entity, action, actorId, lineId, stationId, q, from, to, stationToLine, woToLine]);
+  }, [store.audit, store.downtime, store.holds, store.genealogy, entity, action, actorId, plant, lineId, stationId, woId, q, from, to, stationToLine, woToLine, lineToPlant]);
 
   const groups = useMemo(() => {
     const map = new Map<string, AuditEntry[]>();
@@ -231,6 +249,28 @@ function TraceabilityPage() {
     return [...map.entries()];
   }, [filtered]);
 
+  const woGroups = useMemo(() => {
+    const map = new Map<string, AuditEntry[]>();
+    for (const e of filtered) {
+      const key = relatedWorkOrderForEntry(e) ?? "__no_wo__";
+      const arr = map.get(key) ?? [];
+      arr.push(e);
+      map.set(key, arr);
+    }
+    // Sort each group oldest → newest so a WO reads as a story;
+    // sort WO buckets by their latest activity, newest bucket first.
+    const entries = [...map.entries()].map(([k, arr]) => {
+      const sorted = [...arr].sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+      return [k, sorted] as [string, AuditEntry[]];
+    });
+    entries.sort((a, b) => {
+      const la = new Date(a[1][a[1].length - 1].at).getTime();
+      const lb = new Date(b[1][b[1].length - 1].at).getTime();
+      return lb - la;
+    });
+    return entries;
+  }, [filtered]);
+
   const relatedLineIndex = useMemo(() => {
     const m = new Map<string, string | undefined>();
     for (const e of filtered) m.set(e.id, relatedLineForEntry(e));
@@ -238,8 +278,8 @@ function TraceabilityPage() {
   }, [filtered]);
 
   const clearAll = () => {
-    setQ(""); setEntity("all"); setLineId("all"); setStationId("all");
-    setActorId("all"); setAction("all"); setFrom(""); setTo("");
+    setQ(""); setEntity("all"); setPlant("all"); setLineId("all"); setStationId("all");
+    setWoId("all"); setActorId("all"); setAction("all"); setFrom(""); setTo("");
   };
 
   const stationOptions = useMemo(() => {
@@ -248,10 +288,22 @@ function TraceabilityPage() {
       .sort((a, b) => a.id.localeCompare(b.id));
   }, [store.stations, lineId]);
 
+  const lineOptions = useMemo(() => {
+    return store.lines.filter((l) => plant === "all" || l.plant === plant);
+  }, [store.lines, plant]);
+
+  const woOptions = useMemo(() => {
+    return store.workOrders
+      .filter((w) => lineId === "all" || w.lineId === lineId)
+      .filter((w) => plant === "all" || lineToPlant.get(w.lineId) === plant);
+  }, [store.workOrders, lineId, plant, lineToPlant]);
+
   const activeFilterCount =
-    (q ? 1 : 0) + (entity !== "all" ? 1 : 0) + (lineId !== "all" ? 1 : 0)
-    + (stationId !== "all" ? 1 : 0) + (actorId !== "all" ? 1 : 0)
+    (q ? 1 : 0) + (entity !== "all" ? 1 : 0) + (plant !== "all" ? 1 : 0)
+    + (lineId !== "all" ? 1 : 0) + (stationId !== "all" ? 1 : 0)
+    + (woId !== "all" ? 1 : 0) + (actorId !== "all" ? 1 : 0)
     + (action !== "all" ? 1 : 0) + (from ? 1 : 0) + (to ? 1 : 0);
+
 
   return (
     <div className="space-y-6">
