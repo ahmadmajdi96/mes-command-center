@@ -23,13 +23,16 @@ import {
   Activity,
   AlertTriangle,
   ArrowUpRight,
+  CalendarCheck,
   CheckCircle2,
   Gauge,
   Package,
+  Power,
   Timer,
   TrendingUp,
   Zap,
 } from "lucide-react";
+
 import {
   andonAlerts,
   downtimeReasons,
@@ -352,7 +355,11 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* Extra KPI widgets */}
+      <KpiWidgets />
+
       {/* Active WOs */}
+
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -407,3 +414,202 @@ function Legend({ dot, label }: { dot: string; label: string }) {
     </span>
   );
 }
+
+// --- KPI widgets: uptime, downtime Pareto by category, on-time WO completion ---
+
+const CATEGORY_LABEL: Record<string, string> = {
+  equipment_failure: "Equipment failure",
+  changeover: "Changeover",
+  material_shortage: "Material shortage",
+  quality_hold: "Quality hold",
+  operator_break: "Operator break",
+};
+
+const CATEGORY_COLOR: Record<string, string> = {
+  equipment_failure: "oklch(0.68 0.22 25)",
+  changeover: "oklch(0.78 0.16 195)",
+  material_shortage: "oklch(0.82 0.17 80)",
+  quality_hold: "oklch(0.72 0.18 320)",
+  operator_break: "oklch(0.72 0.14 230)",
+};
+
+function KpiWidgets() {
+  const store = useMes();
+
+  // OEE-like uptime — share of lines running weighted by availability
+  const activeLines = store.lines.filter((l) => l.status === "running");
+  const uptime =
+    store.lines.length === 0
+      ? 0
+      : Math.round(
+          store.lines.reduce((sum, l) => sum + (l.status === "running" ? l.availability : 0), 0) /
+            store.lines.length,
+        );
+
+  // Downtime Pareto by category (all recorded events)
+  const paretoMap = new Map<string, number>();
+  for (const d of store.downtime) {
+    paretoMap.set(d.category, (paretoMap.get(d.category) ?? 0) + d.durationMin);
+  }
+  const pareto = [...paretoMap.entries()]
+    .map(([category, minutes]) => ({
+      category,
+      label: CATEGORY_LABEL[category] ?? category,
+      minutes,
+      color: CATEGORY_COLOR[category] ?? "oklch(0.6 0.05 245)",
+    }))
+    .sort((a, b) => b.minutes - a.minutes);
+  const paretoTotal = pareto.reduce((s, p) => s + p.minutes, 0);
+  const paretoTop = pareto[0];
+
+  // On-time WO completion — completed WOs meeting qty target
+  const completed = store.workOrders.filter((w) => w.status === "completed");
+  const onTime = completed.filter((w) => w.qtyProduced / Math.max(1, w.qtyTarget) >= 0.98);
+  const otd = completed.length === 0 ? 0 : Math.round((onTime.length / completed.length) * 100);
+  const running = store.workOrders.filter((w) => w.status === "running").length;
+  const scheduled = store.workOrders.filter((w) => w.status === "scheduled").length;
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      {/* Uptime */}
+      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+        <div className="absolute inset-0 bg-gradient-to-br from-success/15 to-transparent" />
+        <div className="relative">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">OEE-like Uptime</h3>
+              <p className="text-xs text-muted-foreground">Weighted availability across all lines</p>
+            </div>
+            <Power className="h-4 w-4 text-success" />
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="font-mono text-4xl font-semibold tracking-tight text-glow">{uptime}</span>
+            <span className="text-sm text-muted-foreground">%</span>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${uptime}%`,
+                background:
+                  uptime >= 85
+                    ? "var(--color-success)"
+                    : uptime >= 70
+                    ? "var(--color-accent)"
+                    : "var(--color-destructive)",
+              }}
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted-foreground">
+            <div>
+              <div className="font-mono text-sm text-foreground">{activeLines.length}</div>
+              <div>Running</div>
+            </div>
+            <div>
+              <div className="font-mono text-sm text-foreground">
+                {store.lines.filter((l) => l.status === "down").length}
+              </div>
+              <div>Down</div>
+            </div>
+            <div>
+              <div className="font-mono text-sm text-foreground">
+                {store.lines.filter((l) => l.status === "changeover" || l.status === "idle").length}
+              </div>
+              <div>Idle / CO</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Downtime Pareto by category */}
+      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+        <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent" />
+        <div className="relative">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">Downtime Pareto</h3>
+              <p className="text-xs text-muted-foreground">By category · {paretoTotal}m total</p>
+            </div>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+          </div>
+          {pareto.length === 0 ? (
+            <p className="mt-4 text-xs text-muted-foreground">No downtime events recorded.</p>
+          ) : (
+            <>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="font-mono text-2xl font-semibold">{paretoTop.label}</span>
+                <span className="text-xs text-muted-foreground">top driver · {paretoTop.minutes}m</span>
+              </div>
+              <div className="mt-3 space-y-1.5">
+                {pareto.slice(0, 5).map((p) => {
+                  const pct = paretoTotal === 0 ? 0 : Math.round((p.minutes / paretoTotal) * 100);
+                  return (
+                    <div key={p.category}>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-sm" style={{ background: p.color }} />
+                          <span className="text-muted-foreground">{p.label}</span>
+                        </span>
+                        <span className="font-mono text-foreground">
+                          {p.minutes}m · {pct}%
+                        </span>
+                      </div>
+                      <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${pct}%`, background: p.color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* On-time WO completion */}
+      <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
+        <div className="absolute inset-0 bg-gradient-to-br from-info/15 to-transparent" />
+        <div className="relative">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">On-time WO Completion</h3>
+              <p className="text-xs text-muted-foreground">Completed at ≥98% of target qty</p>
+            </div>
+            <CalendarCheck className="h-4 w-4 text-info" />
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="font-mono text-4xl font-semibold tracking-tight text-glow">{otd}</span>
+            <span className="text-sm text-muted-foreground">%</span>
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {onTime.length} of {completed.length} completed WOs met target
+          </p>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-info to-primary"
+              style={{ width: `${otd}%` }}
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted-foreground">
+            <div>
+              <div className="font-mono text-sm text-foreground">{completed.length}</div>
+              <div>Completed</div>
+            </div>
+            <div>
+              <div className="font-mono text-sm text-foreground">{running}</div>
+              <div>Running</div>
+            </div>
+            <div>
+              <div className="font-mono text-sm text-foreground">{scheduled}</div>
+              <div>Scheduled</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
