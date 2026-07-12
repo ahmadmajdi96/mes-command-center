@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Area,
   AreaChart,
@@ -25,6 +27,7 @@ import {
   ArrowUpRight,
   CalendarCheck,
   CheckCircle2,
+  Database,
   Gauge,
   Package,
   Power,
@@ -42,6 +45,7 @@ import {
 } from "@/lib/mes-data";
 import { useMes } from "@/lib/mes-store";
 import { StatusPill } from "@/components/status-pill";
+import { getKpiSummary } from "@/lib/mes/kpi.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
