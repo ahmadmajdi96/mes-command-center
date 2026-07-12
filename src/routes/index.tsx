@@ -641,7 +641,7 @@ function KpiWidgets() {
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted-foreground">
             <div>
-              <div className="font-mono text-sm text-foreground">{completed.length}</div>
+              <div className="font-mono text-sm text-foreground">{completedCount}</div>
               <div>Completed</div>
             </div>
             <div>
