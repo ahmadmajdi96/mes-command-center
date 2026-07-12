@@ -441,6 +441,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 function KpiWidgets() {
   const store = useMes();
   const fetchKpis = useServerFn(getKpiSummary);
+  const qc = useQueryClient();
   const { data: dbKpi } = useQuery({
     queryKey: ["mes", "kpi-summary"],
     queryFn: () => fetchKpis(),
@@ -448,6 +449,21 @@ function KpiWidgets() {
     refetchOnWindowFocus: true,
     staleTime: 15_000,
   });
+
+  // Realtime: invalidate KPI query whenever new downtime, quality holds,
+  // or work-order status changes stream in from Lovable Cloud.
+  useEffect(() => {
+    const bump = () => qc.invalidateQueries({ queryKey: ["mes", "kpi-summary"] });
+    const ch = supabase
+      .channel("mes-kpi-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "downtime_events" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "quality_holds" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "work_orders" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "lines" }, bump)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
+
 
   const useDb = !!dbKpi?.seeded;
 
@@ -508,16 +524,19 @@ function KpiWidgets() {
     ? dbKpi!.linesIdleOrChangeover
     : store.lines.filter((l) => l.status === "changeover" || l.status === "idle").length;
 
+  const topCategory = paretoTop?.category;
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
           <Database className={`h-3 w-3 ${useDb ? "text-success" : "text-muted-foreground"}`} />
-          <span>{useDb ? "Live from Lovable Cloud · auto-refresh 30s" : "In-memory preview — seed the database from Settings to go live"}</span>
+          <span>{useDb ? "Live · Lovable Cloud · realtime + 30s refresh" : "In-memory preview — seed the database from Settings to go live"}</span>
         </div>
         <Link to="/traceability" className="text-[11px] text-primary hover:underline">Open traceability →</Link>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
+
       {/* Uptime */}
       <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
         <div className="absolute inset-0 bg-gradient-to-br from-success/15 to-transparent" />
