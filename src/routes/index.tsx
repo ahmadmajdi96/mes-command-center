@@ -439,23 +439,34 @@ const CATEGORY_COLOR: Record<string, string> = {
 
 function KpiWidgets() {
   const store = useMes();
+  const fetchKpis = useServerFn(getKpiSummary);
+  const { data: dbKpi } = useQuery({
+    queryKey: ["mes", "kpi-summary"],
+    queryFn: () => fetchKpis(),
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
+    staleTime: 15_000,
+  });
+
+  const useDb = !!dbKpi?.seeded;
 
   // OEE-like uptime — share of lines running weighted by availability
   const activeLines = store.lines.filter((l) => l.status === "running");
-  const uptime =
+  const storeUptime =
     store.lines.length === 0
       ? 0
       : Math.round(
           store.lines.reduce((sum, l) => sum + (l.status === "running" ? l.availability : 0), 0) /
             store.lines.length,
         );
+  const uptime = useDb ? dbKpi!.uptimeWeighted : storeUptime;
 
   // Downtime Pareto by category (all recorded events)
   const paretoMap = new Map<string, number>();
   for (const d of store.downtime) {
     paretoMap.set(d.category, (paretoMap.get(d.category) ?? 0) + d.durationMin);
   }
-  const pareto = [...paretoMap.entries()]
+  const storePareto = [...paretoMap.entries()]
     .map(([category, minutes]) => ({
       category,
       label: CATEGORY_LABEL[category] ?? category,
@@ -463,18 +474,49 @@ function KpiWidgets() {
       color: CATEGORY_COLOR[category] ?? "oklch(0.6 0.05 245)",
     }))
     .sort((a, b) => b.minutes - a.minutes);
+  const pareto = useDb
+    ? dbKpi!.pareto.map((p) => ({
+        ...p,
+        color: CATEGORY_COLOR[p.category] ?? "oklch(0.6 0.05 245)",
+      }))
+    : storePareto;
   const paretoTotal = pareto.reduce((s, p) => s + p.minutes, 0);
   const paretoTop = pareto[0];
 
   // On-time WO completion — completed WOs meeting qty target
-  const completed = store.workOrders.filter((w) => w.status === "completed");
-  const onTime = completed.filter((w) => w.qtyProduced / Math.max(1, w.qtyTarget) >= 0.98);
-  const otd = completed.length === 0 ? 0 : Math.round((onTime.length / completed.length) * 100);
-  const running = store.workOrders.filter((w) => w.status === "running").length;
-  const scheduled = store.workOrders.filter((w) => w.status === "scheduled").length;
+  const completedStore = store.workOrders.filter((w) => w.status === "completed");
+  const onTimeStore = completedStore.filter((w) => w.qtyProduced / Math.max(1, w.qtyTarget) >= 0.98);
+  const otd = useDb
+    ? dbKpi!.onTimeCompletionPct
+    : completedStore.length === 0
+    ? 0
+    : Math.round((onTimeStore.length / completedStore.length) * 100);
+  const completedCount = useDb ? dbKpi!.completedCount : completedStore.length;
+  const onTimeCount = useDb ? dbKpi!.onTimeCount : onTimeStore.length;
+  const running = useDb
+    ? dbKpi!.runningCount
+    : store.workOrders.filter((w) => w.status === "running").length;
+  const scheduled = useDb
+    ? dbKpi!.scheduledCount
+    : store.workOrders.filter((w) => w.status === "scheduled").length;
+  const linesRunning = useDb ? dbKpi!.linesRunning : activeLines.length;
+  const linesDown = useDb
+    ? dbKpi!.linesDown
+    : store.lines.filter((l) => l.status === "down").length;
+  const linesIdle = useDb
+    ? dbKpi!.linesIdleOrChangeover
+    : store.lines.filter((l) => l.status === "changeover" || l.status === "idle").length;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+          <Database className={`h-3 w-3 ${useDb ? "text-success" : "text-muted-foreground"}`} />
+          <span>{useDb ? "Live from Lovable Cloud · auto-refresh 30s" : "In-memory preview — seed the database from Settings to go live"}</span>
+        </div>
+        <Link to="/traceability" className="text-[11px] text-primary hover:underline">Open traceability →</Link>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
       {/* Uptime */}
       <div className="glass-panel relative overflow-hidden rounded-2xl p-5">
         <div className="absolute inset-0 bg-gradient-to-br from-success/15 to-transparent" />
