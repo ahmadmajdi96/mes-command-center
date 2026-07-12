@@ -127,14 +127,30 @@ function TraceabilityPage() {
   const store = useMes();
   const [q, setQ] = useState("");
   const [entity, setEntity] = useState<AuditEntity | "all">("all");
+  const [plant, setPlant] = useState<string | "all">("all");
   const [lineId, setLineId] = useState<string | "all">("all");
   const [stationId, setStationId] = useState<string | "all">("all");
+  const [woId, setWoId] = useState<string | "all">("all");
   const [actorId, setActorId] = useState<string | "all">("all");
   const [action, setAction] = useState<AuditAction | "all">("all");
   const [from, setFrom] = useState<string>("");
   const [to, setTo] = useState<string>("");
+  const [mode, setMode] = useState<"chronological" | "by_wo">("chronological");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const lineToPlant = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const l of store.lines) m.set(l.id, l.plant);
+    return m;
+  }, [store.lines]);
+
+  const plants = useMemo(() => {
+    const s = new Set<string>();
+    for (const l of store.lines) s.add(l.plant);
+    return [...s].sort();
+  }, [store.lines]);
+
 
   const stationToLine = useMemo(() => {
     const m = new Map<string, string>();
