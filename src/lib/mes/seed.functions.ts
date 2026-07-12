@@ -59,7 +59,7 @@ export const seedMesFromFixtures = createServerFn({ method: "POST" }).handler(as
     last_tick_at: s.lastTickAt ?? null,
   }));
   {
-    const { error } = await supabaseAdmin.from("stations").upsert(stationsRows, { onConflict: "id" });
+    const { error } = await supabaseAdmin.from("stations").upsert(stationsRows as never, { onConflict: "id" });
     if (error) throw new Error(`stations: ${error.message}`);
     results.stations = stationsRows.length;
   }
