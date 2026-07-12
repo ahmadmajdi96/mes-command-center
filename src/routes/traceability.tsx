@@ -5,8 +5,9 @@ import type { AuditAction, AuditEntity, AuditEntry } from "@/lib/mes-data";
 import {
   Activity, Search, Factory, Cpu, User as UserIcon, ClipboardList,
   ShieldAlert, AlertOctagon, GitBranch, ListChecks, UsersRound,
-  Download, Printer, X, LayoutList, GitMerge, Building2,
+  Download, Printer, X, LayoutList, GitMerge,
 } from "lucide-react";
+
 
 import { toast } from "sonner";
 
