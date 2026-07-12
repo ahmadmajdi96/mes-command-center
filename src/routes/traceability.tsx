@@ -424,15 +424,84 @@ function TraceabilityPage() {
         </div>
       </div>
 
-      {/* Print-only header */}
-      <div className="hidden print:block">
-        <h1 className="text-xl font-semibold">Cortanex MES · Traceability report</h1>
-        <p className="text-xs text-muted-foreground">
-          Generated {mounted ? new Date().toLocaleString() : "—"} · {filtered.length} events
-          {lineId !== "all" && ` · Line ${lineId}`}
-          {stationId !== "all" && ` · Station ${stationId}`}
-          {actorId !== "all" && ` · Actor ${actorId}`}
+      {/* Mode toggle */}
+      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
+        <div className="inline-flex rounded-lg border border-border/60 bg-card/40 p-0.5 text-xs">
+          <button
+            onClick={() => setMode("chronological")}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 transition ${
+              mode === "chronological"
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <LayoutList className="h-3.5 w-3.5" /> Chronological
+          </button>
+          <button
+            onClick={() => setMode("by_wo")}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 transition ${
+              mode === "by_wo"
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <GitMerge className="h-3.5 w-3.5" /> By work order
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {mode === "by_wo"
+            ? "Groups downtime, quality holds and machine commands under the WO they belong to."
+            : "Newest events at the top, grouped by day."}
         </p>
+      </div>
+
+      {/* Print-only audit-ready header */}
+      <div className="hidden print:block print:mb-4">
+        <h1 className="text-xl font-semibold">Cortanex MES · Traceability &amp; Genealogy Report</h1>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Generated {mounted ? new Date().toLocaleString() : "—"} · {filtered.length} events ·
+          view: {mode === "by_wo" ? "By work order" : "Chronological"}
+        </p>
+        <table className="mt-3 w-full border-collapse text-[11px]">
+          <tbody>
+            <tr className="border-b border-border/40">
+              <td className="w-32 py-1 pr-3 text-muted-foreground">Date range</td>
+              <td className="py-1 font-mono">
+                {from ? new Date(from).toLocaleString() : "beginning"} → {to ? new Date(to).toLocaleString() : "now"}
+              </td>
+            </tr>
+            <tr className="border-b border-border/40">
+              <td className="py-1 pr-3 text-muted-foreground">Plant</td>
+              <td className="py-1">{plant === "all" ? "All plants" : plant}</td>
+            </tr>
+            <tr className="border-b border-border/40">
+              <td className="py-1 pr-3 text-muted-foreground">Line</td>
+              <td className="py-1 font-mono">{lineId === "all" ? "All lines" : lineId}</td>
+            </tr>
+            <tr className="border-b border-border/40">
+              <td className="py-1 pr-3 text-muted-foreground">Station</td>
+              <td className="py-1 font-mono">{stationId === "all" ? "All stations" : stationId}</td>
+            </tr>
+            <tr className="border-b border-border/40">
+              <td className="py-1 pr-3 text-muted-foreground">Work order</td>
+              <td className="py-1 font-mono">{woId === "all" ? "All work orders" : woId}</td>
+            </tr>
+            <tr className="border-b border-border/40">
+              <td className="py-1 pr-3 text-muted-foreground">Operator / actor</td>
+              <td className="py-1">
+                {actorId === "all"
+                  ? "Anyone"
+                  : store.users.find((u) => u.id === actorId)?.name ?? actorId}
+              </td>
+            </tr>
+            <tr>
+              <td className="py-1 pr-3 text-muted-foreground">Search / action</td>
+              <td className="py-1">
+                {q ? `“${q}”` : "—"} · action: {action}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       {/* Timeline */}
@@ -441,7 +510,7 @@ function TraceabilityPage() {
           <Activity className="mx-auto mb-2 h-5 w-5" />
           No traceable events match the current filter yet.
         </div>
-      ) : (
+      ) : mode === "chronological" ? (
         <div className="space-y-6">
           {groups.map(([day, items]) => (
             <div key={day}>
@@ -454,56 +523,144 @@ function TraceabilityPage() {
               </div>
               <ol className="relative space-y-2 pl-4">
                 <div className="absolute left-1 top-1 bottom-1 w-px bg-border/50 print:hidden" />
-                {items.map((e) => {
-                  const t = fmt(e.at);
-                  const link = entityLinkFor(e);
-                  return (
-                    <li key={e.id} className="relative">
-                      <span className="absolute -left-3 top-3 grid h-2 w-2 place-items-center rounded-full bg-primary shadow-[0_0_0_3px_hsl(var(--background))] print:hidden" />
-                      <div className="glass-panel rounded-xl p-3 print:rounded-none print:border-b print:border-t-0 print:border-l-0 print:border-r-0 print:p-2 print:shadow-none print:bg-transparent">
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${actionTone[e.action] ?? ""}`}>
-                              {e.action}
-                            </span>
-                            <span className="inline-flex items-center gap-1 rounded border border-border/60 bg-card/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                              {entityIcon[e.entity]} {e.entity.replace("_", " ")}
-                            </span>
-                            {link ? (
-                              <Link {...(link as any)} className="font-mono text-[11px] text-primary hover:underline">
-                                {e.entityId}
-                              </Link>
-                            ) : (
-                              <span className="font-mono text-[11px] text-muted-foreground">{e.entityId}</span>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <div className="font-mono text-xs">{t.time}</div>
-                            <div className="font-mono text-[10px] text-muted-foreground">{t.date}</div>
-                          </div>
-                        </div>
-                        <p className="mt-1.5 text-sm">{e.summary}</p>
-                        <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
-                          <div className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-primary to-info text-[9px] font-bold text-primary-foreground print:hidden">
-                            {e.actorName.split(" ").map((p) => p[0]).join("").slice(0, 2)}
-                          </div>
-                          <Link to="/users/$userId" params={{ userId: e.actorId }} className="text-muted-foreground hover:text-foreground">
-                            by <span className="font-medium text-foreground">{e.actorName}</span>
-                            <span className="ml-1 font-mono text-[10px] text-muted-foreground">{e.actorId}</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
+                {items.map((e) => (
+                  <AuditRow key={e.id} e={e} />
+                ))}
               </ol>
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {woGroups.map(([wo, items]) => {
+            const workOrder = store.workOrders.find((w) => w.id === wo);
+            const line = workOrder ? store.lines.find((l) => l.id === workOrder.lineId) : undefined;
+            const counts = {
+              downtime: items.filter((e) => e.entity === "downtime").length,
+              hold: items.filter((e) => e.entity === "hold").length,
+              command: items.filter((e) => e.entity === "station" && (e.action === "activate" || e.action === "deactivate")).length,
+              step: items.filter((e) => e.entity === "step" || e.entity === "genealogy").length,
+            };
+            return (
+              <div key={wo} className="glass-panel rounded-2xl p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2 border-b border-border/40 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <GitMerge className="h-4 w-4 text-primary" />
+                      {wo === "__no_wo__" ? (
+                        <span className="font-mono text-sm text-muted-foreground">No work-order context</span>
+                      ) : workOrder ? (
+                        <Link to="/work-orders/$woId" params={{ woId: wo }} className="font-mono text-sm text-primary hover:underline">
+                          {wo}
+                        </Link>
+                      ) : (
+                        <span className="font-mono text-sm">{wo}</span>
+                      )}
+                      {workOrder && (
+                        <span className="text-sm text-muted-foreground">· {workOrder.product}</span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                      {line && (
+                        <span className="inline-flex items-center gap-1">
+                          <Factory className="h-3 w-3" /> {line.id} · {line.plant}
+                        </span>
+                      )}
+                      {workOrder?.operator && workOrder.operator !== "—" && (
+                        <span className="inline-flex items-center gap-1">
+                          <UserIcon className="h-3 w-3" /> {workOrder.operator}
+                        </span>
+                      )}
+                      <span>{items.length} events</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 text-[10px]">
+                    {counts.command > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded border border-primary/40 bg-primary/10 px-1.5 py-0.5 uppercase tracking-wider text-primary">
+                        <Cpu className="h-3 w-3" /> {counts.command} cmd
+                      </span>
+                    )}
+                    {counts.downtime > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 uppercase tracking-wider text-warning">
+                        <AlertOctagon className="h-3 w-3" /> {counts.downtime} downtime
+                      </span>
+                    )}
+                    {counts.hold > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 uppercase tracking-wider text-destructive">
+                        <ShieldAlert className="h-3 w-3" /> {counts.hold} hold
+                      </span>
+                    )}
+                    {counts.step > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded border border-info/40 bg-info/10 px-1.5 py-0.5 uppercase tracking-wider text-info">
+                        <ListChecks className="h-3 w-3" /> {counts.step} step
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <ol className="relative mt-3 space-y-2 pl-4">
+                  <div className="absolute left-1 top-1 bottom-1 w-px bg-border/50 print:hidden" />
+                  {items.map((e) => (
+                    <AuditRow key={e.id} e={e} />
+                  ))}
+                </ol>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
+
+function AuditRow({ e }: { e: AuditEntry }) {
+  const t = fmt(e.at);
+  const link = entityLinkFor(e);
+  const isCommand = e.entity === "station" && (e.action === "activate" || e.action === "deactivate");
+  return (
+    <li className="relative">
+      <span className="absolute -left-3 top-3 grid h-2 w-2 place-items-center rounded-full bg-primary shadow-[0_0_0_3px_hsl(var(--background))] print:hidden" />
+      <div className="glass-panel rounded-xl p-3 print:rounded-none print:border-b print:border-t-0 print:border-l-0 print:border-r-0 print:p-2 print:shadow-none print:bg-transparent">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wider ${actionTone[e.action] ?? ""}`}>
+              {e.action}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded border border-border/60 bg-card/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+              {entityIcon[e.entity]} {e.entity.replace("_", " ")}
+            </span>
+            {isCommand && (
+              <span className="inline-flex items-center gap-1 rounded border border-primary/40 bg-primary/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-primary">
+                <Cpu className="h-3 w-3" /> machine cmd
+              </span>
+            )}
+            {link ? (
+              <Link {...(link as any)} className="font-mono text-[11px] text-primary hover:underline">
+                {e.entityId}
+              </Link>
+            ) : (
+              <span className="font-mono text-[11px] text-muted-foreground">{e.entityId}</span>
+            )}
+          </div>
+          <div className="text-right">
+            <div className="font-mono text-xs">{t.time}</div>
+            <div className="font-mono text-[10px] text-muted-foreground">{t.date}</div>
+          </div>
+        </div>
+        <p className="mt-1.5 text-sm">{e.summary}</p>
+        <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
+          <div className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-primary to-info text-[9px] font-bold text-primary-foreground print:hidden">
+            {e.actorName.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+          </div>
+          <Link to="/users/$userId" params={{ userId: e.actorId }} className="text-muted-foreground hover:text-foreground">
+            by <span className="font-medium text-foreground">{e.actorName}</span>
+            <span className="ml-1 font-mono text-[10px] text-muted-foreground">{e.actorId}</span>
+          </Link>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 
 function FilterSelect({
   label, value, onChange, options,
