@@ -227,6 +227,193 @@ export type Database = {
         }
         Relationships: []
       }
+      product_units: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_line_id: string | null
+          current_station_id: string | null
+          lot_number: string
+          produced_at: string | null
+          product_id: string | null
+          product_name: string
+          production_order_id: string | null
+          serial: number
+          sku: string
+          status: string
+          uid: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_line_id?: string | null
+          current_station_id?: string | null
+          lot_number: string
+          produced_at?: string | null
+          product_id?: string | null
+          product_name: string
+          production_order_id?: string | null
+          serial: number
+          sku: string
+          status?: string
+          uid: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_line_id?: string | null
+          current_station_id?: string | null
+          lot_number?: string
+          produced_at?: string | null
+          product_id?: string | null
+          product_name?: string
+          production_order_id?: string | null
+          serial?: number
+          sku?: string
+          status?: string
+          uid?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_units_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_orders: {
+        Row: {
+          created_at: string
+          id: string
+          line_id: string | null
+          lot_number: string
+          notes: string | null
+          number: string
+          operator: string | null
+          planned_end: string | null
+          planned_start: string | null
+          priority: string
+          product_id: string | null
+          product_name: string
+          qty: number
+          qty_produced: number
+          shift: string
+          sku: string
+          status: string
+          uom: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          line_id?: string | null
+          lot_number: string
+          notes?: string | null
+          number: string
+          operator?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          priority?: string
+          product_id?: string | null
+          product_name: string
+          qty?: number
+          qty_produced?: number
+          shift?: string
+          sku: string
+          status?: string
+          uom?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_id?: string | null
+          lot_number?: string
+          notes?: string | null
+          number?: string
+          operator?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          priority?: string
+          product_id?: string | null
+          product_name?: string
+          qty?: number
+          qty_produced?: number
+          shift?: string
+          sku?: string
+          status?: string
+          uom?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          acceptance_criteria: Json | null
+          attachments: Json | null
+          batching_limit: number
+          created_at: string
+          description: string | null
+          id: string
+          lead_time: number
+          name: string
+          sale_price: number
+          sku: string
+          specifications: Json | null
+          standard_cost: number
+          type: string
+          uom: string
+          updated_at: string
+        }
+        Insert: {
+          acceptance_criteria?: Json | null
+          attachments?: Json | null
+          batching_limit?: number
+          created_at?: string
+          description?: string | null
+          id: string
+          lead_time?: number
+          name: string
+          sale_price?: number
+          sku: string
+          specifications?: Json | null
+          standard_cost?: number
+          type?: string
+          uom?: string
+          updated_at?: string
+        }
+        Update: {
+          acceptance_criteria?: Json | null
+          attachments?: Json | null
+          batching_limit?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_time?: number
+          name?: string
+          sale_price?: number
+          sku?: string
+          specifications?: Json | null
+          standard_cost?: number
+          type?: string
+          uom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quality_holds: {
         Row: {
           id: string
@@ -325,6 +512,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "lines"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_events: {
+        Row: {
+          at: string
+          event: string
+          id: string
+          line_id: string | null
+          notes: string | null
+          operator_id: string | null
+          operator_name: string | null
+          result: string | null
+          station_id: string | null
+          station_name: string | null
+          unit_uid: string
+        }
+        Insert: {
+          at?: string
+          event: string
+          id: string
+          line_id?: string | null
+          notes?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          result?: string | null
+          station_id?: string | null
+          station_name?: string | null
+          unit_uid: string
+        }
+        Update: {
+          at?: string
+          event?: string
+          id?: string
+          line_id?: string | null
+          notes?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          result?: string | null
+          station_id?: string | null
+          station_name?: string | null
+          unit_uid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_events_unit_uid_fkey"
+            columns: ["unit_uid"]
+            isOneToOne: false
+            referencedRelation: "product_units"
+            referencedColumns: ["uid"]
           },
         ]
       }
