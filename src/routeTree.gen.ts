@@ -39,6 +39,7 @@ import { Route as StationsStationIdRouteImport } from './routes/stations.$statio
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
+import { Route as HmiStationIdRouteImport } from './routes/hmi.$stationId'
 import { Route as ApiPublicMesWorkOrdersRouteImport } from './routes/api/public/mes/work-orders'
 import { Route as ApiPublicMesTraceabilityRouteImport } from './routes/api/public/mes/traceability'
 import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/public/mes/quality-holds'
@@ -195,6 +196,11 @@ const LinesLineIdRoute = LinesLineIdRouteImport.update({
   path: '/lines/$lineId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HmiStationIdRoute = HmiStationIdRouteImport.update({
+  id: '/hmi/$stationId',
+  path: '/hmi/$stationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMesWorkOrdersRoute = ApiPublicMesWorkOrdersRouteImport.update({
   id: '/api/public/mes/work-orders',
   path: '/api/public/mes/work-orders',
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
   '/waste-reasons': typeof WasteReasonsRoute
+  '/hmi/$stationId': typeof HmiStationIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
   '/waste-reasons': typeof WasteReasonsRoute
+  '/hmi/$stationId': typeof HmiStationIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -315,6 +323,7 @@ export interface FileRoutesById {
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
   '/waste-reasons': typeof WasteReasonsRoute
+  '/hmi/$stationId': typeof HmiStationIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -466,6 +478,7 @@ export interface RootRouteChildren {
   TraceabilityRoute: typeof TraceabilityRoute
   TrackingRoute: typeof TrackingRoute
   WasteReasonsRoute: typeof WasteReasonsRoute
+  HmiStationIdRoute: typeof HmiStationIdRoute
   LinesLineIdRoute: typeof LinesLineIdRoute
   ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
@@ -699,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LinesLineIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hmi/$stationId': {
+      id: '/hmi/$stationId'
+      path: '/hmi/$stationId'
+      fullPath: '/hmi/$stationId'
+      preLoaderRoute: typeof HmiStationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mes/work-orders': {
       id: '/api/public/mes/work-orders'
       path: '/api/public/mes/work-orders'
@@ -754,6 +774,7 @@ const rootRouteChildren: RootRouteChildren = {
   TraceabilityRoute: TraceabilityRoute,
   TrackingRoute: TrackingRoute,
   WasteReasonsRoute: WasteReasonsRoute,
+  HmiStationIdRoute: HmiStationIdRoute,
   LinesLineIdRoute: LinesLineIdRoute,
   ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
