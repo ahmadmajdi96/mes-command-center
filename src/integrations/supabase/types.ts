@@ -227,6 +227,57 @@ export type Database = {
         }
         Relationships: []
       }
+      product_station_recipes: {
+        Row: {
+          created_at: string
+          id: string
+          instructions: string | null
+          product_id: string
+          sequence: number
+          station_id: string
+          target_cycle_sec: number | null
+          updated_at: string
+          variables: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          product_id: string
+          sequence?: number
+          station_id: string
+          target_cycle_sec?: number | null
+          updated_at?: string
+          variables?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          product_id?: string
+          sequence?: number
+          station_id?: string
+          target_cycle_sec?: number | null
+          updated_at?: string
+          variables?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_station_recipes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_station_recipes_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_units: {
         Row: {
           completed_at: string | null
@@ -453,8 +504,101 @@ export type Database = {
         }
         Relationships: []
       }
+      station_holds: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          closed_by_name: string | null
+          created_at: string
+          evidence_urls: Json
+          hold_type: string
+          id: string
+          opened_at: string
+          opened_by: string | null
+          opened_by_name: string | null
+          reason: string
+          resolution_notes: string | null
+          station_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closed_by_name?: string | null
+          created_at?: string
+          evidence_urls?: Json
+          hold_type: string
+          id?: string
+          opened_at?: string
+          opened_by?: string | null
+          opened_by_name?: string | null
+          reason: string
+          resolution_notes?: string | null
+          station_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closed_by_name?: string | null
+          created_at?: string
+          evidence_urls?: Json
+          hold_type?: string
+          id?: string
+          opened_at?: string
+          opened_by?: string | null
+          opened_by_name?: string | null
+          reason?: string
+          resolution_notes?: string | null
+          station_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_holds_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      station_waste_reasons: {
+        Row: {
+          reason_id: string
+          station_id: string
+        }
+        Insert: {
+          reason_id: string
+          station_id: string
+        }
+        Update: {
+          reason_id?: string
+          station_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_waste_reasons_reason_id_fkey"
+            columns: ["reason_id"]
+            isOneToOne: false
+            referencedRelation: "waste_reasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "station_waste_reasons_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stations: {
         Row: {
+          current_mode: string | null
           current_step: string | null
           current_value: string | null
           cycle_time_sec: number
@@ -464,6 +608,7 @@ export type Database = {
           machine: Json | null
           name: string
           oee: number | null
+          operation_modes: Json | null
           sequence: number
           status: string
           target: string | null
@@ -472,6 +617,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          current_mode?: string | null
           current_step?: string | null
           current_value?: string | null
           cycle_time_sec?: number
@@ -481,6 +627,7 @@ export type Database = {
           machine?: Json | null
           name: string
           oee?: number | null
+          operation_modes?: Json | null
           sequence: number
           status: string
           target?: string | null
@@ -489,6 +636,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          current_mode?: string | null
           current_step?: string | null
           current_value?: string | null
           cycle_time_sec?: number
@@ -498,6 +646,7 @@ export type Database = {
           machine?: Json | null
           name?: string
           oee?: number | null
+          operation_modes?: Json | null
           sequence?: number
           status?: string
           target?: string | null
@@ -564,6 +713,163 @@ export type Database = {
             referencedColumns: ["uid"]
           },
         ]
+      }
+      unit_readings: {
+        Row: {
+          created_at: string
+          id: string
+          mode: string | null
+          operator_id: string | null
+          operator_name: string | null
+          station_id: string | null
+          unit_event_id: string | null
+          unit_uid: string
+          variables: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mode?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          station_id?: string | null
+          unit_event_id?: string | null
+          unit_uid: string
+          variables?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mode?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          station_id?: string | null
+          unit_event_id?: string | null
+          unit_uid?: string
+          variables?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_readings_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unit_readings_unit_event_id_fkey"
+            columns: ["unit_event_id"]
+            isOneToOne: false
+            referencedRelation: "unit_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unit_readings_unit_uid_fkey"
+            columns: ["unit_uid"]
+            isOneToOne: false
+            referencedRelation: "product_units"
+            referencedColumns: ["uid"]
+          },
+        ]
+      }
+      waste_events: {
+        Row: {
+          created_at: string
+          evidence_urls: Json
+          id: string
+          line_id: string | null
+          lot_number: string | null
+          notes: string | null
+          operator_id: string | null
+          operator_name: string | null
+          production_order_id: string | null
+          reason_category: string | null
+          reason_code: string
+          reason_label: string
+          station_id: string | null
+          station_name: string | null
+          unit_uid: string | null
+        }
+        Insert: {
+          created_at?: string
+          evidence_urls?: Json
+          id?: string
+          line_id?: string | null
+          lot_number?: string | null
+          notes?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          production_order_id?: string | null
+          reason_category?: string | null
+          reason_code: string
+          reason_label: string
+          station_id?: string | null
+          station_name?: string | null
+          unit_uid?: string | null
+        }
+        Update: {
+          created_at?: string
+          evidence_urls?: Json
+          id?: string
+          line_id?: string | null
+          lot_number?: string | null
+          notes?: string | null
+          operator_id?: string | null
+          operator_name?: string | null
+          production_order_id?: string | null
+          reason_category?: string | null
+          reason_code?: string
+          reason_label?: string
+          station_id?: string | null
+          station_name?: string | null
+          unit_uid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_events_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waste_events_unit_uid_fkey"
+            columns: ["unit_uid"]
+            isOneToOne: false
+            referencedRelation: "product_units"
+            referencedColumns: ["uid"]
+          },
+        ]
+      }
+      waste_reasons: {
+        Row: {
+          active: boolean
+          category: string
+          code: string
+          created_at: string
+          id: string
+          label: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          code: string
+          created_at?: string
+          id?: string
+          label: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          code?: string
+          created_at?: string
+          id?: string
+          label?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       work_orders: {
         Row: {
