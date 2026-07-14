@@ -9,11 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as TraceabilityRouteImport } from './routes/traceability'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
 import { Route as StepTemplatesRouteImport } from './routes/step-templates'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QualityRouteImport } from './routes/quality'
+import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as MasterDataRouteImport } from './routes/master-data'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as GenealogyRouteImport } from './routes/genealogy'
@@ -30,6 +32,7 @@ import { Route as ProductionOrdersIndexRouteImport } from './routes/production-o
 import { Route as LinesIndexRouteImport } from './routes/lines.index'
 import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
+import { Route as UnitsUidRouteImport } from './routes/units.$uid'
 import { Route as StationsStationIdRouteImport } from './routes/stations.$stationId'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
@@ -40,6 +43,11 @@ import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/publi
 import { Route as ApiPublicMesKpiRouteImport } from './routes/api/public/mes/kpi'
 import { Route as ApiPublicMesDowntimeRouteImport } from './routes/api/public/mes/downtime'
 
+const TrackingRoute = TrackingRouteImport.update({
+  id: '/tracking',
+  path: '/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TraceabilityRoute = TraceabilityRouteImport.update({
   id: '/traceability',
   path: '/traceability',
@@ -63,6 +71,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const QualityRoute = QualityRouteImport.update({
   id: '/quality',
   path: '/quality',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlannerRoute = PlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MasterDataRoute = MasterDataRouteImport.update({
@@ -145,6 +158,11 @@ const UsersUserIdRoute = UsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnitsUidRoute = UnitsUidRouteImport.update({
+  id: '/units/$uid',
+  path: '/units/$uid',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StationsStationIdRoute = StationsStationIdRouteImport.update({
   id: '/stations/$stationId',
   path: '/stations/$stationId',
@@ -202,15 +220,18 @@ export interface FileRoutesByFullPath {
   '/genealogy': typeof GenealogyRoute
   '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
+  '/planner': typeof PlannerRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/traceability': typeof TraceabilityRoute
+  '/tracking': typeof TrackingRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/stations/$stationId': typeof StationsStationIdRoute
+  '/units/$uid': typeof UnitsUidRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/lines/': typeof LinesIndexRoute
@@ -234,15 +255,18 @@ export interface FileRoutesByTo {
   '/genealogy': typeof GenealogyRoute
   '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
+  '/planner': typeof PlannerRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/traceability': typeof TraceabilityRoute
+  '/tracking': typeof TrackingRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/stations/$stationId': typeof StationsStationIdRoute
+  '/units/$uid': typeof UnitsUidRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/lines': typeof LinesIndexRoute
@@ -267,15 +291,18 @@ export interface FileRoutesById {
   '/genealogy': typeof GenealogyRoute
   '/live': typeof LiveRoute
   '/master-data': typeof MasterDataRoute
+  '/planner': typeof PlannerRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/step-templates': typeof StepTemplatesRoute
   '/telemetry': typeof TelemetryRoute
   '/traceability': typeof TraceabilityRoute
+  '/tracking': typeof TrackingRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/stations/$stationId': typeof StationsStationIdRoute
+  '/units/$uid': typeof UnitsUidRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/lines/': typeof LinesIndexRoute
@@ -301,15 +328,18 @@ export interface FileRouteTypes {
     | '/genealogy'
     | '/live'
     | '/master-data'
+    | '/planner'
     | '/quality'
     | '/settings'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
+    | '/tracking'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/stations/$stationId'
+    | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
     | '/lines/'
@@ -333,15 +363,18 @@ export interface FileRouteTypes {
     | '/genealogy'
     | '/live'
     | '/master-data'
+    | '/planner'
     | '/quality'
     | '/settings'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
+    | '/tracking'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/stations/$stationId'
+    | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
     | '/lines'
@@ -365,15 +398,18 @@ export interface FileRouteTypes {
     | '/genealogy'
     | '/live'
     | '/master-data'
+    | '/planner'
     | '/quality'
     | '/settings'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
+    | '/tracking'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/stations/$stationId'
+    | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
     | '/lines/'
@@ -398,15 +434,18 @@ export interface RootRouteChildren {
   GenealogyRoute: typeof GenealogyRoute
   LiveRoute: typeof LiveRoute
   MasterDataRoute: typeof MasterDataRoute
+  PlannerRoute: typeof PlannerRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
   StepTemplatesRoute: typeof StepTemplatesRoute
   TelemetryRoute: typeof TelemetryRoute
   TraceabilityRoute: typeof TraceabilityRoute
+  TrackingRoute: typeof TrackingRoute
   LinesLineIdRoute: typeof LinesLineIdRoute
   ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
   StationsStationIdRoute: typeof StationsStationIdRoute
+  UnitsUidRoute: typeof UnitsUidRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
   LinesIndexRoute: typeof LinesIndexRoute
@@ -424,6 +463,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tracking': {
+      id: '/tracking'
+      path: '/tracking'
+      fullPath: '/tracking'
+      preLoaderRoute: typeof TrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/traceability': {
       id: '/traceability'
       path: '/traceability'
@@ -457,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/quality'
       fullPath: '/quality'
       preLoaderRoute: typeof QualityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planner': {
+      id: '/planner'
+      path: '/planner'
+      fullPath: '/planner'
+      preLoaderRoute: typeof PlannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/master-data': {
@@ -571,6 +624,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/units/$uid': {
+      id: '/units/$uid'
+      path: '/units/$uid'
+      fullPath: '/units/$uid'
+      preLoaderRoute: typeof UnitsUidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stations/$stationId': {
       id: '/stations/$stationId'
       path: '/stations/$stationId'
@@ -646,15 +706,18 @@ const rootRouteChildren: RootRouteChildren = {
   GenealogyRoute: GenealogyRoute,
   LiveRoute: LiveRoute,
   MasterDataRoute: MasterDataRoute,
+  PlannerRoute: PlannerRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
   StepTemplatesRoute: StepTemplatesRoute,
   TelemetryRoute: TelemetryRoute,
   TraceabilityRoute: TraceabilityRoute,
+  TrackingRoute: TrackingRoute,
   LinesLineIdRoute: LinesLineIdRoute,
   ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
   StationsStationIdRoute: StationsStationIdRoute,
+  UnitsUidRoute: UnitsUidRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
   LinesIndexRoute: LinesIndexRoute,
