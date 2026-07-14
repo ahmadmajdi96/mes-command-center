@@ -12,7 +12,8 @@ export function DataMatrix({ text, scale = 4, className }: { text: string; scale
         scale,
         includetext: false,
         backgroundcolor: "FFFFFF",
-        padding: 6,
+        paddingwidth: 6,
+        paddingheight: 6,
       });
     } catch (e) {
       // Ignore render errors on very short strings

@@ -132,14 +132,14 @@ export function useProcessUnitAtStation() {
       }).select().single();
       if (e1) throw e1;
 
-      const patch: Record<string, unknown> = {
+      const nowIso = new Date().toISOString();
+      const patch: Database["public"]["Tables"]["product_units"]["Update"] = {
         current_station_id: v.station_id,
         current_line_id: v.line_id,
         status: event === "completed" ? "completed" : event === "rejected" ? "rejected" : "in_process",
+        ...(event === "completed" ? { completed_at: nowIso } : {}),
+        ...(event === "started" || event === "processed" ? { produced_at: nowIso } : {}),
       };
-      if (event === "completed") patch.completed_at = new Date().toISOString();
-      if (event === "started" || event === "processed") patch.produced_at = new Date().toISOString();
-
       const { error: e2 } = await supabase.from("product_units").update(patch).eq("uid", v.unit_uid);
       if (e2) throw e2;
       return ev;
