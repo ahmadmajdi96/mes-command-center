@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WasteReasonsRouteImport } from './routes/waste-reasons'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as TraceabilityRouteImport } from './routes/traceability'
 import { Route as TelemetryRouteImport } from './routes/telemetry'
@@ -30,6 +31,7 @@ import { Route as StationsIndexRouteImport } from './routes/stations.index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
 import { Route as LinesIndexRouteImport } from './routes/lines.index'
+import { Route as HmiIndexRouteImport } from './routes/hmi.index'
 import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as UnitsUidRouteImport } from './routes/units.$uid'
@@ -43,6 +45,11 @@ import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/publi
 import { Route as ApiPublicMesKpiRouteImport } from './routes/api/public/mes/kpi'
 import { Route as ApiPublicMesDowntimeRouteImport } from './routes/api/public/mes/downtime'
 
+const WasteReasonsRoute = WasteReasonsRouteImport.update({
+  id: '/waste-reasons',
+  path: '/waste-reasons',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
@@ -148,6 +155,11 @@ const LinesIndexRoute = LinesIndexRouteImport.update({
   path: '/lines/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HmiIndexRoute = HmiIndexRouteImport.update({
+  id: '/hmi/',
+  path: '/hmi/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
   id: '/work-orders/$woId',
   path: '/work-orders/$woId',
@@ -227,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/telemetry': typeof TelemetryRoute
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
+  '/waste-reasons': typeof WasteReasonsRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -234,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/units/$uid': typeof UnitsUidRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/hmi/': typeof HmiIndexRoute
   '/lines/': typeof LinesIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -262,6 +276,7 @@ export interface FileRoutesByTo {
   '/telemetry': typeof TelemetryRoute
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
+  '/waste-reasons': typeof WasteReasonsRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -269,6 +284,7 @@ export interface FileRoutesByTo {
   '/units/$uid': typeof UnitsUidRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/hmi': typeof HmiIndexRoute
   '/lines': typeof LinesIndexRoute
   '/production-orders': typeof ProductionOrdersIndexRoute
   '/products': typeof ProductsIndexRoute
@@ -298,6 +314,7 @@ export interface FileRoutesById {
   '/telemetry': typeof TelemetryRoute
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
+  '/waste-reasons': typeof WasteReasonsRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -305,6 +322,7 @@ export interface FileRoutesById {
   '/units/$uid': typeof UnitsUidRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/hmi/': typeof HmiIndexRoute
   '/lines/': typeof LinesIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -335,6 +353,7 @@ export interface FileRouteTypes {
     | '/telemetry'
     | '/traceability'
     | '/tracking'
+    | '/waste-reasons'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -342,6 +361,7 @@ export interface FileRouteTypes {
     | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
+    | '/hmi/'
     | '/lines/'
     | '/production-orders/'
     | '/products/'
@@ -370,6 +390,7 @@ export interface FileRouteTypes {
     | '/telemetry'
     | '/traceability'
     | '/tracking'
+    | '/waste-reasons'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -377,6 +398,7 @@ export interface FileRouteTypes {
     | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
+    | '/hmi'
     | '/lines'
     | '/production-orders'
     | '/products'
@@ -405,6 +427,7 @@ export interface FileRouteTypes {
     | '/telemetry'
     | '/traceability'
     | '/tracking'
+    | '/waste-reasons'
     | '/lines/$lineId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -412,6 +435,7 @@ export interface FileRouteTypes {
     | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
+    | '/hmi/'
     | '/lines/'
     | '/production-orders/'
     | '/products/'
@@ -441,6 +465,7 @@ export interface RootRouteChildren {
   TelemetryRoute: typeof TelemetryRoute
   TraceabilityRoute: typeof TraceabilityRoute
   TrackingRoute: typeof TrackingRoute
+  WasteReasonsRoute: typeof WasteReasonsRoute
   LinesLineIdRoute: typeof LinesLineIdRoute
   ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
@@ -448,6 +473,7 @@ export interface RootRouteChildren {
   UnitsUidRoute: typeof UnitsUidRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
+  HmiIndexRoute: typeof HmiIndexRoute
   LinesIndexRoute: typeof LinesIndexRoute
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -463,6 +489,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/waste-reasons': {
+      id: '/waste-reasons'
+      path: '/waste-reasons'
+      fullPath: '/waste-reasons'
+      preLoaderRoute: typeof WasteReasonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tracking': {
       id: '/tracking'
       path: '/tracking'
@@ -610,6 +643,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LinesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hmi/': {
+      id: '/hmi/'
+      path: '/hmi'
+      fullPath: '/hmi/'
+      preLoaderRoute: typeof HmiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/work-orders/$woId': {
       id: '/work-orders/$woId'
       path: '/work-orders/$woId'
@@ -713,6 +753,7 @@ const rootRouteChildren: RootRouteChildren = {
   TelemetryRoute: TelemetryRoute,
   TraceabilityRoute: TraceabilityRoute,
   TrackingRoute: TrackingRoute,
+  WasteReasonsRoute: WasteReasonsRoute,
   LinesLineIdRoute: LinesLineIdRoute,
   ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
@@ -720,6 +761,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnitsUidRoute: UnitsUidRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
+  HmiIndexRoute: HmiIndexRoute,
   LinesIndexRoute: LinesIndexRoute,
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
