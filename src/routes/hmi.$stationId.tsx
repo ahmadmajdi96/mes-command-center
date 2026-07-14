@@ -185,7 +185,7 @@ function HmiStation() {
             <Ctx label="Lot / PO" mono value={unit.lot_number} extra={po?.number ?? "—"} />
             {po && (
               <>
-                <Ctx label="Customer" value={po.customer_name ?? "—"} extra={po.customer_id ?? undefined} />
+                <Ctx label="Order #" mono value={po.number} extra={po.operator ?? undefined} />
                 <Ctx label="Qty" mono value={`${Number(po.qty_produced).toLocaleString()} / ${Number(po.qty).toLocaleString()} ${po.uom}`} />
                 <Ctx label="Order status" value={po.status} />
               </>
