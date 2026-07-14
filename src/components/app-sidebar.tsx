@@ -16,6 +16,9 @@ import {
   History,
   Radio,
   Cpu,
+  Package,
+  CalendarDays,
+  ScanLine,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,10 +40,17 @@ const overview = [
   { title: "Stations", url: "/stations", icon: Cpu },
 ];
 
+const planning = [
+  { title: "Products", url: "/products", icon: Package },
+  { title: "Production Orders", url: "/production-orders", icon: ClipboardList },
+  { title: "Planner", url: "/planner", icon: CalendarDays },
+];
+
 const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
   { title: "Step Templates", url: "/step-templates", icon: ListChecks },
+  { title: "Product Tracking", url: "/tracking", icon: ScanLine },
   { title: "Genealogy", url: "/genealogy", icon: GitBranch },
 ];
 
@@ -112,6 +122,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="px-2">
         {renderGroup("Overview", overview)}
+        {renderGroup("Planning", planning)}
         {renderGroup("Execution", execution)}
         {renderGroup("Monitoring", monitoring)}
         {renderGroup("Workforce", workforce)}
