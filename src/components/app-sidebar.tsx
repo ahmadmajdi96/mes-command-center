@@ -122,6 +122,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="px-2">
         {renderGroup("Overview", overview)}
+        {renderGroup("Planning", planning)}
         {renderGroup("Execution", execution)}
         {renderGroup("Monitoring", monitoring)}
         {renderGroup("Workforce", workforce)}
