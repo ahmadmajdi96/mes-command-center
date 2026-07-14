@@ -19,6 +19,10 @@ import {
   Package,
   CalendarDays,
   ScanLine,
+  MonitorCog,
+  HardHat,
+  ClipboardCheck,
+  Trash2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -42,6 +46,7 @@ const overview = [
 
 const planning = [
   { title: "Products", url: "/products", icon: Package },
+  { title: "Recipes", url: "/recipes", icon: ClipboardCheck },
   { title: "Production Orders", url: "/production-orders", icon: ClipboardList },
   { title: "Planner", url: "/planner", icon: CalendarDays },
 ];
@@ -49,6 +54,8 @@ const planning = [
 const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
+  { title: "HMI Runtime", url: "/hmi", icon: MonitorCog },
+  { title: "Operator Apps", url: "/operator", icon: HardHat },
   { title: "Step Templates", url: "/step-templates", icon: ListChecks },
   { title: "Product Tracking", url: "/tracking", icon: ScanLine },
   { title: "Genealogy", url: "/genealogy", icon: GitBranch },
@@ -58,6 +65,7 @@ const monitoring = [
   { title: "Andon / Downtime", url: "/downtime", icon: AlertOctagon },
   { title: "Telemetry", url: "/telemetry", icon: Activity },
   { title: "Quality Holds", url: "/quality", icon: ShieldCheck },
+  { title: "Waste Reasons", url: "/waste-reasons", icon: Trash2 },
 ];
 
 const workforce = [
