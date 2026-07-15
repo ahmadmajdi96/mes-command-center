@@ -2,10 +2,11 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { StepTemplate, StationCommand } from "@/lib/mes-data";
+import { useOpenStationVisits, useUnitsRealtime } from "@/lib/units-db";
 import {
   ArrowLeft, Cpu, Hand, Network, Wifi, User as UserIcon, ShieldAlert,
   ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks, Plus,
-  Check, Ban, FileUp, FileText, X, History, RefreshCw,
+  Check, Ban, FileUp, FileText, X, History, RefreshCw, Package,
 } from "lucide-react";
 import { toast } from "sonner";
 
