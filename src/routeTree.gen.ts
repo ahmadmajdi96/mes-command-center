@@ -43,6 +43,7 @@ import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-or
 import { Route as OperatorStationIdRouteImport } from './routes/operator.$stationId'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 import { Route as HmiStationIdRouteImport } from './routes/hmi.$stationId'
+import { Route as BatchesBatchIdRouteImport } from './routes/batches.$batchId'
 import { Route as ApiPublicMesWorkOrdersRouteImport } from './routes/api/public/mes/work-orders'
 import { Route as ApiPublicMesTraceabilityRouteImport } from './routes/api/public/mes/traceability'
 import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/public/mes/quality-holds'
@@ -219,6 +220,11 @@ const HmiStationIdRoute = HmiStationIdRouteImport.update({
   path: '/hmi/$stationId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BatchesBatchIdRoute = BatchesBatchIdRouteImport.update({
+  id: '/batches/$batchId',
+  path: '/batches/$batchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMesWorkOrdersRoute = ApiPublicMesWorkOrdersRouteImport.update({
   id: '/api/public/mes/work-orders',
   path: '/api/public/mes/work-orders',
@@ -265,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
   '/waste-reasons': typeof WasteReasonsRoute
+  '/batches/$batchId': typeof BatchesBatchIdRoute
   '/hmi/$stationId': typeof HmiStationIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/operator/$stationId': typeof OperatorStationIdRoute
@@ -306,6 +313,7 @@ export interface FileRoutesByTo {
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
   '/waste-reasons': typeof WasteReasonsRoute
+  '/batches/$batchId': typeof BatchesBatchIdRoute
   '/hmi/$stationId': typeof HmiStationIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/operator/$stationId': typeof OperatorStationIdRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/traceability': typeof TraceabilityRoute
   '/tracking': typeof TrackingRoute
   '/waste-reasons': typeof WasteReasonsRoute
+  '/batches/$batchId': typeof BatchesBatchIdRoute
   '/hmi/$stationId': typeof HmiStationIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/operator/$stationId': typeof OperatorStationIdRoute
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/operator/$stationId'
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/operator/$stationId'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/operator/$stationId'
@@ -515,6 +527,7 @@ export interface RootRouteChildren {
   TraceabilityRoute: typeof TraceabilityRoute
   TrackingRoute: typeof TrackingRoute
   WasteReasonsRoute: typeof WasteReasonsRoute
+  BatchesBatchIdRoute: typeof BatchesBatchIdRoute
   HmiStationIdRoute: typeof HmiStationIdRoute
   LinesLineIdRoute: typeof LinesLineIdRoute
   OperatorStationIdRoute: typeof OperatorStationIdRoute
@@ -779,6 +792,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HmiStationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/batches/$batchId': {
+      id: '/batches/$batchId'
+      path: '/batches/$batchId'
+      fullPath: '/batches/$batchId'
+      preLoaderRoute: typeof BatchesBatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mes/work-orders': {
       id: '/api/public/mes/work-orders'
       path: '/api/public/mes/work-orders'
@@ -835,6 +855,7 @@ const rootRouteChildren: RootRouteChildren = {
   TraceabilityRoute: TraceabilityRoute,
   TrackingRoute: TrackingRoute,
   WasteReasonsRoute: WasteReasonsRoute,
+  BatchesBatchIdRoute: BatchesBatchIdRoute,
   HmiStationIdRoute: HmiStationIdRoute,
   LinesLineIdRoute: LinesLineIdRoute,
   OperatorStationIdRoute: OperatorStationIdRoute,
