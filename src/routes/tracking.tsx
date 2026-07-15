@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Scan, Package, ExternalLink } from "lucide-react";
-import { useUnits, useUnitsRealtime, useRecentUnitEvents } from "@/lib/units-db";
+import { Search, Scan, Package, ExternalLink, Layers, Radio } from "lucide-react";
+import { useUnits, useUnitsRealtime, useRecentUnitEvents, useOpenStationVisits } from "@/lib/units-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
+import { useBatches, useBatchesRealtime } from "@/lib/batches-db";
 import { useMes } from "@/lib/mes-store";
 
 export const Route = createFileRoute("/tracking")({
