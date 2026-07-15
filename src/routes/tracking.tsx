@@ -44,19 +44,6 @@ function Tracking() {
       .slice(0, 50);
   }, [q, units]);
 
-  // Group latest units per station for live view
-  const perStation = useMemo(() => {
-    const map = new Map<string, typeof units>();
-    for (const u of units) {
-      if (!u.current_station_id) continue;
-      const arr = map.get(u.current_station_id) ?? [];
-      arr.push(u);
-      map.set(u.current_station_id, arr);
-    }
-    return map;
-  }, [units]);
-
-  return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">Product Tracking</h1>
