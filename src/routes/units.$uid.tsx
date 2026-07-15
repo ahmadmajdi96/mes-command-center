@@ -127,20 +127,32 @@ function UnitDetail() {
         <p className="text-xs text-muted-foreground">{events.length} events</p>
         {events.length === 0 && <p className="mt-3 text-xs text-muted-foreground">This unit hasn't been scanned at any station yet.</p>}
         <ol className="mt-4 space-y-3">
-          {events.map((e) => (
-            <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
-              {e.event === "rejected" ? <XCircle className="mt-0.5 h-4 w-4 text-destructive" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 text-success" />}
-              <div className="min-w-0">
-                <div className="font-medium">
-                  {e.event.toUpperCase()} at <span className="font-mono text-primary">{e.station_id}</span>
-                  {e.station_name ? <span className="text-muted-foreground"> · {e.station_name}</span> : null}
+          {events.map((e) => {
+            const enter = e.entered_at ?? e.at;
+            const exited = e.exited_at;
+            const dwell = e.dwell_seconds;
+            const isOpen = !!e.entered_at && !exited;
+            return (
+              <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
+                {e.event === "rejected" ? <XCircle className="mt-0.5 h-4 w-4 text-destructive" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 text-success" />}
+                <div className="min-w-0">
+                  <div className="font-medium">
+                    {e.event.toUpperCase()} at <span className="font-mono text-primary">{e.station_id}</span>
+                    {e.station_name ? <span className="text-muted-foreground"> · {e.station_name}</span> : null}
+                    {isOpen && <span className="ml-2 rounded-full border border-warning/50 bg-warning/10 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-warning">in station</span>}
+                  </div>
+                  <div className="mt-1 grid gap-x-4 gap-y-0.5 font-mono text-[10px] text-muted-foreground sm:grid-cols-[auto_auto_auto]">
+                    <span>Entered {enter ? new Date(enter).toLocaleString(undefined, { hour12: false, fractionalSecondDigits: undefined }) : "—"}</span>
+                    <span>Exited {exited ? new Date(exited).toLocaleString(undefined, { hour12: false }) : "—"}</span>
+                    <span>{dwell != null ? `dwell ${dwell}s` : ""}</span>
+                  </div>
+                  {e.operator_name && <div className="mt-1 text-[10px] text-muted-foreground">by {e.operator_name}</div>}
+                  {e.notes && <div className="mt-1 text-[11px] text-muted-foreground">{e.notes}</div>}
                 </div>
-                {e.operator_name && <div className="text-[10px] text-muted-foreground">by {e.operator_name}</div>}
-                {e.notes && <div className="mt-1 text-[11px] text-muted-foreground">{e.notes}</div>}
-              </div>
-              <div className="font-mono text-[10px] text-muted-foreground">{new Date(e.at).toLocaleString()}</div>
-            </li>
-          ))}
+                <div className="font-mono text-[10px] text-muted-foreground">{new Date(e.at).toLocaleTimeString([], { hour12: false })}</div>
+              </li>
+            );
+          })}
         </ol>
       </div>
     </div>
