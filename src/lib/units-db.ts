@@ -119,13 +119,14 @@ type ProcessArgs = {
   station_id: string;
   station_name?: string;
   line_id?: string;
-  /** enter = open visit; exit_pass / exit_reject / exit_complete = close latest open visit */
-  event: "enter" | "exit_pass" | "exit_reject" | "exit_complete" | "started" | "processed" | "rejected" | "completed";
+  /** enter / started open a visit; exit_pass / exit_reject / exit_complete
+   * (or legacy processed / rejected / completed) closes the latest open one. */
+  event: string;
+  result?: string;
   operator_id?: string;
   operator_name?: string;
   notes?: string;
   batch_id?: string | null;
-  production_order_id?: string | null;
 };
 
 /** Record a station enter/exit event with second-level timestamps. */
