@@ -18,9 +18,12 @@ export const Route = createFileRoute("/tracking")({
 
 function Tracking() {
   useUnitsRealtime();
-  const { data: units = [] } = useUnits({ limit: 1000 });
+  useBatchesRealtime();
+  const { data: units = [] } = useUnits({ limit: 2000 });
   const { data: recent = [] } = useRecentUnitEvents(40);
   const { data: pos = [] } = useProductionOrders();
+  const { data: batches = [] } = useBatches();
+  const { data: openVisits = [] } = useOpenStationVisits();
   const store = useMes();
   const stations = store.stations;
 
@@ -35,6 +38,7 @@ function Tracking() {
         u.lot_number.toLowerCase().includes(s) ||
         u.sku.toLowerCase().includes(s) ||
         (u.production_order_id ?? "").toLowerCase().includes(s) ||
+        (u.batch_id ?? "").toLowerCase().includes(s) ||
         u.product_name.toLowerCase().includes(s)
       )
       .slice(0, 50);
