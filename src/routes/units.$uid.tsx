@@ -79,10 +79,10 @@ function UnitDetail() {
           </select>
           <select value={event} onChange={(e) => setEvent(e.target.value)}
             className="h-9 rounded-lg border border-border/60 bg-card/60 px-2 text-sm">
-            <option value="started">Started</option>
-            <option value="processed">Processed (pass)</option>
-            <option value="rejected">Rejected (fail)</option>
-            <option value="completed">Completed (final step)</option>
+            <option value="enter">Enter station (start timer)</option>
+            <option value="exit_pass">Exit · pass</option>
+            <option value="exit_reject">Exit · reject (fail)</option>
+            <option value="exit_complete">Exit · final step complete</option>
           </select>
           <button
             disabled={!stationId || process.isPending}
