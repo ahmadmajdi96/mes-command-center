@@ -178,7 +178,6 @@ export function useProcessUnitAtStation() {
           station_name: v.station_name,
           line_id: v.line_id,
           batch_id: v.batch_id ?? null,
-          production_order_id: v.production_order_id ?? null,
           event: eventLabel,
           result: v.event === "exit_reject" || v.event === "rejected" ? "fail" : (isExit ? "pass" : null),
           operator_id: v.operator_id,
