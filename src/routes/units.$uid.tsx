@@ -21,7 +21,7 @@ function UnitDetail() {
   const store = useMes();
   const stations = store.stations;
   const [stationId, setStationId] = useState<string>("");
-  const [event, setEvent] = useState<string>("processed");
+  const [event, setEvent] = useState<string>("enter");
   const [notes, setNotes] = useState("");
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
