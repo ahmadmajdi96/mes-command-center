@@ -2,10 +2,11 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { StepTemplate, StationCommand } from "@/lib/mes-data";
+import { useOpenStationVisits, useUnitsRealtime } from "@/lib/units-db";
 import {
   ArrowLeft, Cpu, Hand, Network, Wifi, User as UserIcon, ShieldAlert,
   ClipboardList, Activity, Gauge, Clock, Radio, AlertOctagon, ListChecks, Plus,
-  Check, Ban, FileUp, FileText, X, History, RefreshCw,
+  Check, Ban, FileUp, FileText, X, History, RefreshCw, Package,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +27,10 @@ function StationProfile() {
   const { stationId } = Route.useParams();
   const store = useMes();
   const station = store.stations.find((s) => s.id === stationId);
+  useUnitsRealtime();
+  const { data: liveVisits = [] } = useOpenStationVisits({ station: stationId });
   if (!station) throw notFound();
+
 
   const line = store.lines.find((l) => l.id === station.lineId);
   const asmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === station.id);
@@ -136,6 +140,37 @@ function StationProfile() {
               </div>
             </div>
           )}
+
+          <div className="mt-4 rounded-xl border border-success/30 bg-success/5 p-3">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-success/80">
+              <span className="inline-flex items-center gap-1.5">
+                <Radio className="h-3 w-3 animate-pulse" /> Currently processing at this station
+              </span>
+              <span>{liveVisits.length} live</span>
+            </div>
+            {liveVisits.length === 0 ? (
+              <div className="mt-1.5 text-xs text-muted-foreground">No unit is inside the station right now.</div>
+            ) : (
+              <div className="mt-2 space-y-1.5">
+                {liveVisits.slice(0, 5).map((v) => {
+                  const secs = v.entered_at ? Math.round((Date.now() - new Date(v.entered_at).getTime()) / 1000) : 0;
+                  return (
+                    <Link key={v.id} to="/units/$uid" params={{ uid: v.unit_uid }}
+                      className="flex items-center justify-between rounded-md border border-border/50 bg-card/60 px-2 py-1.5 text-xs hover:border-primary/40 hover:text-primary">
+                      <span className="inline-flex items-center gap-2 font-mono">
+                        <Package className="h-3.5 w-3.5 text-primary" />
+                        {v.unit_uid}
+                      </span>
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        entered {new Date(v.entered_at!).toLocaleTimeString([], { hour12: false })} · {secs}s
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
 
           <div className="mt-4">
             <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground">

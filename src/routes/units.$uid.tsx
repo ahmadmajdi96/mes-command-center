@@ -21,7 +21,7 @@ function UnitDetail() {
   const store = useMes();
   const stations = store.stations;
   const [stationId, setStationId] = useState<string>("");
-  const [event, setEvent] = useState<string>("processed");
+  const [event, setEvent] = useState<string>("enter");
   const [notes, setNotes] = useState("");
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
@@ -50,6 +50,13 @@ function UnitDetail() {
             <p className="mt-1 text-sm">{unit.product_name} <span className="text-muted-foreground">· {unit.sku}</span></p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Info label="Lot" value={unit.lot_number} />
+              <Info label="Batch" value={
+                unit.batch_id ? (
+                  <Link to="/batches/$batchId" params={{ batchId: unit.batch_id }} className="text-primary">
+                    {unit.batch_id}
+                  </Link>
+                ) : "—"
+              } />
               <Info label="Production order" value={
                 <Link to="/production-orders/$poId" params={{ poId: unit.production_order_id ?? "" }} className="text-primary">
                   {unit.production_order_id ?? "—"}
@@ -79,10 +86,10 @@ function UnitDetail() {
           </select>
           <select value={event} onChange={(e) => setEvent(e.target.value)}
             className="h-9 rounded-lg border border-border/60 bg-card/60 px-2 text-sm">
-            <option value="started">Started</option>
-            <option value="processed">Processed (pass)</option>
-            <option value="rejected">Rejected (fail)</option>
-            <option value="completed">Completed (final step)</option>
+            <option value="enter">Enter station (start timer)</option>
+            <option value="exit_pass">Exit · pass</option>
+            <option value="exit_reject">Exit · reject (fail)</option>
+            <option value="exit_complete">Exit · final step complete</option>
           </select>
           <button
             disabled={!stationId || process.isPending}
@@ -94,6 +101,7 @@ function UnitDetail() {
                 station_name: station.name,
                 line_id: station.lineId,
                 event,
+                batch_id: unit.batch_id,
                 operator_id: store.currentActor.id,
                 operator_name: store.currentActor.name,
                 notes: notes || undefined,
@@ -120,20 +128,32 @@ function UnitDetail() {
         <p className="text-xs text-muted-foreground">{events.length} events</p>
         {events.length === 0 && <p className="mt-3 text-xs text-muted-foreground">This unit hasn't been scanned at any station yet.</p>}
         <ol className="mt-4 space-y-3">
-          {events.map((e) => (
-            <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
-              {e.event === "rejected" ? <XCircle className="mt-0.5 h-4 w-4 text-destructive" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 text-success" />}
-              <div className="min-w-0">
-                <div className="font-medium">
-                  {e.event.toUpperCase()} at <span className="font-mono text-primary">{e.station_id}</span>
-                  {e.station_name ? <span className="text-muted-foreground"> · {e.station_name}</span> : null}
+          {events.map((e) => {
+            const enter = e.entered_at ?? e.at;
+            const exited = e.exited_at;
+            const dwell = e.dwell_seconds;
+            const isOpen = !!e.entered_at && !exited;
+            return (
+              <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
+                {e.event === "rejected" ? <XCircle className="mt-0.5 h-4 w-4 text-destructive" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 text-success" />}
+                <div className="min-w-0">
+                  <div className="font-medium">
+                    {e.event.toUpperCase()} at <span className="font-mono text-primary">{e.station_id}</span>
+                    {e.station_name ? <span className="text-muted-foreground"> · {e.station_name}</span> : null}
+                    {isOpen && <span className="ml-2 rounded-full border border-warning/50 bg-warning/10 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-warning">in station</span>}
+                  </div>
+                  <div className="mt-1 grid gap-x-4 gap-y-0.5 font-mono text-[10px] text-muted-foreground sm:grid-cols-[auto_auto_auto]">
+                    <span>Entered {enter ? new Date(enter).toLocaleString(undefined, { hour12: false, fractionalSecondDigits: undefined }) : "—"}</span>
+                    <span>Exited {exited ? new Date(exited).toLocaleString(undefined, { hour12: false }) : "—"}</span>
+                    <span>{dwell != null ? `dwell ${dwell}s` : ""}</span>
+                  </div>
+                  {e.operator_name && <div className="mt-1 text-[10px] text-muted-foreground">by {e.operator_name}</div>}
+                  {e.notes && <div className="mt-1 text-[11px] text-muted-foreground">{e.notes}</div>}
                 </div>
-                {e.operator_name && <div className="text-[10px] text-muted-foreground">by {e.operator_name}</div>}
-                {e.notes && <div className="mt-1 text-[11px] text-muted-foreground">{e.notes}</div>}
-              </div>
-              <div className="font-mono text-[10px] text-muted-foreground">{new Date(e.at).toLocaleString()}</div>
-            </li>
-          ))}
+                <div className="font-mono text-[10px] text-muted-foreground">{new Date(e.at).toLocaleTimeString([], { hour12: false })}</div>
+              </li>
+            );
+          })}
         </ol>
       </div>
     </div>
