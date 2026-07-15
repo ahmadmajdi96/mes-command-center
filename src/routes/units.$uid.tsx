@@ -50,6 +50,13 @@ function UnitDetail() {
             <p className="mt-1 text-sm">{unit.product_name} <span className="text-muted-foreground">· {unit.sku}</span></p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Info label="Lot" value={unit.lot_number} />
+              <Info label="Batch" value={
+                unit.batch_id ? (
+                  <Link to="/batches/$batchId" params={{ batchId: unit.batch_id }} className="text-primary">
+                    {unit.batch_id}
+                  </Link>
+                ) : "—"
+              } />
               <Info label="Production order" value={
                 <Link to="/production-orders/$poId" params={{ poId: unit.production_order_id ?? "" }} className="text-primary">
                   {unit.production_order_id ?? "—"}
