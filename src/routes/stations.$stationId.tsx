@@ -27,7 +27,10 @@ function StationProfile() {
   const { stationId } = Route.useParams();
   const store = useMes();
   const station = store.stations.find((s) => s.id === stationId);
+  useUnitsRealtime();
+  const { data: liveVisits = [] } = useOpenStationVisits({ station: stationId });
   if (!station) throw notFound();
+
 
   const line = store.lines.find((l) => l.id === station.lineId);
   const asmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === station.id);
