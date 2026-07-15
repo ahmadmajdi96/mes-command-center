@@ -280,6 +280,7 @@ export type Database = {
       }
       product_units: {
         Row: {
+          batch_id: string | null
           completed_at: string | null
           created_at: string
           current_line_id: string | null
@@ -296,6 +297,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          batch_id?: string | null
           completed_at?: string | null
           created_at?: string
           current_line_id?: string | null
@@ -312,6 +314,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          batch_id?: string | null
           completed_at?: string | null
           created_at?: string
           current_line_id?: string | null
@@ -329,7 +332,94 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "product_units_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "production_batches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "product_units_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_batches: {
+        Row: {
+          created_at: string
+          id: string
+          line_id: string | null
+          lot_number: string
+          notes: string | null
+          number: string
+          operator: string | null
+          planned_end: string | null
+          planned_start: string | null
+          priority: string
+          product_id: string | null
+          product_name: string
+          production_order_id: string
+          qty: number
+          qty_produced: number
+          sequence: number
+          shift: string
+          sku: string
+          status: string
+          uom: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          line_id?: string | null
+          lot_number: string
+          notes?: string | null
+          number: string
+          operator?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          priority?: string
+          product_id?: string | null
+          product_name: string
+          production_order_id: string
+          qty?: number
+          qty_produced?: number
+          sequence?: number
+          shift?: string
+          sku: string
+          status?: string
+          uom?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_id?: string | null
+          lot_number?: string
+          notes?: string | null
+          number?: string
+          operator?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          priority?: string
+          product_id?: string | null
+          product_name?: string
+          production_order_id?: string
+          qty?: number
+          qty_produced?: number
+          sequence?: number
+          shift?: string
+          sku?: string
+          status?: string
+          uom?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_batches_production_order_id_fkey"
             columns: ["production_order_id"]
             isOneToOne: false
             referencedRelation: "production_orders"
@@ -667,7 +757,11 @@ export type Database = {
       unit_events: {
         Row: {
           at: string
+          batch_id: string | null
+          dwell_seconds: number | null
+          entered_at: string | null
           event: string
+          exited_at: string | null
           id: string
           line_id: string | null
           notes: string | null
@@ -680,7 +774,11 @@ export type Database = {
         }
         Insert: {
           at?: string
+          batch_id?: string | null
+          dwell_seconds?: number | null
+          entered_at?: string | null
           event: string
+          exited_at?: string | null
           id: string
           line_id?: string | null
           notes?: string | null
@@ -693,7 +791,11 @@ export type Database = {
         }
         Update: {
           at?: string
+          batch_id?: string | null
+          dwell_seconds?: number | null
+          entered_at?: string | null
           event?: string
+          exited_at?: string | null
           id?: string
           line_id?: string | null
           notes?: string | null
