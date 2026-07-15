@@ -101,6 +101,7 @@ function UnitDetail() {
                 station_name: station.name,
                 line_id: station.lineId,
                 event,
+                batch_id: unit.batch_id,
                 operator_id: store.currentActor.id,
                 operator_name: store.currentActor.name,
                 notes: notes || undefined,
