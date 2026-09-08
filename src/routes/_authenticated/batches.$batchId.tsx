@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/batches/$batchId")({
 });
 
 function BatchDetail() {
-  const { batchId } = useParams({ from: "/batches/$batchId" });
+  const { batchId } = useParams({ from: "/_authenticated/batches/$batchId" });
   useBatchesRealtime();
   useUnitsRealtime();
   const { data: batch, isLoading } = useBatch(batchId);

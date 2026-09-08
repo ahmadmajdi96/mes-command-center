@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/units/$uid")({
 });
 
 function UnitDetail() {
-  const { uid } = useParams({ from: "/units/$uid" });
+  const { uid } = useParams({ from: "/_authenticated/units/$uid" });
   useUnitsRealtime();
   const { data: unit, isLoading } = useUnit(uid);
   const { data: events = [] } = useUnitEvents(uid);

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/products/$productId")({
 });
 
 function ProductDetail() {
-  const { productId } = useParams({ from: "/products/$productId" });
+  const { productId } = useParams({ from: "/_authenticated/products/$productId" });
   const { data: p, isLoading } = useProduct(productId);
   const { data: pos = [] } = useProductionOrders();
   const linkedPos = pos.filter((o) => o.product_id === productId);

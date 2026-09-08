@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/production-orders/$poId")(
 });
 
 function PoDetail() {
-  const { poId } = useParams({ from: "/production-orders/$poId" });
+  const { poId } = useParams({ from: "/_authenticated/production-orders/$poId" });
   usePosRealtime();
   useBatchesRealtime();
   const { data: po, isLoading } = useProductionOrder(poId);
