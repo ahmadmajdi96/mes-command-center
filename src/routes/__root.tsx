@@ -8,12 +8,10 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Bell, Search, ChevronRight } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { supabase } from "@/integrations/supabase/client";
 import { MesStoreProvider } from "@/lib/mes-store";
 import { Toaster } from "@/components/ui/sonner";
 
