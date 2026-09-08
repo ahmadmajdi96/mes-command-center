@@ -1,6 +1,9 @@
 # Cortanex MES — dev container
 # Runs the Vite dev server exactly like `bun run dev` locally.
-FROM oven/bun:1.1-alpine
+# NOTE: keep Bun on 1.2+ — Bun 1.1 lacks `parseEnv` in its `util` module,
+# which makes Vite 7 crash on startup with:
+#   SyntaxError: Export named 'parseEnv' not found in module 'util'.
+FROM oven/bun:1.2-alpine
 
 WORKDIR /app
 

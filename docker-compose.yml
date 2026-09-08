@@ -1,8 +1,8 @@
 # Run the whole project with:  docker compose up
 #
-# This app stores all state in the browser's localStorage
-# (see src/lib/mes-store.tsx, key "cortanex-mes-v5"), so there is
-# no database container to run — the "DB connection" is unchanged.
+# The app talks to the same hosted database/auth as the preview: the
+# connection settings come from the .env file in this folder, which is
+# passed straight into the container. Nothing about the connection changes.
 
 services:
   app:
@@ -10,6 +10,8 @@ services:
     container_name: cortanex-mes
     ports:
       - "8111:8111"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
