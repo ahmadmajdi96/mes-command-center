@@ -20,6 +20,7 @@ import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authen
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
@@ -107,6 +108,11 @@ const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
 const AuthenticatedQualityRoute = AuthenticatedQualityRouteImport.update({
   id: '/quality',
   path: '/quality',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/planner': typeof AuthenticatedPlannerRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/planner': typeof AuthenticatedPlannerRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -380,6 +388,7 @@ export interface FileRoutesById {
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -426,6 +435,7 @@ export interface FileRouteTypes {
     | '/live'
     | '/master-data'
     | '/planner'
+    | '/profile'
     | '/quality'
     | '/recipes'
     | '/settings'
@@ -468,6 +478,7 @@ export interface FileRouteTypes {
     | '/live'
     | '/master-data'
     | '/planner'
+    | '/profile'
     | '/quality'
     | '/recipes'
     | '/settings'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/_authenticated/live'
     | '/_authenticated/master-data'
     | '/_authenticated/planner'
+    | '/_authenticated/profile'
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
     | '/_authenticated/settings'
@@ -633,6 +645,13 @@ declare module '@tanstack/react-router' {
       path: '/quality'
       fullPath: '/quality'
       preLoaderRoute: typeof AuthenticatedQualityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/planner': {
@@ -864,6 +883,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -902,6 +922,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
