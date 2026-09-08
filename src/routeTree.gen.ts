@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedWasteReasonsRouteImport } from './routes/_authenticated/waste-reasons'
@@ -51,6 +52,11 @@ import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/publi
 import { Route as ApiPublicMesKpiRouteImport } from './routes/api/public/mes/kpi'
 import { Route as ApiPublicMesDowntimeRouteImport } from './routes/api/public/mes/downtime'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -278,6 +284,7 @@ const ApiPublicMesDowntimeRoute = ApiPublicMesDowntimeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/api/public/mes/work-orders': typeof ApiPublicMesWorkOrdersRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -363,6 +371,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
@@ -408,6 +417,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
     | '/api/public/mes/work-orders'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -492,6 +503,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/auth'
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
@@ -536,6 +548,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ApiPublicMesDowntimeRoute: typeof ApiPublicMesDowntimeRoute
   ApiPublicMesKpiRoute: typeof ApiPublicMesKpiRoute
   ApiPublicMesQualityHoldsRoute: typeof ApiPublicMesQualityHoldsRoute
@@ -545,6 +558,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -918,6 +938,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   ApiPublicMesDowntimeRoute: ApiPublicMesDowntimeRoute,
   ApiPublicMesKpiRoute: ApiPublicMesKpiRoute,
   ApiPublicMesQualityHoldsRoute: ApiPublicMesQualityHoldsRoute,
