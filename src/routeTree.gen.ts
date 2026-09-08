@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedWasteReasonsRouteImport } from './routes/_authenticated/waste-reasons'
 import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticated/tracking'
@@ -50,198 +51,202 @@ import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/publi
 import { Route as ApiPublicMesKpiRouteImport } from './routes/api/public/mes/kpi'
 import { Route as ApiPublicMesDowntimeRouteImport } from './routes/api/public/mes/downtime'
 
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/_authenticated/',
-  path: '/',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWasteReasonsRoute =
   AuthenticatedWasteReasonsRouteImport.update({
-    id: '/_authenticated/waste-reasons',
+    id: '/waste-reasons',
     path: '/waste-reasons',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTrackingRoute = AuthenticatedTrackingRouteImport.update({
-  id: '/_authenticated/tracking',
+  id: '/tracking',
   path: '/tracking',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTraceabilityRoute =
   AuthenticatedTraceabilityRouteImport.update({
-    id: '/_authenticated/traceability',
+    id: '/traceability',
     path: '/traceability',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTelemetryRoute = AuthenticatedTelemetryRouteImport.update({
-  id: '/_authenticated/telemetry',
+  id: '/telemetry',
   path: '/telemetry',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStepTemplatesRoute =
   AuthenticatedStepTemplatesRouteImport.update({
-    id: '/_authenticated/step-templates',
+    id: '/step-templates',
     path: '/step-templates',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
-  id: '/_authenticated/settings',
+  id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
-  id: '/_authenticated/recipes',
+  id: '/recipes',
   path: '/recipes',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedQualityRoute = AuthenticatedQualityRouteImport.update({
-  id: '/_authenticated/quality',
+  id: '/quality',
   path: '/quality',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
-  id: '/_authenticated/planner',
+  id: '/planner',
   path: '/planner',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
-  id: '/_authenticated/master-data',
+  id: '/master-data',
   path: '/master-data',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLiveRoute = AuthenticatedLiveRouteImport.update({
-  id: '/_authenticated/live',
+  id: '/live',
   path: '/live',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
-  id: '/_authenticated/genealogy',
+  id: '/genealogy',
   path: '/genealogy',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExecutionRoute = AuthenticatedExecutionRouteImport.update({
-  id: '/_authenticated/execution',
+  id: '/execution',
   path: '/execution',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDowntimeRoute = AuthenticatedDowntimeRouteImport.update({
-  id: '/_authenticated/downtime',
+  id: '/downtime',
   path: '/downtime',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
-  id: '/_authenticated/audit',
+  id: '/audit',
   path: '/audit',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAssignmentsRoute =
   AuthenticatedAssignmentsRouteImport.update({
-    id: '/_authenticated/assignments',
+    id: '/assignments',
     path: '/assignments',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedWorkOrdersIndexRoute =
   AuthenticatedWorkOrdersIndexRouteImport.update({
-    id: '/_authenticated/work-orders/',
+    id: '/work-orders/',
     path: '/work-orders/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
-  id: '/_authenticated/users/',
+  id: '/users/',
   path: '/users/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStationsIndexRoute =
   AuthenticatedStationsIndexRouteImport.update({
-    id: '/_authenticated/stations/',
+    id: '/stations/',
     path: '/stations/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProductsIndexRoute =
   AuthenticatedProductsIndexRouteImport.update({
-    id: '/_authenticated/products/',
+    id: '/products/',
     path: '/products/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProductionOrdersIndexRoute =
   AuthenticatedProductionOrdersIndexRouteImport.update({
-    id: '/_authenticated/production-orders/',
+    id: '/production-orders/',
     path: '/production-orders/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOperatorIndexRoute =
   AuthenticatedOperatorIndexRouteImport.update({
-    id: '/_authenticated/operator/',
+    id: '/operator/',
     path: '/operator/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedLinesIndexRoute = AuthenticatedLinesIndexRouteImport.update({
-  id: '/_authenticated/lines/',
+  id: '/lines/',
   path: '/lines/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHmiIndexRoute = AuthenticatedHmiIndexRouteImport.update({
-  id: '/_authenticated/hmi/',
+  id: '/hmi/',
   path: '/hmi/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWorkOrdersWoIdRoute =
   AuthenticatedWorkOrdersWoIdRouteImport.update({
-    id: '/_authenticated/work-orders/$woId',
+    id: '/work-orders/$woId',
     path: '/work-orders/$woId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUsersUserIdRoute =
   AuthenticatedUsersUserIdRouteImport.update({
-    id: '/_authenticated/users/$userId',
+    id: '/users/$userId',
     path: '/users/$userId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUnitsUidRoute = AuthenticatedUnitsUidRouteImport.update({
-  id: '/_authenticated/units/$uid',
+  id: '/units/$uid',
   path: '/units/$uid',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStationsStationIdRoute =
   AuthenticatedStationsStationIdRouteImport.update({
-    id: '/_authenticated/stations/$stationId',
+    id: '/stations/$stationId',
     path: '/stations/$stationId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProductsProductIdRoute =
   AuthenticatedProductsProductIdRouteImport.update({
-    id: '/_authenticated/products/$productId',
+    id: '/products/$productId',
     path: '/products/$productId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProductionOrdersPoIdRoute =
   AuthenticatedProductionOrdersPoIdRouteImport.update({
-    id: '/_authenticated/production-orders/$poId',
+    id: '/production-orders/$poId',
     path: '/production-orders/$poId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOperatorStationIdRoute =
   AuthenticatedOperatorStationIdRouteImport.update({
-    id: '/_authenticated/operator/$stationId',
+    id: '/operator/$stationId',
     path: '/operator/$stationId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedLinesLineIdRoute =
   AuthenticatedLinesLineIdRouteImport.update({
-    id: '/_authenticated/lines/$lineId',
+    id: '/lines/$lineId',
     path: '/lines/$lineId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedHmiStationIdRoute =
   AuthenticatedHmiStationIdRouteImport.update({
-    id: '/_authenticated/hmi/$stationId',
+    id: '/hmi/$stationId',
     path: '/hmi/$stationId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedBatchesBatchIdRoute =
   AuthenticatedBatchesBatchIdRouteImport.update({
-    id: '/_authenticated/batches/$batchId',
+    id: '/batches/$batchId',
     path: '/batches/$batchId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiPublicMesWorkOrdersRoute = ApiPublicMesWorkOrdersRouteImport.update({
   id: '/api/public/mes/work-orders',
@@ -272,6 +277,7 @@ const ApiPublicMesDowntimeRoute = ApiPublicMesDowntimeRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthenticatedIndexRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -288,7 +294,6 @@ export interface FileRoutesByFullPath {
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
-  '/': typeof AuthenticatedIndexRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
@@ -357,6 +362,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
@@ -401,6 +407,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -417,7 +424,6 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
-    | '/'
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
@@ -485,6 +491,7 @@ export interface FileRouteTypes {
     | '/api/public/mes/work-orders'
   id:
     | '__root__'
+    | '/_authenticated'
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
@@ -528,41 +535,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
-  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
-  AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
-  AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
-  AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
-  AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
-  AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
-  AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
-  AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
-  AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
-  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
-  AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
-  AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
-  AuthenticatedTrackingRoute: typeof AuthenticatedTrackingRoute
-  AuthenticatedWasteReasonsRoute: typeof AuthenticatedWasteReasonsRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
-  AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
-  AuthenticatedLinesLineIdRoute: typeof AuthenticatedLinesLineIdRoute
-  AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
-  AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
-  AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
-  AuthenticatedStationsStationIdRoute: typeof AuthenticatedStationsStationIdRoute
-  AuthenticatedUnitsUidRoute: typeof AuthenticatedUnitsUidRoute
-  AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
-  AuthenticatedWorkOrdersWoIdRoute: typeof AuthenticatedWorkOrdersWoIdRoute
-  AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
-  AuthenticatedLinesIndexRoute: typeof AuthenticatedLinesIndexRoute
-  AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
-  AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
-  AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
-  AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
-  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
-  AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiPublicMesDowntimeRoute: typeof ApiPublicMesDowntimeRoute
   ApiPublicMesKpiRoute: typeof ApiPublicMesKpiRoute
   ApiPublicMesQualityHoldsRoute: typeof ApiPublicMesQualityHoldsRoute
@@ -572,250 +545,257 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/waste-reasons': {
       id: '/_authenticated/waste-reasons'
       path: '/waste-reasons'
       fullPath: '/waste-reasons'
       preLoaderRoute: typeof AuthenticatedWasteReasonsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tracking': {
       id: '/_authenticated/tracking'
       path: '/tracking'
       fullPath: '/tracking'
       preLoaderRoute: typeof AuthenticatedTrackingRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/traceability': {
       id: '/_authenticated/traceability'
       path: '/traceability'
       fullPath: '/traceability'
       preLoaderRoute: typeof AuthenticatedTraceabilityRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/telemetry': {
       id: '/_authenticated/telemetry'
       path: '/telemetry'
       fullPath: '/telemetry'
       preLoaderRoute: typeof AuthenticatedTelemetryRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/step-templates': {
       id: '/_authenticated/step-templates'
       path: '/step-templates'
       fullPath: '/step-templates'
       preLoaderRoute: typeof AuthenticatedStepTemplatesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recipes': {
       id: '/_authenticated/recipes'
       path: '/recipes'
       fullPath: '/recipes'
       preLoaderRoute: typeof AuthenticatedRecipesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/quality': {
       id: '/_authenticated/quality'
       path: '/quality'
       fullPath: '/quality'
       preLoaderRoute: typeof AuthenticatedQualityRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/planner': {
       id: '/_authenticated/planner'
       path: '/planner'
       fullPath: '/planner'
       preLoaderRoute: typeof AuthenticatedPlannerRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/master-data': {
       id: '/_authenticated/master-data'
       path: '/master-data'
       fullPath: '/master-data'
       preLoaderRoute: typeof AuthenticatedMasterDataRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/live': {
       id: '/_authenticated/live'
       path: '/live'
       fullPath: '/live'
       preLoaderRoute: typeof AuthenticatedLiveRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/genealogy': {
       id: '/_authenticated/genealogy'
       path: '/genealogy'
       fullPath: '/genealogy'
       preLoaderRoute: typeof AuthenticatedGenealogyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/execution': {
       id: '/_authenticated/execution'
       path: '/execution'
       fullPath: '/execution'
       preLoaderRoute: typeof AuthenticatedExecutionRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/downtime': {
       id: '/_authenticated/downtime'
       path: '/downtime'
       fullPath: '/downtime'
       preLoaderRoute: typeof AuthenticatedDowntimeRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/assignments': {
       id: '/_authenticated/assignments'
       path: '/assignments'
       fullPath: '/assignments'
       preLoaderRoute: typeof AuthenticatedAssignmentsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/work-orders/': {
       id: '/_authenticated/work-orders/'
       path: '/work-orders'
       fullPath: '/work-orders/'
       preLoaderRoute: typeof AuthenticatedWorkOrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
       fullPath: '/users/'
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/stations/': {
       id: '/_authenticated/stations/'
       path: '/stations'
       fullPath: '/stations/'
       preLoaderRoute: typeof AuthenticatedStationsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/products/': {
       id: '/_authenticated/products/'
       path: '/products'
       fullPath: '/products/'
       preLoaderRoute: typeof AuthenticatedProductsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/production-orders/': {
       id: '/_authenticated/production-orders/'
       path: '/production-orders'
       fullPath: '/production-orders/'
       preLoaderRoute: typeof AuthenticatedProductionOrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/operator/': {
       id: '/_authenticated/operator/'
       path: '/operator'
       fullPath: '/operator/'
       preLoaderRoute: typeof AuthenticatedOperatorIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lines/': {
       id: '/_authenticated/lines/'
       path: '/lines'
       fullPath: '/lines/'
       preLoaderRoute: typeof AuthenticatedLinesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hmi/': {
       id: '/_authenticated/hmi/'
       path: '/hmi'
       fullPath: '/hmi/'
       preLoaderRoute: typeof AuthenticatedHmiIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/work-orders/$woId': {
       id: '/_authenticated/work-orders/$woId'
       path: '/work-orders/$woId'
       fullPath: '/work-orders/$woId'
       preLoaderRoute: typeof AuthenticatedWorkOrdersWoIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/users/$userId': {
       id: '/_authenticated/users/$userId'
       path: '/users/$userId'
       fullPath: '/users/$userId'
       preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/units/$uid': {
       id: '/_authenticated/units/$uid'
       path: '/units/$uid'
       fullPath: '/units/$uid'
       preLoaderRoute: typeof AuthenticatedUnitsUidRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/stations/$stationId': {
       id: '/_authenticated/stations/$stationId'
       path: '/stations/$stationId'
       fullPath: '/stations/$stationId'
       preLoaderRoute: typeof AuthenticatedStationsStationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/products/$productId': {
       id: '/_authenticated/products/$productId'
       path: '/products/$productId'
       fullPath: '/products/$productId'
       preLoaderRoute: typeof AuthenticatedProductsProductIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/production-orders/$poId': {
       id: '/_authenticated/production-orders/$poId'
       path: '/production-orders/$poId'
       fullPath: '/production-orders/$poId'
       preLoaderRoute: typeof AuthenticatedProductionOrdersPoIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/operator/$stationId': {
       id: '/_authenticated/operator/$stationId'
       path: '/operator/$stationId'
       fullPath: '/operator/$stationId'
       preLoaderRoute: typeof AuthenticatedOperatorStationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lines/$lineId': {
       id: '/_authenticated/lines/$lineId'
       path: '/lines/$lineId'
       fullPath: '/lines/$lineId'
       preLoaderRoute: typeof AuthenticatedLinesLineIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hmi/$stationId': {
       id: '/_authenticated/hmi/$stationId'
       path: '/hmi/$stationId'
       fullPath: '/hmi/$stationId'
       preLoaderRoute: typeof AuthenticatedHmiStationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/batches/$batchId': {
       id: '/_authenticated/batches/$batchId'
       path: '/batches/$batchId'
       fullPath: '/batches/$batchId'
       preLoaderRoute: typeof AuthenticatedBatchesBatchIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/mes/work-orders': {
       id: '/api/public/mes/work-orders'
@@ -855,7 +835,45 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
+  AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
+  AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
+  AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
+  AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
+  AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
+  AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
+  AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
+  AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
+  AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
+  AuthenticatedTrackingRoute: typeof AuthenticatedTrackingRoute
+  AuthenticatedWasteReasonsRoute: typeof AuthenticatedWasteReasonsRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
+  AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
+  AuthenticatedLinesLineIdRoute: typeof AuthenticatedLinesLineIdRoute
+  AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
+  AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
+  AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
+  AuthenticatedStationsStationIdRoute: typeof AuthenticatedStationsStationIdRoute
+  AuthenticatedUnitsUidRoute: typeof AuthenticatedUnitsUidRoute
+  AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
+  AuthenticatedWorkOrdersWoIdRoute: typeof AuthenticatedWorkOrdersWoIdRoute
+  AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
+  AuthenticatedLinesIndexRoute: typeof AuthenticatedLinesIndexRoute
+  AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
+  AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
+  AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
+  AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
+  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
@@ -893,6 +911,13 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWorkOrdersIndexRoute: AuthenticatedWorkOrdersIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiPublicMesDowntimeRoute: ApiPublicMesDowntimeRoute,
   ApiPublicMesKpiRoute: ApiPublicMesKpiRoute,
   ApiPublicMesQualityHoldsRoute: ApiPublicMesQualityHoldsRoute,
