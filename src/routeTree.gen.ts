@@ -9,222 +9,257 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WasteReasonsRouteImport } from './routes/waste-reasons'
-import { Route as TrackingRouteImport } from './routes/tracking'
-import { Route as TraceabilityRouteImport } from './routes/traceability'
-import { Route as TelemetryRouteImport } from './routes/telemetry'
-import { Route as StepTemplatesRouteImport } from './routes/step-templates'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as RecipesRouteImport } from './routes/recipes'
-import { Route as QualityRouteImport } from './routes/quality'
-import { Route as PlannerRouteImport } from './routes/planner'
-import { Route as MasterDataRouteImport } from './routes/master-data'
-import { Route as LiveRouteImport } from './routes/live'
-import { Route as GenealogyRouteImport } from './routes/genealogy'
-import { Route as ExecutionRouteImport } from './routes/execution'
-import { Route as DowntimeRouteImport } from './routes/downtime'
-import { Route as AuditRouteImport } from './routes/audit'
-import { Route as AssignmentsRouteImport } from './routes/assignments'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkOrdersIndexRouteImport } from './routes/work-orders.index'
-import { Route as UsersIndexRouteImport } from './routes/users.index'
-import { Route as StationsIndexRouteImport } from './routes/stations.index'
-import { Route as ProductsIndexRouteImport } from './routes/products.index'
-import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
-import { Route as OperatorIndexRouteImport } from './routes/operator.index'
-import { Route as LinesIndexRouteImport } from './routes/lines.index'
-import { Route as HmiIndexRouteImport } from './routes/hmi.index'
-import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
-import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
-import { Route as UnitsUidRouteImport } from './routes/units.$uid'
-import { Route as StationsStationIdRouteImport } from './routes/stations.$stationId'
-import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
-import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
-import { Route as OperatorStationIdRouteImport } from './routes/operator.$stationId'
-import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
-import { Route as HmiStationIdRouteImport } from './routes/hmi.$stationId'
-import { Route as BatchesBatchIdRouteImport } from './routes/batches.$batchId'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedWasteReasonsRouteImport } from './routes/_authenticated/waste-reasons'
+import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticated/tracking'
+import { Route as AuthenticatedTraceabilityRouteImport } from './routes/_authenticated/traceability'
+import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authenticated/telemetry'
+import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
+import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
+import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
+import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
+import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
+import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
+import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
+import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
+import { Route as AuthenticatedWorkOrdersIndexRouteImport } from './routes/_authenticated/work-orders.index'
+import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users.index'
+import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
+import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products.index'
+import { Route as AuthenticatedProductionOrdersIndexRouteImport } from './routes/_authenticated/production-orders.index'
+import { Route as AuthenticatedOperatorIndexRouteImport } from './routes/_authenticated/operator.index'
+import { Route as AuthenticatedLinesIndexRouteImport } from './routes/_authenticated/lines.index'
+import { Route as AuthenticatedHmiIndexRouteImport } from './routes/_authenticated/hmi.index'
+import { Route as AuthenticatedWorkOrdersWoIdRouteImport } from './routes/_authenticated/work-orders.$woId'
+import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users.$userId'
+import { Route as AuthenticatedUnitsUidRouteImport } from './routes/_authenticated/units.$uid'
+import { Route as AuthenticatedStationsStationIdRouteImport } from './routes/_authenticated/stations.$stationId'
+import { Route as AuthenticatedProductsProductIdRouteImport } from './routes/_authenticated/products.$productId'
+import { Route as AuthenticatedProductionOrdersPoIdRouteImport } from './routes/_authenticated/production-orders.$poId'
+import { Route as AuthenticatedOperatorStationIdRouteImport } from './routes/_authenticated/operator.$stationId'
+import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenticated/lines.$lineId'
+import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
+import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
 import { Route as ApiPublicMesWorkOrdersRouteImport } from './routes/api/public/mes/work-orders'
 import { Route as ApiPublicMesTraceabilityRouteImport } from './routes/api/public/mes/traceability'
 import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/public/mes/quality-holds'
 import { Route as ApiPublicMesKpiRouteImport } from './routes/api/public/mes/kpi'
 import { Route as ApiPublicMesDowntimeRouteImport } from './routes/api/public/mes/downtime'
 
-const WasteReasonsRoute = WasteReasonsRouteImport.update({
-  id: '/waste-reasons',
-  path: '/waste-reasons',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TrackingRoute = TrackingRouteImport.update({
-  id: '/tracking',
-  path: '/tracking',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TraceabilityRoute = TraceabilityRouteImport.update({
-  id: '/traceability',
-  path: '/traceability',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TelemetryRoute = TelemetryRouteImport.update({
-  id: '/telemetry',
-  path: '/telemetry',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StepTemplatesRoute = StepTemplatesRouteImport.update({
-  id: '/step-templates',
-  path: '/step-templates',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecipesRoute = RecipesRouteImport.update({
-  id: '/recipes',
-  path: '/recipes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QualityRoute = QualityRouteImport.update({
-  id: '/quality',
-  path: '/quality',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlannerRoute = PlannerRouteImport.update({
-  id: '/planner',
-  path: '/planner',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MasterDataRoute = MasterDataRouteImport.update({
-  id: '/master-data',
-  path: '/master-data',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LiveRoute = LiveRouteImport.update({
-  id: '/live',
-  path: '/live',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GenealogyRoute = GenealogyRouteImport.update({
-  id: '/genealogy',
-  path: '/genealogy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExecutionRoute = ExecutionRouteImport.update({
-  id: '/execution',
-  path: '/execution',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DowntimeRoute = DowntimeRouteImport.update({
-  id: '/downtime',
-  path: '/downtime',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditRoute = AuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssignmentsRoute = AssignmentsRouteImport.update({
-  id: '/assignments',
-  path: '/assignments',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const WorkOrdersIndexRoute = WorkOrdersIndexRouteImport.update({
-  id: '/work-orders/',
-  path: '/work-orders/',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedWasteReasonsRoute =
+  AuthenticatedWasteReasonsRouteImport.update({
+    id: '/waste-reasons',
+    path: '/waste-reasons',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTrackingRoute = AuthenticatedTrackingRouteImport.update({
+  id: '/tracking',
+  path: '/tracking',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const UsersIndexRoute = UsersIndexRouteImport.update({
+const AuthenticatedTraceabilityRoute =
+  AuthenticatedTraceabilityRouteImport.update({
+    id: '/traceability',
+    path: '/traceability',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTelemetryRoute = AuthenticatedTelemetryRouteImport.update({
+  id: '/telemetry',
+  path: '/telemetry',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStepTemplatesRoute =
+  AuthenticatedStepTemplatesRouteImport.update({
+    id: '/step-templates',
+    path: '/step-templates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
+  id: '/recipes',
+  path: '/recipes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedQualityRoute = AuthenticatedQualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
+  id: '/master-data',
+  path: '/master-data',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLiveRoute = AuthenticatedLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
+  id: '/genealogy',
+  path: '/genealogy',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedExecutionRoute = AuthenticatedExecutionRouteImport.update({
+  id: '/execution',
+  path: '/execution',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDowntimeRoute = AuthenticatedDowntimeRouteImport.update({
+  id: '/downtime',
+  path: '/downtime',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssignmentsRoute =
+  AuthenticatedAssignmentsRouteImport.update({
+    id: '/assignments',
+    path: '/assignments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedWorkOrdersIndexRoute =
+  AuthenticatedWorkOrdersIndexRouteImport.update({
+    id: '/work-orders/',
+    path: '/work-orders/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const StationsIndexRoute = StationsIndexRouteImport.update({
-  id: '/stations/',
-  path: '/stations/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductsIndexRoute = ProductsIndexRouteImport.update({
-  id: '/products/',
-  path: '/products/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductionOrdersIndexRoute = ProductionOrdersIndexRouteImport.update({
-  id: '/production-orders/',
-  path: '/production-orders/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OperatorIndexRoute = OperatorIndexRouteImport.update({
-  id: '/operator/',
-  path: '/operator/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LinesIndexRoute = LinesIndexRouteImport.update({
+const AuthenticatedStationsIndexRoute =
+  AuthenticatedStationsIndexRouteImport.update({
+    id: '/stations/',
+    path: '/stations/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductsIndexRoute =
+  AuthenticatedProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductionOrdersIndexRoute =
+  AuthenticatedProductionOrdersIndexRouteImport.update({
+    id: '/production-orders/',
+    path: '/production-orders/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOperatorIndexRoute =
+  AuthenticatedOperatorIndexRouteImport.update({
+    id: '/operator/',
+    path: '/operator/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLinesIndexRoute = AuthenticatedLinesIndexRouteImport.update({
   id: '/lines/',
   path: '/lines/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const HmiIndexRoute = HmiIndexRouteImport.update({
+const AuthenticatedHmiIndexRoute = AuthenticatedHmiIndexRouteImport.update({
   id: '/hmi/',
   path: '/hmi/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
-  id: '/work-orders/$woId',
-  path: '/work-orders/$woId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsersUserIdRoute = UsersUserIdRouteImport.update({
-  id: '/users/$userId',
-  path: '/users/$userId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UnitsUidRoute = UnitsUidRouteImport.update({
+const AuthenticatedWorkOrdersWoIdRoute =
+  AuthenticatedWorkOrdersWoIdRouteImport.update({
+    id: '/work-orders/$woId',
+    path: '/work-orders/$woId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedUsersUserIdRoute =
+  AuthenticatedUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedUnitsUidRoute = AuthenticatedUnitsUidRouteImport.update({
   id: '/units/$uid',
   path: '/units/$uid',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const StationsStationIdRoute = StationsStationIdRouteImport.update({
-  id: '/stations/$stationId',
-  path: '/stations/$stationId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
-  id: '/products/$productId',
-  path: '/products/$productId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductionOrdersPoIdRoute = ProductionOrdersPoIdRouteImport.update({
-  id: '/production-orders/$poId',
-  path: '/production-orders/$poId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OperatorStationIdRoute = OperatorStationIdRouteImport.update({
-  id: '/operator/$stationId',
-  path: '/operator/$stationId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LinesLineIdRoute = LinesLineIdRouteImport.update({
-  id: '/lines/$lineId',
-  path: '/lines/$lineId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HmiStationIdRoute = HmiStationIdRouteImport.update({
-  id: '/hmi/$stationId',
-  path: '/hmi/$stationId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BatchesBatchIdRoute = BatchesBatchIdRouteImport.update({
-  id: '/batches/$batchId',
-  path: '/batches/$batchId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedStationsStationIdRoute =
+  AuthenticatedStationsStationIdRouteImport.update({
+    id: '/stations/$stationId',
+    path: '/stations/$stationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductsProductIdRoute =
+  AuthenticatedProductsProductIdRouteImport.update({
+    id: '/products/$productId',
+    path: '/products/$productId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductionOrdersPoIdRoute =
+  AuthenticatedProductionOrdersPoIdRouteImport.update({
+    id: '/production-orders/$poId',
+    path: '/production-orders/$poId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOperatorStationIdRoute =
+  AuthenticatedOperatorStationIdRouteImport.update({
+    id: '/operator/$stationId',
+    path: '/operator/$stationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLinesLineIdRoute =
+  AuthenticatedLinesLineIdRouteImport.update({
+    id: '/lines/$lineId',
+    path: '/lines/$lineId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHmiStationIdRoute =
+  AuthenticatedHmiStationIdRouteImport.update({
+    id: '/hmi/$stationId',
+    path: '/hmi/$stationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBatchesBatchIdRoute =
+  AuthenticatedBatchesBatchIdRouteImport.update({
+    id: '/batches/$batchId',
+    path: '/batches/$batchId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicMesWorkOrdersRoute = ApiPublicMesWorkOrdersRouteImport.update({
   id: '/api/public/mes/work-orders',
   path: '/api/public/mes/work-orders',
@@ -254,41 +289,43 @@ const ApiPublicMesDowntimeRoute = ApiPublicMesDowntimeRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/assignments': typeof AssignmentsRoute
-  '/audit': typeof AuditRoute
-  '/downtime': typeof DowntimeRoute
-  '/execution': typeof ExecutionRoute
-  '/genealogy': typeof GenealogyRoute
-  '/live': typeof LiveRoute
-  '/master-data': typeof MasterDataRoute
-  '/planner': typeof PlannerRoute
-  '/quality': typeof QualityRoute
-  '/recipes': typeof RecipesRoute
-  '/settings': typeof SettingsRoute
-  '/step-templates': typeof StepTemplatesRoute
-  '/telemetry': typeof TelemetryRoute
-  '/traceability': typeof TraceabilityRoute
-  '/tracking': typeof TrackingRoute
-  '/waste-reasons': typeof WasteReasonsRoute
-  '/batches/$batchId': typeof BatchesBatchIdRoute
-  '/hmi/$stationId': typeof HmiStationIdRoute
-  '/lines/$lineId': typeof LinesLineIdRoute
-  '/operator/$stationId': typeof OperatorStationIdRoute
-  '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
-  '/products/$productId': typeof ProductsProductIdRoute
-  '/stations/$stationId': typeof StationsStationIdRoute
-  '/units/$uid': typeof UnitsUidRoute
-  '/users/$userId': typeof UsersUserIdRoute
-  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
-  '/hmi/': typeof HmiIndexRoute
-  '/lines/': typeof LinesIndexRoute
-  '/operator/': typeof OperatorIndexRoute
-  '/production-orders/': typeof ProductionOrdersIndexRoute
-  '/products/': typeof ProductsIndexRoute
-  '/stations/': typeof StationsIndexRoute
-  '/users/': typeof UsersIndexRoute
-  '/work-orders/': typeof WorkOrdersIndexRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/assignments': typeof AuthenticatedAssignmentsRoute
+  '/audit': typeof AuthenticatedAuditRoute
+  '/downtime': typeof AuthenticatedDowntimeRoute
+  '/execution': typeof AuthenticatedExecutionRoute
+  '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/live': typeof AuthenticatedLiveRoute
+  '/master-data': typeof AuthenticatedMasterDataRoute
+  '/planner': typeof AuthenticatedPlannerRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/quality': typeof AuthenticatedQualityRoute
+  '/recipes': typeof AuthenticatedRecipesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/step-templates': typeof AuthenticatedStepTemplatesRoute
+  '/telemetry': typeof AuthenticatedTelemetryRoute
+  '/traceability': typeof AuthenticatedTraceabilityRoute
+  '/tracking': typeof AuthenticatedTrackingRoute
+  '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
+  '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
+  '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
+  '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
+  '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
+  '/products/$productId': typeof AuthenticatedProductsProductIdRoute
+  '/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
+  '/units/$uid': typeof AuthenticatedUnitsUidRoute
+  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
+  '/hmi/': typeof AuthenticatedHmiIndexRoute
+  '/lines/': typeof AuthenticatedLinesIndexRoute
+  '/operator/': typeof AuthenticatedOperatorIndexRoute
+  '/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
+  '/products/': typeof AuthenticatedProductsIndexRoute
+  '/stations/': typeof AuthenticatedStationsIndexRoute
+  '/users/': typeof AuthenticatedUsersIndexRoute
+  '/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
   '/api/public/mes/downtime': typeof ApiPublicMesDowntimeRoute
   '/api/public/mes/kpi': typeof ApiPublicMesKpiRoute
   '/api/public/mes/quality-holds': typeof ApiPublicMesQualityHoldsRoute
@@ -296,41 +333,43 @@ export interface FileRoutesByFullPath {
   '/api/public/mes/work-orders': typeof ApiPublicMesWorkOrdersRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/assignments': typeof AssignmentsRoute
-  '/audit': typeof AuditRoute
-  '/downtime': typeof DowntimeRoute
-  '/execution': typeof ExecutionRoute
-  '/genealogy': typeof GenealogyRoute
-  '/live': typeof LiveRoute
-  '/master-data': typeof MasterDataRoute
-  '/planner': typeof PlannerRoute
-  '/quality': typeof QualityRoute
-  '/recipes': typeof RecipesRoute
-  '/settings': typeof SettingsRoute
-  '/step-templates': typeof StepTemplatesRoute
-  '/telemetry': typeof TelemetryRoute
-  '/traceability': typeof TraceabilityRoute
-  '/tracking': typeof TrackingRoute
-  '/waste-reasons': typeof WasteReasonsRoute
-  '/batches/$batchId': typeof BatchesBatchIdRoute
-  '/hmi/$stationId': typeof HmiStationIdRoute
-  '/lines/$lineId': typeof LinesLineIdRoute
-  '/operator/$stationId': typeof OperatorStationIdRoute
-  '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
-  '/products/$productId': typeof ProductsProductIdRoute
-  '/stations/$stationId': typeof StationsStationIdRoute
-  '/units/$uid': typeof UnitsUidRoute
-  '/users/$userId': typeof UsersUserIdRoute
-  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
-  '/hmi': typeof HmiIndexRoute
-  '/lines': typeof LinesIndexRoute
-  '/operator': typeof OperatorIndexRoute
-  '/production-orders': typeof ProductionOrdersIndexRoute
-  '/products': typeof ProductsIndexRoute
-  '/stations': typeof StationsIndexRoute
-  '/users': typeof UsersIndexRoute
-  '/work-orders': typeof WorkOrdersIndexRoute
+  '/auth': typeof AuthRoute
+  '/assignments': typeof AuthenticatedAssignmentsRoute
+  '/audit': typeof AuthenticatedAuditRoute
+  '/downtime': typeof AuthenticatedDowntimeRoute
+  '/execution': typeof AuthenticatedExecutionRoute
+  '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/live': typeof AuthenticatedLiveRoute
+  '/master-data': typeof AuthenticatedMasterDataRoute
+  '/planner': typeof AuthenticatedPlannerRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/quality': typeof AuthenticatedQualityRoute
+  '/recipes': typeof AuthenticatedRecipesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/step-templates': typeof AuthenticatedStepTemplatesRoute
+  '/telemetry': typeof AuthenticatedTelemetryRoute
+  '/traceability': typeof AuthenticatedTraceabilityRoute
+  '/tracking': typeof AuthenticatedTrackingRoute
+  '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
+  '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
+  '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
+  '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
+  '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
+  '/products/$productId': typeof AuthenticatedProductsProductIdRoute
+  '/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
+  '/units/$uid': typeof AuthenticatedUnitsUidRoute
+  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
+  '/hmi': typeof AuthenticatedHmiIndexRoute
+  '/lines': typeof AuthenticatedLinesIndexRoute
+  '/operator': typeof AuthenticatedOperatorIndexRoute
+  '/production-orders': typeof AuthenticatedProductionOrdersIndexRoute
+  '/products': typeof AuthenticatedProductsIndexRoute
+  '/stations': typeof AuthenticatedStationsIndexRoute
+  '/users': typeof AuthenticatedUsersIndexRoute
+  '/work-orders': typeof AuthenticatedWorkOrdersIndexRoute
   '/api/public/mes/downtime': typeof ApiPublicMesDowntimeRoute
   '/api/public/mes/kpi': typeof ApiPublicMesKpiRoute
   '/api/public/mes/quality-holds': typeof ApiPublicMesQualityHoldsRoute
@@ -339,41 +378,44 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/assignments': typeof AssignmentsRoute
-  '/audit': typeof AuditRoute
-  '/downtime': typeof DowntimeRoute
-  '/execution': typeof ExecutionRoute
-  '/genealogy': typeof GenealogyRoute
-  '/live': typeof LiveRoute
-  '/master-data': typeof MasterDataRoute
-  '/planner': typeof PlannerRoute
-  '/quality': typeof QualityRoute
-  '/recipes': typeof RecipesRoute
-  '/settings': typeof SettingsRoute
-  '/step-templates': typeof StepTemplatesRoute
-  '/telemetry': typeof TelemetryRoute
-  '/traceability': typeof TraceabilityRoute
-  '/tracking': typeof TrackingRoute
-  '/waste-reasons': typeof WasteReasonsRoute
-  '/batches/$batchId': typeof BatchesBatchIdRoute
-  '/hmi/$stationId': typeof HmiStationIdRoute
-  '/lines/$lineId': typeof LinesLineIdRoute
-  '/operator/$stationId': typeof OperatorStationIdRoute
-  '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
-  '/products/$productId': typeof ProductsProductIdRoute
-  '/stations/$stationId': typeof StationsStationIdRoute
-  '/units/$uid': typeof UnitsUidRoute
-  '/users/$userId': typeof UsersUserIdRoute
-  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
-  '/hmi/': typeof HmiIndexRoute
-  '/lines/': typeof LinesIndexRoute
-  '/operator/': typeof OperatorIndexRoute
-  '/production-orders/': typeof ProductionOrdersIndexRoute
-  '/products/': typeof ProductsIndexRoute
-  '/stations/': typeof StationsIndexRoute
-  '/users/': typeof UsersIndexRoute
-  '/work-orders/': typeof WorkOrdersIndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
+  '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
+  '/_authenticated/execution': typeof AuthenticatedExecutionRoute
+  '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
+  '/_authenticated/live': typeof AuthenticatedLiveRoute
+  '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
+  '/_authenticated/planner': typeof AuthenticatedPlannerRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/quality': typeof AuthenticatedQualityRoute
+  '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
+  '/_authenticated/telemetry': typeof AuthenticatedTelemetryRoute
+  '/_authenticated/traceability': typeof AuthenticatedTraceabilityRoute
+  '/_authenticated/tracking': typeof AuthenticatedTrackingRoute
+  '/_authenticated/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
+  '/_authenticated/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
+  '/_authenticated/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
+  '/_authenticated/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
+  '/_authenticated/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
+  '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRoute
+  '/_authenticated/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
+  '/_authenticated/units/$uid': typeof AuthenticatedUnitsUidRoute
+  '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/_authenticated/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
+  '/_authenticated/hmi/': typeof AuthenticatedHmiIndexRoute
+  '/_authenticated/lines/': typeof AuthenticatedLinesIndexRoute
+  '/_authenticated/operator/': typeof AuthenticatedOperatorIndexRoute
+  '/_authenticated/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
+  '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
+  '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
+  '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
   '/api/public/mes/downtime': typeof ApiPublicMesDowntimeRoute
   '/api/public/mes/kpi': typeof ApiPublicMesKpiRoute
   '/api/public/mes/quality-holds': typeof ApiPublicMesQualityHoldsRoute
@@ -384,6 +426,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -392,6 +435,7 @@ export interface FileRouteTypes {
     | '/live'
     | '/master-data'
     | '/planner'
+    | '/profile'
     | '/quality'
     | '/recipes'
     | '/settings'
@@ -425,7 +469,7 @@ export interface FileRouteTypes {
     | '/api/public/mes/work-orders'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/auth'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -434,6 +478,7 @@ export interface FileRouteTypes {
     | '/live'
     | '/master-data'
     | '/planner'
+    | '/profile'
     | '/quality'
     | '/recipes'
     | '/settings'
@@ -442,6 +487,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/'
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
@@ -467,41 +513,44 @@ export interface FileRouteTypes {
     | '/api/public/mes/work-orders'
   id:
     | '__root__'
-    | '/'
-    | '/assignments'
-    | '/audit'
-    | '/downtime'
-    | '/execution'
-    | '/genealogy'
-    | '/live'
-    | '/master-data'
-    | '/planner'
-    | '/quality'
-    | '/recipes'
-    | '/settings'
-    | '/step-templates'
-    | '/telemetry'
-    | '/traceability'
-    | '/tracking'
-    | '/waste-reasons'
-    | '/batches/$batchId'
-    | '/hmi/$stationId'
-    | '/lines/$lineId'
-    | '/operator/$stationId'
-    | '/production-orders/$poId'
-    | '/products/$productId'
-    | '/stations/$stationId'
-    | '/units/$uid'
-    | '/users/$userId'
-    | '/work-orders/$woId'
-    | '/hmi/'
-    | '/lines/'
-    | '/operator/'
-    | '/production-orders/'
-    | '/products/'
-    | '/stations/'
-    | '/users/'
-    | '/work-orders/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/assignments'
+    | '/_authenticated/audit'
+    | '/_authenticated/downtime'
+    | '/_authenticated/execution'
+    | '/_authenticated/genealogy'
+    | '/_authenticated/live'
+    | '/_authenticated/master-data'
+    | '/_authenticated/planner'
+    | '/_authenticated/profile'
+    | '/_authenticated/quality'
+    | '/_authenticated/recipes'
+    | '/_authenticated/settings'
+    | '/_authenticated/step-templates'
+    | '/_authenticated/telemetry'
+    | '/_authenticated/traceability'
+    | '/_authenticated/tracking'
+    | '/_authenticated/waste-reasons'
+    | '/_authenticated/'
+    | '/_authenticated/batches/$batchId'
+    | '/_authenticated/hmi/$stationId'
+    | '/_authenticated/lines/$lineId'
+    | '/_authenticated/operator/$stationId'
+    | '/_authenticated/production-orders/$poId'
+    | '/_authenticated/products/$productId'
+    | '/_authenticated/stations/$stationId'
+    | '/_authenticated/units/$uid'
+    | '/_authenticated/users/$userId'
+    | '/_authenticated/work-orders/$woId'
+    | '/_authenticated/hmi/'
+    | '/_authenticated/lines/'
+    | '/_authenticated/operator/'
+    | '/_authenticated/production-orders/'
+    | '/_authenticated/products/'
+    | '/_authenticated/stations/'
+    | '/_authenticated/users/'
+    | '/_authenticated/work-orders/'
     | '/api/public/mes/downtime'
     | '/api/public/mes/kpi'
     | '/api/public/mes/quality-holds'
@@ -510,41 +559,8 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AssignmentsRoute: typeof AssignmentsRoute
-  AuditRoute: typeof AuditRoute
-  DowntimeRoute: typeof DowntimeRoute
-  ExecutionRoute: typeof ExecutionRoute
-  GenealogyRoute: typeof GenealogyRoute
-  LiveRoute: typeof LiveRoute
-  MasterDataRoute: typeof MasterDataRoute
-  PlannerRoute: typeof PlannerRoute
-  QualityRoute: typeof QualityRoute
-  RecipesRoute: typeof RecipesRoute
-  SettingsRoute: typeof SettingsRoute
-  StepTemplatesRoute: typeof StepTemplatesRoute
-  TelemetryRoute: typeof TelemetryRoute
-  TraceabilityRoute: typeof TraceabilityRoute
-  TrackingRoute: typeof TrackingRoute
-  WasteReasonsRoute: typeof WasteReasonsRoute
-  BatchesBatchIdRoute: typeof BatchesBatchIdRoute
-  HmiStationIdRoute: typeof HmiStationIdRoute
-  LinesLineIdRoute: typeof LinesLineIdRoute
-  OperatorStationIdRoute: typeof OperatorStationIdRoute
-  ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
-  ProductsProductIdRoute: typeof ProductsProductIdRoute
-  StationsStationIdRoute: typeof StationsStationIdRoute
-  UnitsUidRoute: typeof UnitsUidRoute
-  UsersUserIdRoute: typeof UsersUserIdRoute
-  WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
-  HmiIndexRoute: typeof HmiIndexRoute
-  LinesIndexRoute: typeof LinesIndexRoute
-  OperatorIndexRoute: typeof OperatorIndexRoute
-  ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
-  ProductsIndexRoute: typeof ProductsIndexRoute
-  StationsIndexRoute: typeof StationsIndexRoute
-  UsersIndexRoute: typeof UsersIndexRoute
-  WorkOrdersIndexRoute: typeof WorkOrdersIndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ApiPublicMesDowntimeRoute: typeof ApiPublicMesDowntimeRoute
   ApiPublicMesKpiRoute: typeof ApiPublicMesKpiRoute
   ApiPublicMesQualityHoldsRoute: typeof ApiPublicMesQualityHoldsRoute
@@ -554,250 +570,271 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/waste-reasons': {
-      id: '/waste-reasons'
-      path: '/waste-reasons'
-      fullPath: '/waste-reasons'
-      preLoaderRoute: typeof WasteReasonsRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tracking': {
-      id: '/tracking'
-      path: '/tracking'
-      fullPath: '/tracking'
-      preLoaderRoute: typeof TrackingRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/traceability': {
-      id: '/traceability'
-      path: '/traceability'
-      fullPath: '/traceability'
-      preLoaderRoute: typeof TraceabilityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/telemetry': {
-      id: '/telemetry'
-      path: '/telemetry'
-      fullPath: '/telemetry'
-      preLoaderRoute: typeof TelemetryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/step-templates': {
-      id: '/step-templates'
-      path: '/step-templates'
-      fullPath: '/step-templates'
-      preLoaderRoute: typeof StepTemplatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recipes': {
-      id: '/recipes'
-      path: '/recipes'
-      fullPath: '/recipes'
-      preLoaderRoute: typeof RecipesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quality': {
-      id: '/quality'
-      path: '/quality'
-      fullPath: '/quality'
-      preLoaderRoute: typeof QualityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planner': {
-      id: '/planner'
-      path: '/planner'
-      fullPath: '/planner'
-      preLoaderRoute: typeof PlannerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/master-data': {
-      id: '/master-data'
-      path: '/master-data'
-      fullPath: '/master-data'
-      preLoaderRoute: typeof MasterDataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/live': {
-      id: '/live'
-      path: '/live'
-      fullPath: '/live'
-      preLoaderRoute: typeof LiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/genealogy': {
-      id: '/genealogy'
-      path: '/genealogy'
-      fullPath: '/genealogy'
-      preLoaderRoute: typeof GenealogyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/execution': {
-      id: '/execution'
-      path: '/execution'
-      fullPath: '/execution'
-      preLoaderRoute: typeof ExecutionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/downtime': {
-      id: '/downtime'
-      path: '/downtime'
-      fullPath: '/downtime'
-      preLoaderRoute: typeof DowntimeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/audit': {
-      id: '/audit'
-      path: '/audit'
-      fullPath: '/audit'
-      preLoaderRoute: typeof AuditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assignments': {
-      id: '/assignments'
-      path: '/assignments'
-      fullPath: '/assignments'
-      preLoaderRoute: typeof AssignmentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/work-orders/': {
-      id: '/work-orders/'
+    '/_authenticated/waste-reasons': {
+      id: '/_authenticated/waste-reasons'
+      path: '/waste-reasons'
+      fullPath: '/waste-reasons'
+      preLoaderRoute: typeof AuthenticatedWasteReasonsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tracking': {
+      id: '/_authenticated/tracking'
+      path: '/tracking'
+      fullPath: '/tracking'
+      preLoaderRoute: typeof AuthenticatedTrackingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/traceability': {
+      id: '/_authenticated/traceability'
+      path: '/traceability'
+      fullPath: '/traceability'
+      preLoaderRoute: typeof AuthenticatedTraceabilityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/telemetry': {
+      id: '/_authenticated/telemetry'
+      path: '/telemetry'
+      fullPath: '/telemetry'
+      preLoaderRoute: typeof AuthenticatedTelemetryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/step-templates': {
+      id: '/_authenticated/step-templates'
+      path: '/step-templates'
+      fullPath: '/step-templates'
+      preLoaderRoute: typeof AuthenticatedStepTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recipes': {
+      id: '/_authenticated/recipes'
+      path: '/recipes'
+      fullPath: '/recipes'
+      preLoaderRoute: typeof AuthenticatedRecipesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/quality': {
+      id: '/_authenticated/quality'
+      path: '/quality'
+      fullPath: '/quality'
+      preLoaderRoute: typeof AuthenticatedQualityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planner': {
+      id: '/_authenticated/planner'
+      path: '/planner'
+      fullPath: '/planner'
+      preLoaderRoute: typeof AuthenticatedPlannerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/master-data': {
+      id: '/_authenticated/master-data'
+      path: '/master-data'
+      fullPath: '/master-data'
+      preLoaderRoute: typeof AuthenticatedMasterDataRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/live': {
+      id: '/_authenticated/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof AuthenticatedLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/genealogy': {
+      id: '/_authenticated/genealogy'
+      path: '/genealogy'
+      fullPath: '/genealogy'
+      preLoaderRoute: typeof AuthenticatedGenealogyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/execution': {
+      id: '/_authenticated/execution'
+      path: '/execution'
+      fullPath: '/execution'
+      preLoaderRoute: typeof AuthenticatedExecutionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/downtime': {
+      id: '/_authenticated/downtime'
+      path: '/downtime'
+      fullPath: '/downtime'
+      preLoaderRoute: typeof AuthenticatedDowntimeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/audit': {
+      id: '/_authenticated/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assignments': {
+      id: '/_authenticated/assignments'
+      path: '/assignments'
+      fullPath: '/assignments'
+      preLoaderRoute: typeof AuthenticatedAssignmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/work-orders/': {
+      id: '/_authenticated/work-orders/'
       path: '/work-orders'
       fullPath: '/work-orders/'
-      preLoaderRoute: typeof WorkOrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedWorkOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/users/': {
-      id: '/users/'
+    '/_authenticated/users/': {
+      id: '/_authenticated/users/'
       path: '/users'
       fullPath: '/users/'
-      preLoaderRoute: typeof UsersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/stations/': {
-      id: '/stations/'
+    '/_authenticated/stations/': {
+      id: '/_authenticated/stations/'
       path: '/stations'
       fullPath: '/stations/'
-      preLoaderRoute: typeof StationsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedStationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/products/': {
-      id: '/products/'
+    '/_authenticated/products/': {
+      id: '/_authenticated/products/'
       path: '/products'
       fullPath: '/products/'
-      preLoaderRoute: typeof ProductsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/production-orders/': {
-      id: '/production-orders/'
+    '/_authenticated/production-orders/': {
+      id: '/_authenticated/production-orders/'
       path: '/production-orders'
       fullPath: '/production-orders/'
-      preLoaderRoute: typeof ProductionOrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedProductionOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/operator/': {
-      id: '/operator/'
+    '/_authenticated/operator/': {
+      id: '/_authenticated/operator/'
       path: '/operator'
       fullPath: '/operator/'
-      preLoaderRoute: typeof OperatorIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedOperatorIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/lines/': {
-      id: '/lines/'
+    '/_authenticated/lines/': {
+      id: '/_authenticated/lines/'
       path: '/lines'
       fullPath: '/lines/'
-      preLoaderRoute: typeof LinesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLinesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/hmi/': {
-      id: '/hmi/'
+    '/_authenticated/hmi/': {
+      id: '/_authenticated/hmi/'
       path: '/hmi'
       fullPath: '/hmi/'
-      preLoaderRoute: typeof HmiIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedHmiIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/work-orders/$woId': {
-      id: '/work-orders/$woId'
+    '/_authenticated/work-orders/$woId': {
+      id: '/_authenticated/work-orders/$woId'
       path: '/work-orders/$woId'
       fullPath: '/work-orders/$woId'
-      preLoaderRoute: typeof WorkOrdersWoIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedWorkOrdersWoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/users/$userId': {
-      id: '/users/$userId'
+    '/_authenticated/users/$userId': {
+      id: '/_authenticated/users/$userId'
       path: '/users/$userId'
       fullPath: '/users/$userId'
-      preLoaderRoute: typeof UsersUserIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/units/$uid': {
-      id: '/units/$uid'
+    '/_authenticated/units/$uid': {
+      id: '/_authenticated/units/$uid'
       path: '/units/$uid'
       fullPath: '/units/$uid'
-      preLoaderRoute: typeof UnitsUidRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedUnitsUidRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/stations/$stationId': {
-      id: '/stations/$stationId'
+    '/_authenticated/stations/$stationId': {
+      id: '/_authenticated/stations/$stationId'
       path: '/stations/$stationId'
       fullPath: '/stations/$stationId'
-      preLoaderRoute: typeof StationsStationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedStationsStationIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/products/$productId': {
-      id: '/products/$productId'
+    '/_authenticated/products/$productId': {
+      id: '/_authenticated/products/$productId'
       path: '/products/$productId'
       fullPath: '/products/$productId'
-      preLoaderRoute: typeof ProductsProductIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedProductsProductIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/production-orders/$poId': {
-      id: '/production-orders/$poId'
+    '/_authenticated/production-orders/$poId': {
+      id: '/_authenticated/production-orders/$poId'
       path: '/production-orders/$poId'
       fullPath: '/production-orders/$poId'
-      preLoaderRoute: typeof ProductionOrdersPoIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedProductionOrdersPoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/operator/$stationId': {
-      id: '/operator/$stationId'
+    '/_authenticated/operator/$stationId': {
+      id: '/_authenticated/operator/$stationId'
       path: '/operator/$stationId'
       fullPath: '/operator/$stationId'
-      preLoaderRoute: typeof OperatorStationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedOperatorStationIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/lines/$lineId': {
-      id: '/lines/$lineId'
+    '/_authenticated/lines/$lineId': {
+      id: '/_authenticated/lines/$lineId'
       path: '/lines/$lineId'
       fullPath: '/lines/$lineId'
-      preLoaderRoute: typeof LinesLineIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLinesLineIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/hmi/$stationId': {
-      id: '/hmi/$stationId'
+    '/_authenticated/hmi/$stationId': {
+      id: '/_authenticated/hmi/$stationId'
       path: '/hmi/$stationId'
       fullPath: '/hmi/$stationId'
-      preLoaderRoute: typeof HmiStationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedHmiStationIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/batches/$batchId': {
-      id: '/batches/$batchId'
+    '/_authenticated/batches/$batchId': {
+      id: '/_authenticated/batches/$batchId'
       path: '/batches/$batchId'
       fullPath: '/batches/$batchId'
-      preLoaderRoute: typeof BatchesBatchIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedBatchesBatchIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/mes/work-orders': {
       id: '/api/public/mes/work-orders'
@@ -837,42 +874,92 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
+  AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
+  AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
+  AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
+  AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
+  AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
+  AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
+  AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
+  AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
+  AuthenticatedTrackingRoute: typeof AuthenticatedTrackingRoute
+  AuthenticatedWasteReasonsRoute: typeof AuthenticatedWasteReasonsRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
+  AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
+  AuthenticatedLinesLineIdRoute: typeof AuthenticatedLinesLineIdRoute
+  AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
+  AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
+  AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
+  AuthenticatedStationsStationIdRoute: typeof AuthenticatedStationsStationIdRoute
+  AuthenticatedUnitsUidRoute: typeof AuthenticatedUnitsUidRoute
+  AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
+  AuthenticatedWorkOrdersWoIdRoute: typeof AuthenticatedWorkOrdersWoIdRoute
+  AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
+  AuthenticatedLinesIndexRoute: typeof AuthenticatedLinesIndexRoute
+  AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
+  AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
+  AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
+  AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
+  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
+  AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
+  AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
+  AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
+  AuthenticatedLiveRoute: AuthenticatedLiveRoute,
+  AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
+  AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedQualityRoute: AuthenticatedQualityRoute,
+  AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
+  AuthenticatedTelemetryRoute: AuthenticatedTelemetryRoute,
+  AuthenticatedTraceabilityRoute: AuthenticatedTraceabilityRoute,
+  AuthenticatedTrackingRoute: AuthenticatedTrackingRoute,
+  AuthenticatedWasteReasonsRoute: AuthenticatedWasteReasonsRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedBatchesBatchIdRoute: AuthenticatedBatchesBatchIdRoute,
+  AuthenticatedHmiStationIdRoute: AuthenticatedHmiStationIdRoute,
+  AuthenticatedLinesLineIdRoute: AuthenticatedLinesLineIdRoute,
+  AuthenticatedOperatorStationIdRoute: AuthenticatedOperatorStationIdRoute,
+  AuthenticatedProductionOrdersPoIdRoute:
+    AuthenticatedProductionOrdersPoIdRoute,
+  AuthenticatedProductsProductIdRoute: AuthenticatedProductsProductIdRoute,
+  AuthenticatedStationsStationIdRoute: AuthenticatedStationsStationIdRoute,
+  AuthenticatedUnitsUidRoute: AuthenticatedUnitsUidRoute,
+  AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
+  AuthenticatedWorkOrdersWoIdRoute: AuthenticatedWorkOrdersWoIdRoute,
+  AuthenticatedHmiIndexRoute: AuthenticatedHmiIndexRoute,
+  AuthenticatedLinesIndexRoute: AuthenticatedLinesIndexRoute,
+  AuthenticatedOperatorIndexRoute: AuthenticatedOperatorIndexRoute,
+  AuthenticatedProductionOrdersIndexRoute:
+    AuthenticatedProductionOrdersIndexRoute,
+  AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
+  AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
+  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedWorkOrdersIndexRoute: AuthenticatedWorkOrdersIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AssignmentsRoute: AssignmentsRoute,
-  AuditRoute: AuditRoute,
-  DowntimeRoute: DowntimeRoute,
-  ExecutionRoute: ExecutionRoute,
-  GenealogyRoute: GenealogyRoute,
-  LiveRoute: LiveRoute,
-  MasterDataRoute: MasterDataRoute,
-  PlannerRoute: PlannerRoute,
-  QualityRoute: QualityRoute,
-  RecipesRoute: RecipesRoute,
-  SettingsRoute: SettingsRoute,
-  StepTemplatesRoute: StepTemplatesRoute,
-  TelemetryRoute: TelemetryRoute,
-  TraceabilityRoute: TraceabilityRoute,
-  TrackingRoute: TrackingRoute,
-  WasteReasonsRoute: WasteReasonsRoute,
-  BatchesBatchIdRoute: BatchesBatchIdRoute,
-  HmiStationIdRoute: HmiStationIdRoute,
-  LinesLineIdRoute: LinesLineIdRoute,
-  OperatorStationIdRoute: OperatorStationIdRoute,
-  ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
-  ProductsProductIdRoute: ProductsProductIdRoute,
-  StationsStationIdRoute: StationsStationIdRoute,
-  UnitsUidRoute: UnitsUidRoute,
-  UsersUserIdRoute: UsersUserIdRoute,
-  WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
-  HmiIndexRoute: HmiIndexRoute,
-  LinesIndexRoute: LinesIndexRoute,
-  OperatorIndexRoute: OperatorIndexRoute,
-  ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
-  ProductsIndexRoute: ProductsIndexRoute,
-  StationsIndexRoute: StationsIndexRoute,
-  UsersIndexRoute: UsersIndexRoute,
-  WorkOrdersIndexRoute: WorkOrdersIndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   ApiPublicMesDowntimeRoute: ApiPublicMesDowntimeRoute,
   ApiPublicMesKpiRoute: ApiPublicMesKpiRoute,
   ApiPublicMesQualityHoldsRoute: ApiPublicMesQualityHoldsRoute,
