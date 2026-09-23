@@ -51,36 +51,51 @@ export type Database = {
           action: string
           actor_id: string
           actor_name: string
+          actor_user_id: string | null
           after_data: Json | null
           at: string
           before_data: Json | null
+          correlation_id: string | null
+          device_id: string | null
           entity: string
           entity_id: string
           id: string
+          reason: string | null
+          session_id: string | null
           summary: string
         }
         Insert: {
           action: string
           actor_id: string
           actor_name: string
+          actor_user_id?: string | null
           after_data?: Json | null
           at: string
           before_data?: Json | null
+          correlation_id?: string | null
+          device_id?: string | null
           entity: string
           entity_id: string
           id: string
+          reason?: string | null
+          session_id?: string | null
           summary: string
         }
         Update: {
           action?: string
           actor_id?: string
           actor_name?: string
+          actor_user_id?: string | null
           after_data?: Json | null
           at?: string
           before_data?: Json | null
+          correlation_id?: string | null
+          device_id?: string | null
           entity?: string
           entity_id?: string
           id?: string
+          reason?: string | null
+          session_id?: string | null
           summary?: string
         }
         Relationships: []
@@ -830,6 +845,7 @@ export type Database = {
           closed_at: string | null
           closed_by: string | null
           closed_by_name: string | null
+          closed_by_user_id: string | null
           created_at: string
           evidence_urls: Json
           hold_type: string
@@ -837,6 +853,7 @@ export type Database = {
           opened_at: string
           opened_by: string | null
           opened_by_name: string | null
+          opened_by_user_id: string | null
           reason: string
           resolution_notes: string | null
           station_id: string
@@ -847,6 +864,7 @@ export type Database = {
           closed_at?: string | null
           closed_by?: string | null
           closed_by_name?: string | null
+          closed_by_user_id?: string | null
           created_at?: string
           evidence_urls?: Json
           hold_type: string
@@ -854,6 +872,7 @@ export type Database = {
           opened_at?: string
           opened_by?: string | null
           opened_by_name?: string | null
+          opened_by_user_id?: string | null
           reason: string
           resolution_notes?: string | null
           station_id: string
@@ -864,6 +883,7 @@ export type Database = {
           closed_at?: string | null
           closed_by?: string | null
           closed_by_name?: string | null
+          closed_by_user_id?: string | null
           created_at?: string
           evidence_urls?: Json
           hold_type?: string
@@ -871,6 +891,7 @@ export type Database = {
           opened_at?: string
           opened_by?: string | null
           opened_by_name?: string | null
+          opened_by_user_id?: string | null
           reason?: string
           resolution_notes?: string | null
           station_id?: string
@@ -987,8 +1008,13 @@ export type Database = {
       }
       unit_events: {
         Row: {
+          actor_user_id: string | null
           at: string
           batch_id: string | null
+          correction_reason: string | null
+          corrects_event_id: string | null
+          correlation_id: string | null
+          device_id: string | null
           dwell_seconds: number | null
           entered_at: string | null
           event: string
@@ -999,13 +1025,19 @@ export type Database = {
           operator_id: string | null
           operator_name: string | null
           result: string | null
+          session_id: string | null
           station_id: string | null
           station_name: string | null
           unit_uid: string
         }
         Insert: {
+          actor_user_id?: string | null
           at?: string
           batch_id?: string | null
+          correction_reason?: string | null
+          corrects_event_id?: string | null
+          correlation_id?: string | null
+          device_id?: string | null
           dwell_seconds?: number | null
           entered_at?: string | null
           event: string
@@ -1016,13 +1048,19 @@ export type Database = {
           operator_id?: string | null
           operator_name?: string | null
           result?: string | null
+          session_id?: string | null
           station_id?: string | null
           station_name?: string | null
           unit_uid: string
         }
         Update: {
+          actor_user_id?: string | null
           at?: string
           batch_id?: string | null
+          correction_reason?: string | null
+          corrects_event_id?: string | null
+          correlation_id?: string | null
+          device_id?: string | null
           dwell_seconds?: number | null
           entered_at?: string | null
           event?: string
@@ -1033,6 +1071,7 @@ export type Database = {
           operator_id?: string | null
           operator_name?: string | null
           result?: string | null
+          session_id?: string | null
           station_id?: string | null
           station_name?: string | null
           unit_uid?: string
@@ -1049,7 +1088,12 @@ export type Database = {
       }
       unit_readings: {
         Row: {
+          actor_user_id: string | null
+          correction_reason: string | null
+          corrects_reading_id: string | null
+          correlation_id: string | null
           created_at: string
+          device_id: string | null
           id: string
           mode: string | null
           operator_id: string | null
@@ -1060,7 +1104,12 @@ export type Database = {
           variables: Json
         }
         Insert: {
+          actor_user_id?: string | null
+          correction_reason?: string | null
+          corrects_reading_id?: string | null
+          correlation_id?: string | null
           created_at?: string
+          device_id?: string | null
           id?: string
           mode?: string | null
           operator_id?: string | null
@@ -1071,7 +1120,12 @@ export type Database = {
           variables?: Json
         }
         Update: {
+          actor_user_id?: string | null
+          correction_reason?: string | null
+          corrects_reading_id?: string | null
+          correlation_id?: string | null
           created_at?: string
+          device_id?: string | null
           id?: string
           mode?: string | null
           operator_id?: string | null
@@ -1178,7 +1232,10 @@ export type Database = {
       }
       waste_events: {
         Row: {
+          actor_user_id: string | null
+          correlation_id: string | null
           created_at: string
+          device_id: string | null
           evidence_urls: Json
           id: string
           line_id: string | null
@@ -1195,7 +1252,10 @@ export type Database = {
           unit_uid: string | null
         }
         Insert: {
+          actor_user_id?: string | null
+          correlation_id?: string | null
           created_at?: string
+          device_id?: string | null
           evidence_urls?: Json
           id?: string
           line_id?: string | null
@@ -1212,7 +1272,10 @@ export type Database = {
           unit_uid?: string | null
         }
         Update: {
+          actor_user_id?: string | null
+          correlation_id?: string | null
           created_at?: string
+          device_id?: string | null
           evidence_urls?: Json
           id?: string
           line_id?: string | null
