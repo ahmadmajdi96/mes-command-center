@@ -33,6 +33,9 @@ function newId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
+type UnitEventRow = Database["public"]["Tables"]["unit_events"]["Row"];
+
+
 export type RecordEventInput = {
   unit_uid: string;
   station_id: string;
@@ -88,7 +91,7 @@ export const recordUnitEvent = createServerFn({ method: "POST" })
       throw new Error(`Unit ${v.unit_uid} is ${unit.status} and cannot be processed`);
     }
 
-    let event: Record<string, unknown> | null = null;
+    let event: UnitEventRow | null = null;
 
     if (!isEnter) {
       const { data: open } = await supabase
