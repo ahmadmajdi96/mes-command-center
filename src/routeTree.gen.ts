@@ -29,6 +29,7 @@ import { Route as AuthenticatedExecutionRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
+import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
 import { Route as AuthenticatedWorkOrdersIndexRouteImport } from './routes/_authenticated/work-orders.index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users.index'
 import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
@@ -157,6 +158,11 @@ const AuthenticatedAssignmentsRoute =
     path: '/assignments',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAccessRoute = AuthenticatedAccessRouteImport.update({
+  id: '/access',
+  path: '/access',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWorkOrdersIndexRoute =
   AuthenticatedWorkOrdersIndexRouteImport.update({
     id: '/work-orders/',
@@ -295,6 +301,7 @@ const ApiMesV1DowntimeRoute = ApiMesV1DowntimeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/access': typeof AuthenticatedAccessRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -339,6 +346,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/access': typeof AuthenticatedAccessRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -386,6 +394,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/access': typeof AuthenticatedAccessRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/access'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -478,6 +488,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/access'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -524,6 +535,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/access'
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
@@ -721,6 +733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssignmentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/access': {
+      id: '/_authenticated/access'
+      path: '/access'
+      fullPath: '/access'
+      preLoaderRoute: typeof AuthenticatedAccessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-orders/': {
       id: '/_authenticated/work-orders/'
       path: '/work-orders'
@@ -893,6 +912,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccessRoute: typeof AuthenticatedAccessRoute
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
@@ -932,6 +952,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccessRoute: AuthenticatedAccessRoute,
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,

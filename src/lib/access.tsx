@@ -21,11 +21,12 @@ export function useCan(action: string): boolean {
   return permissions.includes(action) || permissions.includes("platform.admin");
 }
 
-export function useCanAny(...actions: string[]): boolean {
+export function useCanAny(...actions: (string | string[])[]): boolean {
   const { permissions } = useAccess();
   if (permissions.includes("platform.admin")) return true;
-  return actions.some((a) => permissions.includes(a));
+  return actions.flat().some((a) => permissions.includes(a));
 }
+
 
 /** Renders children only when the person holds the action. */
 export function Can({
