@@ -2,11 +2,13 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ClipboardList, Layers, Plus, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useProductionOrder, useUpdatePo } from "@/lib/production-orders-db";
+import { useProductionOrder } from "@/lib/production-orders-db";
 import {
   useBatches, useSplitOrderIntoBatches, useDeleteBatch, useBatchesRealtime,
 } from "@/lib/batches-db";
 import { usePosRealtime } from "@/lib/production-orders-db";
+import { useSetOrderStatus, nextStatuses } from "@/lib/lifecycle-db";
+import { useCan } from "@/lib/access";
 import { DataMatrix } from "@/components/datamatrix";
 
 export const Route = createFileRoute("/_authenticated/production-orders/$poId")({
@@ -14,17 +16,30 @@ export const Route = createFileRoute("/_authenticated/production-orders/$poId")(
   component: PoDetail,
 });
 
+const STATUS_LABEL: Record<string, string> = {
+  released: "Release",
+  running: "Start",
+  paused: "Pause",
+  hold: "Hold",
+  completed: "Mark completed",
+  closed: "Close",
+  cancelled: "Cancel",
+  scheduled: "Back to scheduled",
+};
+
 function PoDetail() {
   const { poId } = useParams({ from: "/_authenticated/production-orders/$poId" });
   usePosRealtime();
   useBatchesRealtime();
   const { data: po, isLoading } = useProductionOrder(poId);
   const { data: batches = [] } = useBatches(poId);
-  const update = useUpdatePo();
+  const setStatus = useSetOrderStatus();
+  const canLifecycle = useCan("orders.lifecycle");
   const split = useSplitOrderIntoBatches();
   const del = useDeleteBatch();
 
   const [batchCount, setBatchCount] = useState(3);
+
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (!po) return (
