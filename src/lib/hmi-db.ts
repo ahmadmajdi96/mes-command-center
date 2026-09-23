@@ -2,6 +2,14 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import {
+  recordWaste,
+  recordReading,
+  openStationHold,
+  closeStationHold,
+} from "./mes/execution.functions";
+import { createEvidenceUpload, createEvidenceViewUrl } from "./mes/evidence.functions";
+
 
 export type Recipe = Database["public"]["Tables"]["product_station_recipes"]["Row"];
 export type WasteReason = Database["public"]["Tables"]["waste_reasons"]["Row"];
@@ -225,48 +233,8 @@ export function useLogWaste() {
       reason_label: string;
       reason_category?: string;
       notes?: string;
-      operator_name?: string;
       evidence_urls?: string[];
-    }) => {
-      const { data, error } = await supabase
-        .from("waste_events")
-        .insert({
-          unit_uid: v.unit_uid ?? null,
-          station_id: v.station_id ?? null,
-          station_name: v.station_name,
-          line_id: v.line_id ?? null,
-          production_order_id: v.production_order_id ?? null,
-          lot_number: v.lot_number ?? null,
-          reason_code: v.reason_code,
-          reason_label: v.reason_label,
-          reason_category: v.reason_category,
-          notes: v.notes,
-          operator_name: v.operator_name,
-          evidence_urls: (v.evidence_urls ?? []) as never,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-
-      if (v.unit_uid) {
-        await supabase
-          .from("product_units")
-          .update({ status: "scrapped" })
-          .eq("uid", v.unit_uid);
-        await supabase.from("unit_events").insert({
-          id: `UE-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          unit_uid: v.unit_uid,
-          station_id: v.station_id,
-          station_name: v.station_name,
-          line_id: v.line_id ?? null,
-          event: "waste",
-          result: v.reason_code,
-          operator_name: v.operator_name,
-          notes: v.notes,
-        });
-      }
-      return data;
-    },
+    }) => recordWaste({ data: v }),
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["waste_events"] });
       qc.invalidateQueries({ queryKey: ["product_unit", v.unit_uid] });
@@ -275,6 +243,7 @@ export function useLogWaste() {
     },
   });
 }
+
 
 /* ---------------- Station Holds ---------------- */
 
@@ -297,54 +266,26 @@ export function useOpenHold() {
   return useMutation({
     mutationFn: async (v: {
       station_id: string;
-      hold_type: "qc" | "maintenance" | "other";
+      hold_type: "qc" | "quality" | "maintenance" | "other";
       reason: string;
-      opened_by_name?: string;
       evidence_urls?: string[];
-    }) => {
-      const { data, error } = await supabase
-        .from("station_holds")
-        .insert({
-          station_id: v.station_id,
-          hold_type: v.hold_type,
-          reason: v.reason,
-          opened_by_name: v.opened_by_name,
-          evidence_urls: (v.evidence_urls ?? []) as never,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+    }) => openStationHold({ data: v }),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ["station_holds", v.station_id] });
+      qc.invalidateQueries({ queryKey: ["station_holds"] });
     },
-    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["station_holds", v.station_id] }),
   });
 }
 
 export function useCloseHold() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (v: { id: string; resolution_notes?: string; closed_by_name?: string; evidence_urls?: string[] }) => {
-      const patch: Partial<StationHold> = {
-        status: "closed",
-        closed_at: new Date().toISOString(),
-        closed_by_name: v.closed_by_name,
-        resolution_notes: v.resolution_notes,
-      };
-      if (v.evidence_urls && v.evidence_urls.length) {
-        patch.evidence_urls = v.evidence_urls as never;
-      }
-      const { data, error } = await supabase
-        .from("station_holds")
-        .update(patch)
-        .eq("id", v.id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: async (v: { id: string; resolution_notes?: string; evidence_urls?: string[] }) =>
+      closeStationHold({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["station_holds"] }),
   });
 }
+
 
 /* ---------------- Unit Readings ---------------- */
 
@@ -357,28 +298,13 @@ export function useLogReading() {
       unit_event_id?: string;
       mode?: "auto" | "manual";
       variables: Record<string, unknown>;
-      operator_name?: string;
-    }) => {
-      const { data, error } = await supabase
-        .from("unit_readings")
-        .insert({
-          unit_uid: v.unit_uid,
-          station_id: v.station_id,
-          unit_event_id: v.unit_event_id,
-          mode: v.mode,
-          variables: v.variables as never,
-          operator_name: v.operator_name,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    }) => recordReading({ data: v }),
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["unit_readings", v.unit_uid] });
     },
   });
 }
+
 
 export function useUnitReadings(uid?: string) {
   return useQuery({
@@ -399,21 +325,21 @@ export function useUnitReadings(uid?: string) {
 /* ---------------- Evidence upload (private bucket + signed URL) ---------------- */
 
 export async function uploadEvidenceFile(file: File, prefix = "misc"): Promise<string> {
-  const ext = file.name.split(".").pop() ?? "bin";
-  const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from(EVIDENCE_BUCKET).upload(path, file, {
-    cacheControl: "3600",
-    upsert: false,
+  const ticket = await createEvidenceUpload({
+    data: { prefix, fileName: file.name, contentType: file.type, size: file.size },
   });
+  const { error } = await supabase.storage
+    .from(EVIDENCE_BUCKET)
+    .uploadToSignedUrl(ticket.path, ticket.token, file);
   if (error) throw error;
-  return path;
+  return ticket.path;
 }
 
-export async function signedEvidenceUrl(path: string, expiresIn = 60 * 60 * 24 * 7): Promise<string> {
-  const { data, error } = await supabase.storage.from(EVIDENCE_BUCKET).createSignedUrl(path, expiresIn);
-  if (error) throw error;
-  return data.signedUrl;
+export async function signedEvidenceUrl(path: string): Promise<string> {
+  const { url } = await createEvidenceViewUrl({ data: { path } });
+  return url;
 }
+
 
 /* ---------------- Realtime ---------------- */
 

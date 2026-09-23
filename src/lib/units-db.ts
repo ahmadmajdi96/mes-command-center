@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { ProductionBatch } from "./batches-db";
+import { recordUnitEvent } from "./mes/execution.functions";
+
 
 export type ProductUnit = Database["public"]["Tables"]["product_units"]["Row"];
 export type UnitEvent = Database["public"]["Tables"]["unit_events"]["Row"];
@@ -122,91 +124,32 @@ type ProcessArgs = {
   /** enter / started open a visit; exit_pass / exit_reject / exit_complete
    * (or legacy processed / rejected / completed) closes the latest open one. */
   event: string;
-  result?: string;
-  operator_id?: string;
-  operator_name?: string;
   notes?: string;
   batch_id?: string | null;
+  device_id?: string | null;
 };
 
-/** Record a station enter/exit event with second-level timestamps. */
+/**
+ * Record a station enter/exit event. All writes go through the server so the
+ * operator identity comes from the session, holds are enforced and the history
+ * stays append-only.
+ */
 export function useProcessUnitAtStation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (v: ProcessArgs) => {
-      const nowIso = new Date().toISOString();
-      const isEnter = v.event === "enter" || v.event === "started";
-      const isExit = !isEnter;
-
-      // Try to close an open visit for this unit+station first
-      let closed: UnitEvent | null = null;
-      if (isExit) {
-        const { data: open } = await supabase.from("unit_events")
-          .select("*").eq("unit_uid", v.unit_uid).eq("station_id", v.station_id)
-          .is("exited_at", null).order("entered_at", { ascending: false }).limit(1).maybeSingle();
-        if (open?.id) {
-          const enteredAt = open.entered_at ?? open.at ?? nowIso;
-          const dwell = Math.max(0, Math.round((new Date(nowIso).getTime() - new Date(enteredAt).getTime()) / 1000));
-          const finalEvent =
-            v.event === "exit_reject" || v.event === "rejected" ? "rejected"
-            : v.event === "exit_complete" || v.event === "completed" ? "completed"
-            : "processed";
-          const { data, error } = await supabase.from("unit_events").update({
-            exited_at: nowIso, dwell_seconds: dwell, event: finalEvent,
-            result: v.event === "exit_reject" || v.event === "rejected" ? "fail" : "pass",
-            notes: v.notes ?? open.notes,
-          }).eq("id", open.id).select().single();
-          if (error) throw error;
-          closed = data;
-        }
-      }
-
-      if (!closed) {
-        // Insert a new event row (enter, or exit-without-prior-enter which becomes an instant visit)
-        const eventId = `UE-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-        const eventLabel =
-          v.event === "enter" || v.event === "started" ? "started"
-          : v.event === "exit_reject" || v.event === "rejected" ? "rejected"
-          : v.event === "exit_complete" || v.event === "completed" ? "completed"
-          : "processed";
-        const enteredAt = nowIso;
-        const exitedAt = isEnter ? null : nowIso;
-        const { data, error } = await supabase.from("unit_events").insert({
-          id: eventId,
+    mutationFn: async (v: ProcessArgs) =>
+      recordUnitEvent({
+        data: {
           unit_uid: v.unit_uid,
           station_id: v.station_id,
           station_name: v.station_name,
-          line_id: v.line_id,
-          batch_id: v.batch_id ?? null,
-          event: eventLabel,
-          result: v.event === "exit_reject" || v.event === "rejected" ? "fail" : (isExit ? "pass" : null),
-          operator_id: v.operator_id,
-          operator_name: v.operator_name,
+          line_id: v.line_id ?? null,
+          event: v.event,
           notes: v.notes,
-          entered_at: enteredAt,
-          exited_at: exitedAt,
-          dwell_seconds: isEnter ? null : 0,
-        }).select().single();
-        if (error) throw error;
-        closed = data;
-      }
-
-      // Update the unit's snapshot
-      const status =
-        v.event === "exit_reject" || v.event === "rejected" ? "rejected"
-        : v.event === "exit_complete" || v.event === "completed" ? "completed"
-        : isEnter ? "in_process" : "in_process";
-      const patch: Database["public"]["Tables"]["product_units"]["Update"] = {
-        current_station_id: v.station_id,
-        current_line_id: v.line_id,
-        status,
-        ...(status === "completed" ? { completed_at: nowIso } : {}),
-        ...(isEnter ? { produced_at: nowIso } : {}),
-      };
-      const { error: e2 } = await supabase.from("product_units").update(patch).eq("uid", v.unit_uid);
-      if (e2) throw e2;
-      return closed;
-    },
+          batch_id: v.batch_id ?? null,
+          device_id: v.device_id ?? null,
+        },
+      }),
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: unitsKey });
       qc.invalidateQueries({ queryKey: ["product_unit", v.unit_uid] });
@@ -215,6 +158,7 @@ export function useProcessUnitAtStation() {
     },
   });
 }
+
 
 export function useDeleteUnit() {
   const qc = useQueryClient();

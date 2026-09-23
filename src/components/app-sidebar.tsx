@@ -9,6 +9,8 @@ import {
   Activity,
   ShieldCheck,
   Settings,
+  ShieldCheck,
+
   Boxes,
   Users,
   UserCog,
@@ -77,7 +79,9 @@ const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
   { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
+  { title: "People & Access", url: "/access", icon: ShieldCheck },
   { title: "Settings", url: "/settings", icon: Settings },
+
 ];
 
 export function AppSidebar() {

@@ -5,6 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Database, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { seedMesFromFixtures } from "@/lib/mes/seed.functions";
+import { useCanAny } from "@/lib/access";
+
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings · Cortanex MES" }, { name: "description", content: "Plant configuration, reason codes, retention policies and notification preferences." }] }),
@@ -21,9 +23,11 @@ function Settings() {
     { title: "Notifications", desc: "Email / SMS / WhatsApp / push channels", n: 9 },
   ];
   const seed = useServerFn(seedMesFromFixtures);
+  const canSeed = useCanAny("platform.admin");
   const qc = useQueryClient();
   const [seeding, setSeeding] = useState(false);
   const [result, setResult] = useState<Record<string, number> | null>(null);
+
 
   const runSeed = async () => {
     setSeeding(true);
@@ -64,9 +68,11 @@ function Settings() {
           </div>
           <button
             onClick={runSeed}
-            disabled={seeding}
+            disabled={seeding || !canSeed}
+            title={canSeed ? undefined : "Only a platform administrator can load demo data"}
             className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-50"
           >
+
             {seeding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Database className="h-3.5 w-3.5" />}
             {seeding ? "Seeding…" : "Seed database"}
           </button>

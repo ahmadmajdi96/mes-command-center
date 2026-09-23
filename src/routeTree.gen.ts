@@ -29,6 +29,7 @@ import { Route as AuthenticatedExecutionRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
+import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
 import { Route as AuthenticatedWorkOrdersIndexRouteImport } from './routes/_authenticated/work-orders.index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users.index'
 import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
@@ -47,11 +48,12 @@ import { Route as AuthenticatedOperatorStationIdRouteImport } from './routes/_au
 import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenticated/lines.$lineId'
 import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
 import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
-import { Route as ApiPublicMesWorkOrdersRouteImport } from './routes/api/public/mes/work-orders'
-import { Route as ApiPublicMesTraceabilityRouteImport } from './routes/api/public/mes/traceability'
-import { Route as ApiPublicMesQualityHoldsRouteImport } from './routes/api/public/mes/quality-holds'
-import { Route as ApiPublicMesKpiRouteImport } from './routes/api/public/mes/kpi'
-import { Route as ApiPublicMesDowntimeRouteImport } from './routes/api/public/mes/downtime'
+import { Route as ApiPublicMesSummaryRouteImport } from './routes/api/public/mes/summary'
+import { Route as ApiMesV1WorkOrdersRouteImport } from './routes/api/mes/v1/work-orders'
+import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/traceability'
+import { Route as ApiMesV1QualityHoldsRouteImport } from './routes/api/mes/v1/quality-holds'
+import { Route as ApiMesV1KpiRouteImport } from './routes/api/mes/v1/kpi'
+import { Route as ApiMesV1DowntimeRouteImport } from './routes/api/mes/v1/downtime'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -156,6 +158,11 @@ const AuthenticatedAssignmentsRoute =
     path: '/assignments',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAccessRoute = AuthenticatedAccessRouteImport.update({
+  id: '/access',
+  path: '/access',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWorkOrdersIndexRoute =
   AuthenticatedWorkOrdersIndexRouteImport.update({
     id: '/work-orders/',
@@ -260,37 +267,41 @@ const AuthenticatedBatchesBatchIdRoute =
     path: '/batches/$batchId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiPublicMesWorkOrdersRoute = ApiPublicMesWorkOrdersRouteImport.update({
-  id: '/api/public/mes/work-orders',
-  path: '/api/public/mes/work-orders',
+const ApiPublicMesSummaryRoute = ApiPublicMesSummaryRouteImport.update({
+  id: '/api/public/mes/summary',
+  path: '/api/public/mes/summary',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicMesTraceabilityRoute =
-  ApiPublicMesTraceabilityRouteImport.update({
-    id: '/api/public/mes/traceability',
-    path: '/api/public/mes/traceability',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicMesQualityHoldsRoute =
-  ApiPublicMesQualityHoldsRouteImport.update({
-    id: '/api/public/mes/quality-holds',
-    path: '/api/public/mes/quality-holds',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicMesKpiRoute = ApiPublicMesKpiRouteImport.update({
-  id: '/api/public/mes/kpi',
-  path: '/api/public/mes/kpi',
+const ApiMesV1WorkOrdersRoute = ApiMesV1WorkOrdersRouteImport.update({
+  id: '/api/mes/v1/work-orders',
+  path: '/api/mes/v1/work-orders',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicMesDowntimeRoute = ApiPublicMesDowntimeRouteImport.update({
-  id: '/api/public/mes/downtime',
-  path: '/api/public/mes/downtime',
+const ApiMesV1TraceabilityRoute = ApiMesV1TraceabilityRouteImport.update({
+  id: '/api/mes/v1/traceability',
+  path: '/api/mes/v1/traceability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMesV1QualityHoldsRoute = ApiMesV1QualityHoldsRouteImport.update({
+  id: '/api/mes/v1/quality-holds',
+  path: '/api/mes/v1/quality-holds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMesV1KpiRoute = ApiMesV1KpiRouteImport.update({
+  id: '/api/mes/v1/kpi',
+  path: '/api/mes/v1/kpi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMesV1DowntimeRoute = ApiMesV1DowntimeRouteImport.update({
+  id: '/api/mes/v1/downtime',
+  path: '/api/mes/v1/downtime',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/access': typeof AuthenticatedAccessRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -326,14 +337,16 @@ export interface FileRoutesByFullPath {
   '/stations/': typeof AuthenticatedStationsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
-  '/api/public/mes/downtime': typeof ApiPublicMesDowntimeRoute
-  '/api/public/mes/kpi': typeof ApiPublicMesKpiRoute
-  '/api/public/mes/quality-holds': typeof ApiPublicMesQualityHoldsRoute
-  '/api/public/mes/traceability': typeof ApiPublicMesTraceabilityRoute
-  '/api/public/mes/work-orders': typeof ApiPublicMesWorkOrdersRoute
+  '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
+  '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
+  '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
+  '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
+  '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
+  '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/access': typeof AuthenticatedAccessRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -370,16 +383,18 @@ export interface FileRoutesByTo {
   '/stations': typeof AuthenticatedStationsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/work-orders': typeof AuthenticatedWorkOrdersIndexRoute
-  '/api/public/mes/downtime': typeof ApiPublicMesDowntimeRoute
-  '/api/public/mes/kpi': typeof ApiPublicMesKpiRoute
-  '/api/public/mes/quality-holds': typeof ApiPublicMesQualityHoldsRoute
-  '/api/public/mes/traceability': typeof ApiPublicMesTraceabilityRoute
-  '/api/public/mes/work-orders': typeof ApiPublicMesWorkOrdersRoute
+  '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
+  '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
+  '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
+  '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
+  '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
+  '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/access': typeof AuthenticatedAccessRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
@@ -416,17 +431,19 @@ export interface FileRoutesById {
   '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
-  '/api/public/mes/downtime': typeof ApiPublicMesDowntimeRoute
-  '/api/public/mes/kpi': typeof ApiPublicMesKpiRoute
-  '/api/public/mes/quality-holds': typeof ApiPublicMesQualityHoldsRoute
-  '/api/public/mes/traceability': typeof ApiPublicMesTraceabilityRoute
-  '/api/public/mes/work-orders': typeof ApiPublicMesWorkOrdersRoute
+  '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
+  '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
+  '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
+  '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
+  '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
+  '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/access'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -462,14 +479,16 @@ export interface FileRouteTypes {
     | '/stations/'
     | '/users/'
     | '/work-orders/'
-    | '/api/public/mes/downtime'
-    | '/api/public/mes/kpi'
-    | '/api/public/mes/quality-holds'
-    | '/api/public/mes/traceability'
-    | '/api/public/mes/work-orders'
+    | '/api/mes/v1/downtime'
+    | '/api/mes/v1/kpi'
+    | '/api/mes/v1/quality-holds'
+    | '/api/mes/v1/traceability'
+    | '/api/mes/v1/work-orders'
+    | '/api/public/mes/summary'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/access'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -506,15 +525,17 @@ export interface FileRouteTypes {
     | '/stations'
     | '/users'
     | '/work-orders'
-    | '/api/public/mes/downtime'
-    | '/api/public/mes/kpi'
-    | '/api/public/mes/quality-holds'
-    | '/api/public/mes/traceability'
-    | '/api/public/mes/work-orders'
+    | '/api/mes/v1/downtime'
+    | '/api/mes/v1/kpi'
+    | '/api/mes/v1/quality-holds'
+    | '/api/mes/v1/traceability'
+    | '/api/mes/v1/work-orders'
+    | '/api/public/mes/summary'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/access'
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
@@ -551,21 +572,23 @@ export interface FileRouteTypes {
     | '/_authenticated/stations/'
     | '/_authenticated/users/'
     | '/_authenticated/work-orders/'
-    | '/api/public/mes/downtime'
-    | '/api/public/mes/kpi'
-    | '/api/public/mes/quality-holds'
-    | '/api/public/mes/traceability'
-    | '/api/public/mes/work-orders'
+    | '/api/mes/v1/downtime'
+    | '/api/mes/v1/kpi'
+    | '/api/mes/v1/quality-holds'
+    | '/api/mes/v1/traceability'
+    | '/api/mes/v1/work-orders'
+    | '/api/public/mes/summary'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiPublicMesDowntimeRoute: typeof ApiPublicMesDowntimeRoute
-  ApiPublicMesKpiRoute: typeof ApiPublicMesKpiRoute
-  ApiPublicMesQualityHoldsRoute: typeof ApiPublicMesQualityHoldsRoute
-  ApiPublicMesTraceabilityRoute: typeof ApiPublicMesTraceabilityRoute
-  ApiPublicMesWorkOrdersRoute: typeof ApiPublicMesWorkOrdersRoute
+  ApiMesV1DowntimeRoute: typeof ApiMesV1DowntimeRoute
+  ApiMesV1KpiRoute: typeof ApiMesV1KpiRoute
+  ApiMesV1QualityHoldsRoute: typeof ApiMesV1QualityHoldsRoute
+  ApiMesV1TraceabilityRoute: typeof ApiMesV1TraceabilityRoute
+  ApiMesV1WorkOrdersRoute: typeof ApiMesV1WorkOrdersRoute
+  ApiPublicMesSummaryRoute: typeof ApiPublicMesSummaryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -710,6 +733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssignmentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/access': {
+      id: '/_authenticated/access'
+      path: '/access'
+      fullPath: '/access'
+      preLoaderRoute: typeof AuthenticatedAccessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-orders/': {
       id: '/_authenticated/work-orders/'
       path: '/work-orders'
@@ -836,45 +866,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBatchesBatchIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/mes/work-orders': {
-      id: '/api/public/mes/work-orders'
-      path: '/api/public/mes/work-orders'
-      fullPath: '/api/public/mes/work-orders'
-      preLoaderRoute: typeof ApiPublicMesWorkOrdersRouteImport
+    '/api/public/mes/summary': {
+      id: '/api/public/mes/summary'
+      path: '/api/public/mes/summary'
+      fullPath: '/api/public/mes/summary'
+      preLoaderRoute: typeof ApiPublicMesSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mes/traceability': {
-      id: '/api/public/mes/traceability'
-      path: '/api/public/mes/traceability'
-      fullPath: '/api/public/mes/traceability'
-      preLoaderRoute: typeof ApiPublicMesTraceabilityRouteImport
+    '/api/mes/v1/work-orders': {
+      id: '/api/mes/v1/work-orders'
+      path: '/api/mes/v1/work-orders'
+      fullPath: '/api/mes/v1/work-orders'
+      preLoaderRoute: typeof ApiMesV1WorkOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mes/quality-holds': {
-      id: '/api/public/mes/quality-holds'
-      path: '/api/public/mes/quality-holds'
-      fullPath: '/api/public/mes/quality-holds'
-      preLoaderRoute: typeof ApiPublicMesQualityHoldsRouteImport
+    '/api/mes/v1/traceability': {
+      id: '/api/mes/v1/traceability'
+      path: '/api/mes/v1/traceability'
+      fullPath: '/api/mes/v1/traceability'
+      preLoaderRoute: typeof ApiMesV1TraceabilityRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mes/kpi': {
-      id: '/api/public/mes/kpi'
-      path: '/api/public/mes/kpi'
-      fullPath: '/api/public/mes/kpi'
-      preLoaderRoute: typeof ApiPublicMesKpiRouteImport
+    '/api/mes/v1/quality-holds': {
+      id: '/api/mes/v1/quality-holds'
+      path: '/api/mes/v1/quality-holds'
+      fullPath: '/api/mes/v1/quality-holds'
+      preLoaderRoute: typeof ApiMesV1QualityHoldsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mes/downtime': {
-      id: '/api/public/mes/downtime'
-      path: '/api/public/mes/downtime'
-      fullPath: '/api/public/mes/downtime'
-      preLoaderRoute: typeof ApiPublicMesDowntimeRouteImport
+    '/api/mes/v1/kpi': {
+      id: '/api/mes/v1/kpi'
+      path: '/api/mes/v1/kpi'
+      fullPath: '/api/mes/v1/kpi'
+      preLoaderRoute: typeof ApiMesV1KpiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mes/v1/downtime': {
+      id: '/api/mes/v1/downtime'
+      path: '/api/mes/v1/downtime'
+      fullPath: '/api/mes/v1/downtime'
+      preLoaderRoute: typeof ApiMesV1DowntimeRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccessRoute: typeof AuthenticatedAccessRoute
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
@@ -914,6 +952,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccessRoute: AuthenticatedAccessRoute,
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
@@ -960,11 +999,12 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiPublicMesDowntimeRoute: ApiPublicMesDowntimeRoute,
-  ApiPublicMesKpiRoute: ApiPublicMesKpiRoute,
-  ApiPublicMesQualityHoldsRoute: ApiPublicMesQualityHoldsRoute,
-  ApiPublicMesTraceabilityRoute: ApiPublicMesTraceabilityRoute,
-  ApiPublicMesWorkOrdersRoute: ApiPublicMesWorkOrdersRoute,
+  ApiMesV1DowntimeRoute: ApiMesV1DowntimeRoute,
+  ApiMesV1KpiRoute: ApiMesV1KpiRoute,
+  ApiMesV1QualityHoldsRoute: ApiMesV1QualityHoldsRoute,
+  ApiMesV1TraceabilityRoute: ApiMesV1TraceabilityRoute,
+  ApiMesV1WorkOrdersRoute: ApiMesV1WorkOrdersRoute,
+  ApiPublicMesSummaryRoute: ApiPublicMesSummaryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
