@@ -131,7 +131,14 @@ function BatchDetail() {
         </div>
       </div>
 
-      <div className="glass-panel rounded-2xl p-5 print:hidden">
+      {lotMode && (
+        <div className="print:hidden">
+          <LotProgressPanel batchId={batch.id} lineId={batch.line_id} />
+        </div>
+      )}
+
+      <div className={`glass-panel rounded-2xl p-5 print:hidden ${lotMode ? "opacity-70" : ""}`}>
+
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold">Unit identifiers</h2>
