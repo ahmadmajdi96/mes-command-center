@@ -153,7 +153,7 @@ function OperatorApp() {
         )}
 
 
-        {uid && unit && (
+        {!lotMode && uid && unit && (
           <div className="mt-4 rounded-xl border border-border/40 bg-background/40 p-3">
             <div className="grid gap-2 text-sm md:grid-cols-3">
               <div><div className="text-[10px] uppercase tracking-wider text-muted-foreground">Unit</div><div className="font-mono">{unit.uid}</div></div>
@@ -214,6 +214,10 @@ function OperatorApp() {
           </div>
         )}
       </div>
+
+      {lotMode && <LotProgressPanel stationId={stationId} lineId={station.lineId} />}
+
+
 
       {wasteOpen && (
         <Modal title={`Waste ${uid}`} onClose={() => setWasteOpen(false)}>
