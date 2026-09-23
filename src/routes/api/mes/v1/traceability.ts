@@ -23,6 +23,7 @@ export const Route = createFileRoute("/api/mes/v1/traceability")({
             count: "exact",
           })
           .order("at", { ascending: false });
+        if (org) q = q.eq("organization_id", org);
         if (entity) q = q.eq("entity", entity);
         if (workOrder) q = q.eq("entity_id", workOrder);
         if (from) q = q.gte("at", from);

@@ -12,11 +12,14 @@ export const Route = createFileRoute("/api/mes/v1/kpi")({
         const headers = corsHeaders(request);
         const supabase = serviceClient();
 
+        // One customer company per key; the platform key sees every company.
+        const scoped = <T extends { eq: (c: string, v: string) => T }>(q: T) =>
+          org ? q.eq("organization_id", org) : q;
         const [lines, dt, wo, holds] = await Promise.all([
-          supabase.from("lines").select("id,status,availability,oee"),
-          supabase.from("downtime_events").select("category,duration_min,status"),
-          supabase.from("work_orders").select("status,qty_target,qty_produced,ends_at"),
-          supabase.from("quality_holds").select("status,severity"),
+          scoped(supabase.from("lines").select("id,status,availability,oee")),
+          scoped(supabase.from("downtime_events").select("category,duration_min,status")),
+          scoped(supabase.from("work_orders").select("status,qty_target,qty_produced,ends_at")),
+          scoped(supabase.from("quality_holds").select("status,severity")),
         ]);
         const L = lines.data ?? [];
         const D = dt.data ?? [];

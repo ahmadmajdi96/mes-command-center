@@ -20,6 +20,7 @@ export const Route = createFileRoute("/api/mes/v1/quality-holds")({
             count: "exact",
           })
           .order("raised_ts", { ascending: false, nullsFirst: false });
+        if (org) q = q.eq("organization_id", org);
         if (status) q = q.eq("status", status);
         const { data, error, count } = await q.range(from, to);
         if (error) return Response.json({ error: error.message }, { status: 500, headers });

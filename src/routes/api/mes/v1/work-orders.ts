@@ -23,6 +23,7 @@ export const Route = createFileRoute("/api/mes/v1/work-orders")({
             { count: "exact" },
           )
           .order("started_at", { ascending: false, nullsFirst: false });
+        if (org) q = q.eq("organization_id", org);
         if (status) q = q.eq("status", status);
         if (lineId) q = q.eq("line_id", lineId);
         const { data, error, count } = await q.range(from, to);
