@@ -124,10 +124,15 @@ type ProcessArgs = {
   /** enter / started open a visit; exit_pass / exit_reject / exit_complete
    * (or legacy processed / rejected / completed) closes the latest open one. */
   event: string;
+  /** Legacy fields still passed by some screens; the server derives these itself. */
+  result?: string | null;
+  operator_id?: string | null;
+  operator_name?: string | null;
   notes?: string;
   batch_id?: string | null;
   device_id?: string | null;
 };
+
 
 /**
  * Record a station enter/exit event. All writes go through the server so the

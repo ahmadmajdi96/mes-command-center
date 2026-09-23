@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
+
 
 /**
  * Single server entry point for everything that writes production history.
@@ -32,6 +34,9 @@ async function requireAction(context: { supabase: any; userId: string }, action:
 function newId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 }
+
+type UnitEventRow = Database["public"]["Tables"]["unit_events"]["Row"];
+
 
 export type RecordEventInput = {
   unit_uid: string;
@@ -88,7 +93,7 @@ export const recordUnitEvent = createServerFn({ method: "POST" })
       throw new Error(`Unit ${v.unit_uid} is ${unit.status} and cannot be processed`);
     }
 
-    let event: Record<string, unknown> | null = null;
+    let event: UnitEventRow | null = null;
 
     if (!isEnter) {
       const { data: open } = await supabase
@@ -356,19 +361,20 @@ export const closeStationHold = createServerFn({ method: "POST" })
     }
 
     const who = await actor(context);
-    const patch: Record<string, unknown> = {
+    const existingEvidence = Array.isArray(hold.evidence_urls) ? (hold.evidence_urls as string[]) : [];
+    const patch = {
       status: "closed",
       closed_at: new Date().toISOString(),
       closed_by: who.id,
       closed_by_name: who.name,
       closed_by_user_id: who.id,
       resolution_notes: v.resolution_notes,
-    };
-    if (v.evidence_urls?.length) {
       // Original evidence is preserved; resolution evidence is appended.
-      const existing = Array.isArray(hold.evidence_urls) ? (hold.evidence_urls as string[]) : [];
-      patch.evidence_urls = [...existing, ...v.evidence_urls] as never;
-    }
+      ...(v.evidence_urls?.length
+        ? { evidence_urls: [...existingEvidence, ...v.evidence_urls] }
+        : {}),
+    };
+
     const { data, error } = await supabase
       .from("station_holds")
       .update(patch)
