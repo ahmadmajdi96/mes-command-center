@@ -11,6 +11,9 @@ import {
   useLogWaste, useLogReading, useOpenHold, useHmiRealtime,
 } from "@/lib/hmi-db";
 import { EvidenceUploader } from "@/components/evidence-uploader";
+import { LotProgressPanel } from "@/components/lot-progress-panel";
+import { useLineRules } from "@/lib/lifecycle-db";
+
 
 export const Route = createFileRoute("/_authenticated/operator/$stationId")({
   head: ({ params }) => ({ meta: [{ title: `Operator · ${params.stationId} · Cortanex MES` }] }),
@@ -25,6 +28,9 @@ function OperatorApp() {
   if (!station) throw notFound();
   const line = store.lines.find((l) => l.id === station.lineId);
   useHmiRealtime(stationId);
+  const { data: lineRules } = useLineRules(station.lineId);
+  const lotMode = lineRules?.tracking_mode === "lot";
+
 
   const semi = (station.type as string) === "semi_auto";
   const auto = station.type === "automatic";
