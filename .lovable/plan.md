@@ -1,54 +1,61 @@
-# Turn 1 — Migrate MES to Lovable Cloud, wire KPIs + traceability
+# Audit response — Stage 1: lock down access and unify identity
 
-Lovable Cloud is now enabled. This turn migrates the MES data layer to a real Postgres database, seeds it from the existing deterministic 90-day dataset, and switches the two most demanded read surfaces — the Control Center dashboard KPIs and the Traceability page — off the in-memory `MesStoreProvider` and onto the DB. Everything else (Work Orders, Stations, Downtime pages, mutations, realtime, PDF verify, drill-downs, cross-project wiring) stays on the in-memory store this turn and moves in follow-up turns.
+The audit lists 50 items across five stages. Stages 2-5 (execution engine, edge app platform, plant operations, production readiness) each need their own build turns and several need decisions from you first (see the end). This plan delivers **Stage 1 in full**, because everything else is unsafe to build on top of today's open data access.
 
-## Scope this turn
+Stage 1 exit gate from the audit: *no anonymous access to operational data, two terminals share the same state, every record carries the real person who made it.*
 
-1. **Schema (migration).** Public-readable, no auth yet — matches current app posture. Tables mirror the existing types 1:1 so the port is mechanical:
-   - `lines`, `stations`, `work_orders`
-   - `downtime_events`, `quality_holds`, `genealogy_records`
-   - `audit_entries` (indexed on `at`, `entity`, `entity_id` — this is the hot read path for traceability)
-   - `mes_users`, `assignments` (used by traceability filters)
-   - Each table: `GRANT SELECT` to `anon`+`authenticated`, `GRANT ALL` to `service_role`, RLS enabled with a permissive `TO anon` read policy (public read-only shop floor data), writes restricted to `service_role` for now.
+## What changes for you
 
-2. **Seed once.** Idempotent server function `seedMesFromFixtures` that reads the existing deterministic fixtures (`src/lib/mes-data.ts` + `audit-seed.ts`) and upserts into the DB. Triggered by a one-click **Seed database** button in `settings.tsx` and a `SELECT count(*)` guard so it's safe to click twice.
+1. **Nobody can read or change production data without signing in.** Right now the database itself accepts anonymous reads and writes for products, orders, batches, units, readings, recipes, waste, holds and events — the login screen only hides the screens, not the data. All of that becomes sign-in-only.
+2. **Roles actually decide what a person can do.** Today any signed-in account reaches everything. After this: operators execute and record, supervisors dispatch and approve exceptions, quality approvers release holds, planners plan, admins administer. Someone without a role gets a "no access yet" screen instead of the full app.
+3. **One person, one identity.** The workforce list and the login accounts are two separate lists today, so an operator's actions can't be reliably tied to a real account. They get linked, and deactivating a person removes their access while keeping their history.
+4. **Every action records who really did it.** Records currently default to a demo person. They will carry the signed-in account, the time and the reason.
+5. **Production history stops being editable.** Station entry/exit events and readings become append-only: corrections are recorded as new linked entries, and deleting an order no longer erases the production history behind it.
+6. **The five open data endpoints stop being public.** They require a service key; a small deliberately-minimal summary endpoint stays open for dashboards.
+7. **Demo seeding is fenced off.** The "Seed database" button becomes admin-only and refuses to run when the app is marked as a live environment.
+8. **Evidence files are scoped.** Photos and documents can only be read by people authorized for that record, links expire, and released evidence can't be overwritten.
 
-3. **Server-fn reads** (client-safe `.functions.ts` under `src/lib/mes/`):
-   - `getKpiSummary()` → `{ uptimeWeighted, downtimePareto[], onTimeCompletion, activeWO, holdsOpen, downCount }`
-   - `getTraceability(filters)` → `{ entries[], relatedLines, relatedWorkOrders }` supporting date range, plant, line, station, work order, operator, entity type.
-   - Both use a server-local Supabase client with the publishable key (RLS as `anon`).
+## Items closed this turn
 
-4. **Wire the UI reads only** (no store surgery):
-   - `src/routes/index.tsx` — KPI widgets fetch via `useSuspenseQuery(getKpiSummary)` with a 30s `staleTime`. Fall back to in-memory computation if the DB is empty (`activeWO === 0 && auditCount === 0`) so the dashboard never looks broken pre-seed.
-   - `src/routes/traceability.tsx` — the audit timeline query switches to `useSuspenseQuery(getTraceability, filters)`; filter UI and PDF export code are untouched. Same empty-DB fallback.
-   - All other routes keep reading from `MesStoreProvider` this turn. Writes still go to the in-memory store. This is intentional: it keeps the turn shippable and reversible.
+MES-01, MES-02, MES-03, MES-04 (partial — see below), MES-05, MES-06, MES-07, MES-09, MES-10.
 
-## Deferred to follow-up turns
+MES-04 note: the browser-local store still holds lines, stations, legacy work orders, assignments, downtime, quality holds and genealogy. This turn moves **users/assignments, downtime, quality holds and audit** to the database (the identity- and attribution-critical ones). Lines, stations and legacy work-order execution move in the Stage 2 turn together with the execution state machine, because splitting them from that work would break both.
 
-- Port every route's mutations to server fns / DB writes.
-- Realtime KPI refresh (Supabase Realtime channels on `downtime_events` + `work_orders` + `audit_entries`).
-- Cross-project wiring: expose stable `/api/public/mes/*` endpoints for the 4 sibling apps + port QC hold / command center widgets from `CORTA QC System` and `Unified Command Center`.
-- End-to-end PDF export verify against DB-backed data with all filters + genealogy.
-- Drill-down navigation: KPI widget → filtered traceability → filtered work-order list.
+## Technical plan
 
-## Technical notes
+**Migration 1 — authorization model**
+- `organizations`, `sites`, `areas` added above the existing `lines`; `lines.site_id`, `stations` inherit scope through the line.
+- `permissions` (action keys), `role_permissions` seeded per role, `scoped_grants` (user, permission, scope level + id, effective dates, qualification condition). New roles added to `app_role`: `planner`, `process_engineer`, `quality_inspector`, `quality_approver`, `maintenance`, `material_handler`, `app_builder`, `app_publisher`.
+- Security-definer helpers: `public.has_permission(_user, _action, _scope_kind, _scope_id)`, `public.user_sites(_user)`, `public.is_platform_admin(_user)` — all `STABLE SECURITY DEFINER SET search_path = public`.
+- `mes_users.auth_user_id uuid` → `auth.users`, plus `active boolean`; `profiles` stays the display record.
 
-- **Schema shape.** `id` columns stay `text` primary keys (e.g. `WO-2401-118`, `AU-04123`) to preserve existing IDs from fixtures — the fixtures encode meaning in the ID format. Timestamps are `timestamptz`. Enum-like columns (`status`, `entity`, `action`) stored as `text` with CHECK constraints to keep the migration simple.
-- **Import graph.** Server fns live in `src/lib/mes/*.functions.ts`. They instantiate the publishable-key client inline inside `.handler()` — no top-level `client.server` import. The seed function reads fixtures via a static import (client-safe).
-- **RLS posture matches current app.** No user auth in the app today; shop-floor data is treated as public within the deployment. RLS is on, `anon` gets read-only, writes are `service_role` only until auth lands.
-- **PDF export.** Stays client-side against whatever `traceability.tsx` renders; once the read is DB-backed, the export automatically reflects DB data. Full end-to-end verify happens in the PDF turn.
+**Migration 2 — RLS replacement**
+Drop every `public …USING (true)` policy on: products, production_orders, production_batches, product_units, unit_events, unit_readings, product_station_recipes, waste_events, waste_reasons, station_waste_reasons, station_holds. Replace with `TO authenticated` policies gated on `has_permission(auth.uid(), '<action>', 'site', site_of_row)`. Revoke all `anon` grants on operational tables. `lines`, `stations`, `work_orders`, `downtime_events`, `quality_holds`, `genealogy_records`, `mes_users`, `audit_entries`: drop `TO public` read policies, re-grant to `authenticated` under read permissions, add write policies (these tables currently have no write path at all).
 
-## Files
+**Migration 3 — append-only history**
+- `unit_events`, `unit_readings`, `waste_events`, `audit_entries`: no UPDATE/DELETE policies; `BEFORE UPDATE OR DELETE` triggers raise. Corrections use `corrects_event_id` + `correction_reason` columns on a new row.
+- Drop `ON DELETE CASCADE` from `product_units.production_order_id` / `batch_id` and `unit_events.unit_uid`; switch to `ON DELETE RESTRICT`.
+- `recalc_batch_and_order_progress` extended to fire on DELETE and to reconcile the **old** parent on reassignment (MES-22 partial, needed here because the trigger is being touched anyway).
+- `audit_entries.actor_id` becomes `uuid` referencing `auth.users`, plus `session_id`, `correlation_id`, `reason`, `device_id`.
 
-Create:
-- `supabase/migrations/<ts>_mes_core.sql` — tables + grants + RLS + indexes.
-- `src/lib/mes/kpi.functions.ts` — `getKpiSummary`.
-- `src/lib/mes/traceability.functions.ts` — `getTraceability`.
-- `src/lib/mes/seed.functions.ts` — `seedMesFromFixtures` (uses `supabaseAdmin` via lazy import).
+**Server functions** (`src/lib/mes/*.functions.ts`, all `.middleware([requireSupabaseAuth])`)
+- `authz.functions.ts` — `getMyAccess()` returns permissions + scopes; cached in router context.
+- `execution.functions.ts` — `recordUnitEvent`, `recordReading`, `recordWaste`, `openHold`, `closeHold`: single server entry per action, permission-checked, actor derived from `context.userId`, never from the client. Client mutation hooks in `units-db.ts` / `hmi-db.ts` are re-pointed at these; the direct `supabase.from(...).insert` calls for these paths are removed.
+- `seed.functions.ts` — add `requireSupabaseAuth` + `is_platform_admin` check + refuse unless `ALLOW_DEMO_SEED=true`.
+- `evidence.functions.ts` — signed-URL issuance moves server-side, checks record scope, 5-minute expiry; storage policies rewritten to require an authorized grant rather than bucket name.
 
-Edit:
-- `src/routes/index.tsx` — swap KPI widget data source to server fn (keep fallback).
-- `src/routes/traceability.tsx` — swap audit list to server fn (keep filters + PDF as-is).
-- `src/routes/settings.tsx` — add "Seed database" button.
+**Client**
+- `src/lib/access.tsx` — `AccessProvider` + `useCan(action, scope)`; sidebar, page actions and buttons hide/disable from it.
+- `src/routes/_authenticated/route.tsx` — after the existing `getUser()` check, load `getMyAccess()`; when a user has no grants, render a "Access not yet assigned" panel instead of `<Outlet />`. No second redirect gate.
+- `src/routes/_authenticated/no-access.tsx`, plus role/grant administration on `users.index.tsx` (invite, activate, suspend, grant scoped role) — admin-permission-gated.
+- Generic form dialog (`components/crud/entity-form-dialog.tsx`) awaits submission, keeps input on failure, shows the real error, disables double submit (MES-43, required so the new permission denials are visible rather than silently "saved").
 
-Untouched this turn: mes-store.tsx, mes-data.ts, audit-seed.ts, every other route.
+**APIs**
+- `src/routes/api/public/mes/{kpi,work-orders,downtime,quality-holds,traceability}.ts` move to `src/routes/api/mes/v1/*` with a `MES_API_KEY` bearer check, pagination and no operator PII; CORS narrowed to a configured origin list. A single minimized `api/public/mes/v1/summary` remains anonymous (aggregate counts only).
+- Secret needed: `MES_API_KEY` (I'll request it), plus `ALLOW_DEMO_SEED`.
+
+**Verification before I report done:** signed-out and role-less direct database/API calls must fail for each locked table; a second browser profile signed in as an operator must be denied hold release and recipe edit; an update/delete against `unit_events` must be rejected; deleting an order with units must be refused; a forced network failure must not show "saved".
+
+## Decisions needed for Stage 2+
+
+The audit's own sizing questions I need answered before the execution engine and edge platform turns: serialized units vs bulk lots (or both), one enterprise or multi-customer platform, what "edge app" means here (browser kiosk / offline PWA / gateway-hosted), which PLC protocols and machine commands are permitted, and which system of record owns orders and stock. Stage 1 does not depend on any of these.
