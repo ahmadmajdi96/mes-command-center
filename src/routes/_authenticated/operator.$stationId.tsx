@@ -11,6 +11,9 @@ import {
   useLogWaste, useLogReading, useOpenHold, useHmiRealtime,
 } from "@/lib/hmi-db";
 import { EvidenceUploader } from "@/components/evidence-uploader";
+import { LotProgressPanel } from "@/components/lot-progress-panel";
+import { useLineRules } from "@/lib/lifecycle-db";
+
 
 export const Route = createFileRoute("/_authenticated/operator/$stationId")({
   head: ({ params }) => ({ meta: [{ title: `Operator · ${params.stationId} · Cortanex MES` }] }),
@@ -25,6 +28,9 @@ function OperatorApp() {
   if (!station) throw notFound();
   const line = store.lines.find((l) => l.id === station.lineId);
   useHmiRealtime(stationId);
+  const { data: lineRules } = useLineRules(station.lineId);
+  const lotMode = lineRules?.tracking_mode === "lot";
+
 
   const semi = (station.type as string) === "semi_auto";
   const auto = station.type === "automatic";
@@ -65,31 +71,53 @@ function OperatorApp() {
     setUid(uidInput.trim());
     setUidInput("");
   }
+  function say(e: unknown) {
+    toast.error(e instanceof Error ? e.message : String(e));
+  }
   async function pass() {
     if (!uid) return;
-    const ev = await process.mutateAsync({ unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id, event: "processed", result: "pass" });
-    await logReading.mutateAsync({ unit_uid: uid, station_id: stationId, unit_event_id: ev.id, mode, variables: values });
-    toast.success(`PASS · ${uid}`);
-    setUid(null);
+    try {
+      // Values are recorded first: critical steps refuse the exit without them.
+      if (Object.keys(values).length > 0) {
+        await logReading.mutateAsync({ unit_uid: uid, station_id: stationId, mode, variables: values });
+      }
+      await process.mutateAsync({
+        unit_uid: uid, station_id: stationId, station_name: station!.name,
+        line_id: line?.id, event: "processed",
+      });
+      toast.success(`PASS · ${uid}`);
+      setUid(null);
+    } catch (e) {
+      say(e);
+    }
   }
   async function scrap() {
     const r = options.find((x) => x.id === wasteReason);
     if (!r || !uid) return toast.error("Pick a reason");
-    await logWaste.mutateAsync({
-      unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id,
-      production_order_id: po?.id ?? null, lot_number: po?.lot_number ?? null,
-      reason_code: r.code, reason_label: r.label, reason_category: r.category,
-      notes: wasteNotes, evidence_urls: wasteFiles,
-    });
-    toast.error(`WASTE · ${uid}`);
-    setWasteOpen(false); setWasteReason(""); setWasteNotes(""); setWasteFiles([]); setUid(null);
+    try {
+      await logWaste.mutateAsync({
+        unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id,
+        production_order_id: po?.id ?? null, lot_number: po?.lot_number ?? null,
+        reason_code: r.code, reason_label: r.label, reason_category: r.category,
+        notes: wasteNotes, evidence_urls: wasteFiles,
+      });
+      toast.error(`WASTE · ${uid}`);
+      setWasteOpen(false); setWasteReason(""); setWasteNotes(""); setWasteFiles([]); setUid(null);
+    } catch (e) {
+      say(e);
+    }
   }
   async function submitHold() {
     if (!holdReason.trim()) return toast.error("Enter reason");
-    await openHold.mutateAsync({ station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles });
-    toast.warning("Station on hold");
-    setHoldOpen(false); setHoldReason(""); setHoldFiles([]);
+    try {
+      await openHold.mutateAsync({ station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles });
+      toast.warning("Station on hold");
+      setHoldOpen(false); setHoldReason(""); setHoldFiles([]);
+    } catch (e) {
+      say(e);
+    }
   }
+
 
   const Icon = auto ? Cpu : semi ? Zap : Hand;
 
@@ -117,7 +145,9 @@ function OperatorApp() {
           </div>
         </div>
 
+        {!lotMode && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
+
           <ScanLine className="h-5 w-5 text-primary" />
           <input
             value={uidInput} onChange={(e) => setUidInput(e.target.value)}
@@ -128,8 +158,24 @@ function OperatorApp() {
           />
           <button onClick={scan} className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm font-medium text-primary">Load</button>
         </div>
+        )}
 
-        {uid && unit && (
+        {lotMode && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <p className="flex-1 text-xs text-muted-foreground">
+              This line records quantities as lots — enter good, rework and scrap quantities below.
+            </p>
+            <button
+              onClick={() => setHoldOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium text-warning"
+            >
+              <Pause className="h-4 w-4" /> Hold station
+            </button>
+          </div>
+        )}
+
+
+        {!lotMode && uid && unit && (
           <div className="mt-4 rounded-xl border border-border/40 bg-background/40 p-3">
             <div className="grid gap-2 text-sm md:grid-cols-3">
               <div><div className="text-[10px] uppercase tracking-wider text-muted-foreground">Unit</div><div className="font-mono">{unit.uid}</div></div>
@@ -190,6 +236,10 @@ function OperatorApp() {
           </div>
         )}
       </div>
+
+      {lotMode && <LotProgressPanel stationId={stationId} lineId={station.lineId} />}
+
+
 
       {wasteOpen && (
         <Modal title={`Waste ${uid}`} onClose={() => setWasteOpen(false)}>

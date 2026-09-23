@@ -21,28 +21,74 @@ export function corsHeaders(request: Request) {
   return headers;
 }
 
-/** Returns a Response when the caller is not authorized, otherwise null. */
-export function requireApiKey(request: Request): Response | null {
-  const expected = process.env['MES_API_KEY'];
-  const headers = corsHeaders(request);
-  if (!expected) {
-    return Response.json(
-      { error: "Integration API is not configured" },
-      { status: 503, headers },
-    );
-  }
+function constantTimeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function presentedKey(request: Request) {
   const auth = request.headers.get("authorization") ?? "";
-  const presented = auth.toLowerCase().startsWith("bearer ")
+  return auth.toLowerCase().startsWith("bearer ")
     ? auth.slice(7).trim()
     : (request.headers.get("x-api-key") ?? "").trim();
-  if (!presented || presented.length !== expected.length) {
-    return Response.json({ error: "Unauthorized" }, { status: 401, headers });
-  }
-  let diff = 0;
-  for (let i = 0; i < expected.length; i++) diff |= presented.charCodeAt(i) ^ expected.charCodeAt(i);
-  if (diff !== 0) return Response.json({ error: "Unauthorized" }, { status: 401, headers });
-  return null;
 }
+
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export type ApiCaller = { organizationId: string | null; label: string };
+
+/**
+ * Resolves the calling integration to one customer company. Per-tenant keys are
+ * stored hashed in `api_keys`; the platform-wide MES_API_KEY sees every company.
+ */
+export async function authorizeApi(
+  request: Request,
+): Promise<{ denied: Response } | { caller: ApiCaller }> {
+  const headers = corsHeaders(request);
+  const presented = presentedKey(request);
+  const platformKey = process.env['MES_API_KEY'];
+
+  if (!presented) {
+    return { denied: Response.json({ error: "Unauthorized" }, { status: 401, headers }) };
+  }
+
+  if (platformKey && constantTimeEqual(presented, platformKey)) {
+    return { caller: { organizationId: null, label: "platform" } };
+  }
+
+  const hash = await sha256Hex(presented);
+  const { data, error } = await serviceClient()
+    .from("api_keys")
+    .select("id, organization_id, label, active")
+    .eq("key_hash", hash)
+    .eq("active", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { denied: Response.json({ error: "Unauthorized" }, { status: 401, headers }) };
+  }
+
+  await serviceClient()
+    .from("api_keys")
+    .update({ last_used_at: new Date().toISOString() })
+    .eq("id", data.id);
+
+  return { caller: { organizationId: data.organization_id, label: data.label } };
+}
+
+/** Back-compat guard: returns a Response when the caller is not authorized. */
+export async function requireApiKey(request: Request): Promise<Response | null> {
+  const result = await authorizeApi(request);
+  return "denied" in result ? result.denied : null;
+}
+
 
 export function serviceClient() {
   return createClient<Database>(

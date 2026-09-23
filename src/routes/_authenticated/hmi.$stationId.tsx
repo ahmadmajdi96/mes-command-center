@@ -102,16 +102,24 @@ function HmiStation() {
         }
       }
     }
-    const ev = await process.mutateAsync({
-      unit_uid: activeUid, station_id: stationId, station_name: station!.name, line_id: line?.id,
-      event: "processed", result: "pass",
-    });
-    await logReading.mutateAsync({
-      unit_uid: activeUid, station_id: stationId, unit_event_id: ev.id, mode, variables: values,
-    });
-    toast.success(`Unit ${activeUid} processed`);
-    setActiveUid(null);
+    try {
+      // Values are recorded before the exit: critical steps refuse to close without them.
+      if (Object.keys(values).length > 0) {
+        await logReading.mutateAsync({
+          unit_uid: activeUid, station_id: stationId, mode, variables: values,
+        });
+      }
+      await process.mutateAsync({
+        unit_uid: activeUid, station_id: stationId, station_name: station!.name,
+        line_id: line?.id, event: "processed",
+      });
+      toast.success(`Unit ${activeUid} processed`);
+      setActiveUid(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
   }
+
 
   return (
     <div className="space-y-4">

@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { corsHeaders, page, requireApiKey, serviceClient } from "@/lib/mes/api-guard.server";
+import { authorizeApi, corsHeaders, page, serviceClient } from "@/lib/mes/api-guard.server";
 
 export const Route = createFileRoute("/api/mes/v1/quality-holds")({
   server: {
     handlers: {
       OPTIONS: async ({ request }) => new Response(null, { status: 204, headers: corsHeaders(request) }),
       GET: async ({ request }) => {
-        const denied = requireApiKey(request);
-        if (denied) return denied;
+        const auth = await authorizeApi(request);
+        if ("denied" in auth) return auth.denied;
+        const org = auth.caller.organizationId;
         const headers = corsHeaders(request);
         const { url, limit, offset, from, to } = page(request);
         const status = url.searchParams.get("status");
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/api/mes/v1/quality-holds")({
             count: "exact",
           })
           .order("raised_ts", { ascending: false, nullsFirst: false });
+        if (org) q = q.eq("organization_id", org);
         if (status) q = q.eq("status", status);
         const { data, error, count } = await q.range(from, to);
         if (error) return Response.json({ error: error.message }, { status: 500, headers });

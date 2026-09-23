@@ -2,9 +2,12 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Layers, Plus, ExternalLink, Printer, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
-import { useBatch, useUpdateBatch, useBatchesRealtime, batchStatuses } from "@/lib/batches-db";
+import { useBatch, useUpdateBatch, useBatchesRealtime } from "@/lib/batches-db";
 import { useUnits, useGenerateUnits, useUnitsRealtime } from "@/lib/units-db";
 import { useProductionOrder } from "@/lib/production-orders-db";
+import { useSetBatchStatus, nextStatuses, useLineRules } from "@/lib/lifecycle-db";
+import { useCan } from "@/lib/access";
+import { LotProgressPanel } from "@/components/lot-progress-panel";
 import { DataMatrix } from "@/components/datamatrix";
 import { useMes } from "@/lib/mes-store";
 
@@ -13,6 +16,17 @@ export const Route = createFileRoute("/_authenticated/batches/$batchId")({
   component: BatchDetail,
 });
 
+const STATUS_LABEL: Record<string, string> = {
+  released: "Release",
+  running: "Start",
+  paused: "Pause",
+  hold: "Hold",
+  completed: "Mark completed",
+  closed: "Close",
+  cancelled: "Cancel",
+  scheduled: "Back to scheduled",
+};
+
 function BatchDetail() {
   const { batchId } = useParams({ from: "/_authenticated/batches/$batchId" });
   useBatchesRealtime();
@@ -20,12 +34,17 @@ function BatchDetail() {
   const { data: batch, isLoading } = useBatch(batchId);
   const { data: po } = useProductionOrder(batch?.production_order_id);
   const { data: units = [] } = useUnits({ batch: batchId, limit: 5000 });
+  const { data: lineRules } = useLineRules(batch?.line_id);
+  const lotMode = lineRules?.tracking_mode === "lot";
   const update = useUpdateBatch();
+  const setStatus = useSetBatchStatus();
+  const canLifecycle = useCan("orders.lifecycle");
   const gen = useGenerateUnits();
   const store = useMes();
 
   const [count, setCount] = useState(10);
   const [showLabels, setShowLabels] = useState(false);
+
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (!batch) return (
@@ -75,16 +94,33 @@ function BatchDetail() {
                   {store.lines.map((l) => <option key={l.id} value={l.id}>{l.id} · {l.name}</option>)}
                 </select>
               </label>
-              <label className="rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
+              <div className="rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Status</div>
-                <select
-                  value={batch.status}
-                  onChange={(e) => update.mutate({ id: batch.id, patch: { status: e.target.value } })}
-                  className="mt-1 h-8 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm"
-                >
-                  {batchStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {nextStatuses(batch.status).map((s) => (
+                    <button
+                      key={s}
+                      disabled={!canLifecycle || setStatus.isPending}
+                      onClick={() =>
+                        setStatus.mutate(
+                          { id: batch.id, status: s },
+                          {
+                            onSuccess: () => toast.success(`Batch ${s}`),
+                            onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+                          },
+                        )
+                      }
+                      className="rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50"
+                    >
+                      {STATUS_LABEL[s] ?? s}
+                    </button>
+                  ))}
+                  {nextStatuses(batch.status).length === 0 && (
+                    <span className="text-muted-foreground">No further steps from {batch.status}.</span>
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -95,7 +131,14 @@ function BatchDetail() {
         </div>
       </div>
 
-      <div className="glass-panel rounded-2xl p-5 print:hidden">
+      {lotMode && (
+        <div className="print:hidden">
+          <LotProgressPanel batchId={batch.id} lineId={batch.line_id} />
+        </div>
+      )}
+
+      <div className={`glass-panel rounded-2xl p-5 print:hidden ${lotMode ? "opacity-70" : ""}`}>
+
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold">Unit identifiers</h2>
