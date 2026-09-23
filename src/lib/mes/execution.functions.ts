@@ -356,19 +356,20 @@ export const closeStationHold = createServerFn({ method: "POST" })
     }
 
     const who = await actor(context);
-    const patch: Record<string, unknown> = {
+    const existingEvidence = Array.isArray(hold.evidence_urls) ? (hold.evidence_urls as string[]) : [];
+    const patch = {
       status: "closed",
       closed_at: new Date().toISOString(),
       closed_by: who.id,
       closed_by_name: who.name,
       closed_by_user_id: who.id,
       resolution_notes: v.resolution_notes,
-    };
-    if (v.evidence_urls?.length) {
       // Original evidence is preserved; resolution evidence is appended.
-      const existing = Array.isArray(hold.evidence_urls) ? (hold.evidence_urls as string[]) : [];
-      patch.evidence_urls = [...existing, ...v.evidence_urls] as never;
-    }
+      ...(v.evidence_urls?.length
+        ? { evidence_urls: [...existingEvidence, ...v.evidence_urls] }
+        : {}),
+    };
+
     const { data, error } = await supabase
       .from("station_holds")
       .update(patch)
