@@ -94,16 +94,33 @@ function BatchDetail() {
                   {store.lines.map((l) => <option key={l.id} value={l.id}>{l.id} · {l.name}</option>)}
                 </select>
               </label>
-              <label className="rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
+              <div className="rounded-xl border border-border/40 bg-card/40 p-3 text-xs">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Status</div>
-                <select
-                  value={batch.status}
-                  onChange={(e) => update.mutate({ id: batch.id, patch: { status: e.target.value } })}
-                  className="mt-1 h-8 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm"
-                >
-                  {batchStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {nextStatuses(batch.status).map((s) => (
+                    <button
+                      key={s}
+                      disabled={!canLifecycle || setStatus.isPending}
+                      onClick={() =>
+                        setStatus.mutate(
+                          { id: batch.id, status: s },
+                          {
+                            onSuccess: () => toast.success(`Batch ${s}`),
+                            onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+                          },
+                        )
+                      }
+                      className="rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50"
+                    >
+                      {STATUS_LABEL[s] ?? s}
+                    </button>
+                  ))}
+                  {nextStatuses(batch.status).length === 0 && (
+                    <span className="text-muted-foreground">No further steps from {batch.status}.</span>
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
 
