@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      areas: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          site_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          site_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          site_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "areas_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_entries: {
         Row: {
           action: string
@@ -145,6 +177,7 @@ export type Database = {
       }
       lines: {
         Row: {
+          area_id: string | null
           availability: number
           current_work_order: string | null
           id: string
@@ -155,12 +188,14 @@ export type Database = {
           plant: string
           product: string | null
           quality: number
+          site_id: string | null
           status: string
           target: number
           updated_at: string
           uptime: string
         }
         Insert: {
+          area_id?: string | null
           availability?: number
           current_work_order?: string | null
           id: string
@@ -171,12 +206,14 @@ export type Database = {
           plant: string
           product?: string | null
           quality?: number
+          site_id?: string | null
           status: string
           target?: number
           updated_at?: string
           uptime?: string
         }
         Update: {
+          area_id?: string | null
           availability?: number
           current_work_order?: string | null
           id?: string
@@ -187,43 +224,115 @@ export type Database = {
           plant?: string
           product?: string | null
           quality?: number
+          site_id?: string | null
           status?: string
           target?: number
           updated_at?: string
           uptime?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lines_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lines_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mes_users: {
         Row: {
+          active: boolean
+          auth_user_id: string | null
           email: string
           id: string
           mobile: string
           name: string
           role: string
           shift: string
+          site_id: string | null
           skills: string | null
           status: string
         }
         Insert: {
+          active?: boolean
+          auth_user_id?: string | null
           email: string
           id: string
           mobile: string
           name: string
           role: string
           shift: string
+          site_id?: string | null
           skills?: string | null
           status: string
         }
         Update: {
+          active?: boolean
+          auth_user_id?: string | null
           email?: string
           id?: string
           mobile?: string
           name?: string
           role?: string
           shift?: string
+          site_id?: string | null
           skills?: string | null
           status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mes_users_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      permissions: {
+        Row: {
+          created_at: string
+          description: string
+          key: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          key: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          key?: string
         }
         Relationships: []
       }
@@ -627,6 +736,95 @@ export type Database = {
         }
         Relationships: []
       }
+      role_permissions: {
+        Row: {
+          permission_key: string
+          role_key: string
+        }
+        Insert: {
+          permission_key: string
+          role_key: string
+        }
+        Update: {
+          permission_key?: string
+          role_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_key_fkey"
+            columns: ["role_key"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          created_at: string
+          description: string | null
+          key: string
+          label: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          key: string
+          label: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          key?: string
+          label?: string
+        }
+        Relationships: []
+      }
+      sites: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id: string
+          name: string
+          organization_id: string
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       station_holds: {
         Row: {
           closed_at: string | null
@@ -907,6 +1105,56 @@ export type Database = {
           },
         ]
       }
+      user_role_grants: {
+        Row: {
+          condition: string | null
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          granted_by: string | null
+          id: string
+          role_key: string
+          scope_id: string | null
+          scope_kind: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          condition?: string | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          granted_by?: string | null
+          id?: string
+          role_key: string
+          scope_id?: string | null
+          scope_kind?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          condition?: string | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          granted_by?: string | null
+          id?: string
+          role_key?: string
+          scope_id?: string | null
+          scope_kind?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_role_grants_role_key_fkey"
+            columns: ["role_key"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1086,12 +1334,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_admin_users: { Args: { _user_id: string }; Returns: boolean }
+      has_action: {
+        Args: { _action: string; _user_id: string }
+        Returns: boolean
+      }
+      has_permission: {
+        Args: {
+          _action: string
+          _scope_id?: string
+          _scope_kind?: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      scope_ancestors: {
+        Args: { _id: string; _kind: string }
+        Returns: {
+          scope_id: string
+          scope_kind: string
+        }[]
       }
     }
     Enums: {
