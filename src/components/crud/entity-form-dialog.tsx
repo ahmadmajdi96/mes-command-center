@@ -62,6 +62,9 @@ export function EntityFormDialog<T extends Record<string, any>>({
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (open) {
@@ -77,8 +80,10 @@ export function EntityFormDialog<T extends Record<string, any>>({
     }
   }, [open]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
+    setSaveError(null);
     const errs: Record<string, string> = {};
     for (const f of fields) {
       // Skip validation for fields hidden by visibleWhen
@@ -105,10 +110,22 @@ export function EntityFormDialog<T extends Record<string, any>>({
       toast.error(`Fix ${Object.keys(errs).length} field${Object.keys(errs).length === 1 ? "" : "s"} before saving`);
       return;
     }
-    onSubmit(values as T);
-    toast.success(`${title.replace(/^(Create|New|Edit) /, "")} saved`);
-    setOpen(false);
+    // Only report success once the save has actually completed. On failure the
+    // dialog stays open with the entered values so nothing is silently lost.
+    setSaving(true);
+    try {
+      await onSubmit(values as T);
+      toast.success(`${title.replace(/^(Create|New|Edit) /, "")} saved`);
+      setOpen(false);
+    } catch (err: any) {
+      const message = err?.message ?? "Could not save. Please try again.";
+      setSaveError(message);
+      toast.error(`Not saved — ${message}`);
+    } finally {
+      setSaving(false);
+    }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -258,21 +275,29 @@ export function EntityFormDialog<T extends Record<string, any>>({
               </div>
             );
           })}
+          {saveError && (
+            <div className="col-span-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              {saveError}
+            </div>
+          )}
           <DialogFooter className="col-span-2 mt-2">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg border border-border/60 bg-card/60 px-4 py-2 text-sm"
+              disabled={saving}
+              className="rounded-lg border border-border/60 bg-card/60 px-4 py-2 text-sm disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-gradient-to-br from-primary to-info px-4 py-2 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow)]"
+              disabled={saving}
+              className="rounded-lg bg-gradient-to-br from-primary to-info px-4 py-2 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-60"
             >
-              {submitLabel}
+              {saving ? "Saving…" : submitLabel}
             </button>
           </DialogFooter>
+
         </form>
       </DialogContent>
     </Dialog>

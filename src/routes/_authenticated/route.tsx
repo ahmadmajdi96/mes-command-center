@@ -1,9 +1,11 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Search, ChevronRight, LogOut, User as UserIcon } from "lucide-react";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { Bell, Search, ChevronRight, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { getMyAccess } from "@/lib/mes/authz.functions";
+import { AccessProvider } from "@/lib/access";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -14,6 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: AuthedLayout,
 });
+
 
 function initials(name: string) {
   return name
