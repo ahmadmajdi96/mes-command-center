@@ -114,18 +114,74 @@ function TopBar() {
   );
 }
 
-function AuthedLayout() {
+function NoAccess({ email }: { email?: string }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar />
-          <main className="flex-1 p-4 sm:p-6">
-            <Outlet />
-          </main>
-        </div>
+    <div className="grid min-h-screen place-items-center p-6">
+      <div className="glass-panel max-w-md rounded-2xl p-8 text-center">
+        <ShieldAlert className="mx-auto mb-4 h-8 w-8 text-warning" />
+        <h1 className="font-display text-xl font-semibold">Access not yet assigned</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your account{email ? ` (${email})` : ""} is signed in but has no role for any site or line yet.
+          An administrator needs to assign one before you can see production data.
+        </p>
+        <button
+          onClick={async () => {
+            await queryClient.cancelQueries();
+            queryClient.clear();
+            await supabase.auth.signOut();
+            navigate({ to: "/auth", replace: true });
+          }}
+          className="mt-6 rounded-lg border border-border/60 bg-card/60 px-4 py-2 text-sm"
+        >
+          Sign out
+        </button>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
+
+function AuthedLayout() {
+  const { user } = Route.useRouteContext();
+  const { data: access, isLoading, error } = useQuery({
+    queryKey: ["my-access", user.id],
+    queryFn: () => getMyAccess(),
+    staleTime: 60_000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">
+        Checking your access…
+      </div>
+    );
+  }
+  if (error || !access) {
+    return (
+      <div className="grid min-h-screen place-items-center p-6 text-center text-sm text-destructive">
+        Could not verify your access. Please reload the page.
+      </div>
+    );
+  }
+  if (access.grants.length === 0 && !access.permissions.includes("platform.admin")) {
+    return <NoAccess email={user.email ?? undefined} />;
+  }
+
+  return (
+    <AccessProvider access={access}>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <TopBar />
+            <main className="flex-1 p-4 sm:p-6">
+              <Outlet />
+            </main>
+          </div>
+        </div>
+      </SidebarProvider>
+    </AccessProvider>
+  );
+}
+
