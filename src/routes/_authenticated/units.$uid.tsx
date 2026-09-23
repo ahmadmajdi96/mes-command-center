@@ -52,7 +52,27 @@ function UnitDetail() {
               <Package className="h-5 w-5 text-primary" />
               <h1 className="font-display text-2xl font-semibold tracking-tight">{unit.uid}</h1>
               <span className="rounded-full border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] uppercase tracking-wider">{unit.status}</span>
+              {canRework && (unit.status === "rejected" || unit.status === "on_hold") && (
+                <button
+                  disabled={rework.isPending}
+                  onClick={() => {
+                    const reason = window.prompt("Why is this item going to rework?")?.trim();
+                    if (!reason) return;
+                    rework.mutate(
+                      { unit_uid: unit.uid, reason },
+                      {
+                        onSuccess: () => toast.success("Sent to rework"),
+                        onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+                      },
+                    );
+                  }}
+                  className="rounded-lg border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning hover:bg-warning/20 disabled:opacity-50"
+                >
+                  Send to rework
+                </button>
+              )}
             </div>
+
             <p className="mt-1 text-sm">{unit.product_name} <span className="text-muted-foreground">· {unit.sku}</span></p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Info label="Lot" value={unit.lot_number} />
