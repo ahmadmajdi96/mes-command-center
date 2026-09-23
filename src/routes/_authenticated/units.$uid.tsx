@@ -3,8 +3,11 @@ import { useState } from "react";
 import { ArrowLeft, Package, Send, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useUnit, useUnitEvents, useProcessUnitAtStation, useUnitsRealtime } from "@/lib/units-db";
+import { useSendToRework } from "@/lib/lifecycle-db";
+import { useCan } from "@/lib/access";
 import { DataMatrix } from "@/components/datamatrix";
 import { useMes } from "@/lib/mes-store";
+
 
 export const Route = createFileRoute("/_authenticated/units/$uid")({
   head: ({ params }) => ({ meta: [{ title: `Unit ${params.uid} · Cortanex MES` }] }),
