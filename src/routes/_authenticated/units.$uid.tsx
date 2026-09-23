@@ -20,6 +20,9 @@ function UnitDetail() {
   const { data: unit, isLoading } = useUnit(uid);
   const { data: events = [] } = useUnitEvents(uid);
   const process = useProcessUnitAtStation();
+  const rework = useSendToRework();
+  const canRework = useCan("execution.rework");
+
 
   const store = useMes();
   const stations = store.stations;
