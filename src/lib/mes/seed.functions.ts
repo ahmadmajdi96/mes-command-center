@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   lines as seedLines,
   stations as seedStations,
@@ -11,13 +12,26 @@ import {
 import { seededAuditLog } from "@/lib/audit-seed";
 
 /**
- * Idempotent seed. Upserts the deterministic MES fixtures into Lovable Cloud so
- * the dashboard and traceability read paths have real DB data to work against.
- * Safe to run multiple times — every table uses upsert on the primary key.
+ * Demo fixture loader. Restricted to platform administrators AND to
+ * environments explicitly flagged as demo (ALLOW_DEMO_SEED=true). This is not a
+ * go-live procedure.
  */
-export const seedMesFromFixtures = createServerFn({ method: "POST" }).handler(async () => {
+export const seedMesFromFixtures = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+  if (process.env['ALLOW_DEMO_SEED'] !== 'true') {
+    throw new Error(
+      "Demo data loading is disabled in this environment. It can only run where ALLOW_DEMO_SEED is switched on.",
+    );
+  }
+  const { data: isAdmin } = await context.supabase.rpc("is_platform_admin", {
+    _user_id: context.userId,
+  });
+  if (!isAdmin) throw new Error("Only a platform administrator can load demo data");
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const results: Record<string, number> = {};
+
 
   // ---- lines
   const linesRows = seedLines.map((l) => ({
