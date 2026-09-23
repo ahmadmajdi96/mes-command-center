@@ -2,9 +2,12 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Layers, Plus, ExternalLink, Printer, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
-import { useBatch, useUpdateBatch, useBatchesRealtime, batchStatuses } from "@/lib/batches-db";
+import { useBatch, useUpdateBatch, useBatchesRealtime } from "@/lib/batches-db";
 import { useUnits, useGenerateUnits, useUnitsRealtime } from "@/lib/units-db";
 import { useProductionOrder } from "@/lib/production-orders-db";
+import { useSetBatchStatus, nextStatuses, useLineRules } from "@/lib/lifecycle-db";
+import { useCan } from "@/lib/access";
+import { LotProgressPanel } from "@/components/lot-progress-panel";
 import { DataMatrix } from "@/components/datamatrix";
 import { useMes } from "@/lib/mes-store";
 
@@ -13,6 +16,17 @@ export const Route = createFileRoute("/_authenticated/batches/$batchId")({
   component: BatchDetail,
 });
 
+const STATUS_LABEL: Record<string, string> = {
+  released: "Release",
+  running: "Start",
+  paused: "Pause",
+  hold: "Hold",
+  completed: "Mark completed",
+  closed: "Close",
+  cancelled: "Cancel",
+  scheduled: "Back to scheduled",
+};
+
 function BatchDetail() {
   const { batchId } = useParams({ from: "/_authenticated/batches/$batchId" });
   useBatchesRealtime();
@@ -20,12 +34,17 @@ function BatchDetail() {
   const { data: batch, isLoading } = useBatch(batchId);
   const { data: po } = useProductionOrder(batch?.production_order_id);
   const { data: units = [] } = useUnits({ batch: batchId, limit: 5000 });
+  const { data: lineRules } = useLineRules(batch?.line_id);
+  const lotMode = lineRules?.tracking_mode === "lot";
   const update = useUpdateBatch();
+  const setStatus = useSetBatchStatus();
+  const canLifecycle = useCan("orders.lifecycle");
   const gen = useGenerateUnits();
   const store = useMes();
 
   const [count, setCount] = useState(10);
   const [showLabels, setShowLabels] = useState(false);
+
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (!batch) return (

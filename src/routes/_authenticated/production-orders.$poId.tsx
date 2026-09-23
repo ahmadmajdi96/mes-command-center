@@ -76,26 +76,37 @@ function PoDetail() {
               <Info label="Line (default)" value={po.line_id ?? "—"} />
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {po.status === "scheduled" && (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              {nextStatuses(po.status).map((s) => (
                 <button
-                  onClick={() => update.mutate({ id: po.id, patch: { status: "released" } }, { onSuccess: () => toast.success("Released") })}
-                  className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
-                >Release</button>
+                  key={s}
+                  disabled={!canLifecycle || setStatus.isPending}
+                  onClick={() =>
+                    setStatus.mutate(
+                      { id: po.id, status: s },
+                      {
+                        onSuccess: () => toast.success(`Order ${s}`),
+                        onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+                      },
+                    )
+                  }
+                  className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20 disabled:opacity-50"
+                >
+                  {STATUS_LABEL[s] ?? s}
+                </button>
+              ))}
+              {nextStatuses(po.status).length === 0 && (
+                <span className="text-xs text-muted-foreground">
+                  This order is {po.status} — no further steps.
+                </span>
               )}
-              {po.status === "released" && (
-                <button
-                  onClick={() => update.mutate({ id: po.id, patch: { status: "running" } }, { onSuccess: () => toast.success("Started") })}
-                  className="rounded-lg border border-success/40 bg-success/10 px-3 py-1.5 text-xs text-success hover:bg-success/20"
-                >Start</button>
-              )}
-              {po.status === "running" && (
-                <button
-                  onClick={() => update.mutate({ id: po.id, patch: { status: "completed" } }, { onSuccess: () => toast.success("Completed") })}
-                  className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs"
-                >Mark completed</button>
+              {!canLifecycle && (
+                <span className="text-xs text-muted-foreground">
+                  You do not have permission to change order status.
+                </span>
               )}
             </div>
+
           </div>
 
           <div className="grid place-items-center rounded-2xl border border-border/40 bg-card/40 p-4">
