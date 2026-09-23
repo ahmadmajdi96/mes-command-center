@@ -123,7 +123,9 @@ function OperatorApp() {
           </div>
         </div>
 
+        {!lotMode && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
+
           <ScanLine className="h-5 w-5 text-primary" />
           <input
             value={uidInput} onChange={(e) => setUidInput(e.target.value)}
@@ -134,6 +136,22 @@ function OperatorApp() {
           />
           <button onClick={scan} className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm font-medium text-primary">Load</button>
         </div>
+        )}
+
+        {lotMode && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <p className="flex-1 text-xs text-muted-foreground">
+              This line records quantities as lots — enter good, rework and scrap quantities below.
+            </p>
+            <button
+              onClick={() => setHoldOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm font-medium text-warning"
+            >
+              <Pause className="h-4 w-4" /> Hold station
+            </button>
+          </div>
+        )}
+
 
         {uid && unit && (
           <div className="mt-4 rounded-xl border border-border/40 bg-background/40 p-3">
