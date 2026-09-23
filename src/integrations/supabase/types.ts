@@ -158,6 +158,113 @@ export type Database = {
           },
         ]
       }
+      batch_station_progress: {
+        Row: {
+          actor_user_id: string | null
+          batch_id: string
+          closed_at: string | null
+          correction_reason: string | null
+          corrects_progress_id: string | null
+          correlation_id: string | null
+          created_at: string
+          device_id: string | null
+          id: string
+          line_id: string | null
+          notes: string | null
+          opened_at: string
+          operator_id: string | null
+          operator_name: string | null
+          organization_id: string
+          production_order_id: string | null
+          qty_good: number
+          qty_in: number
+          qty_rework: number
+          qty_scrap: number
+          scrap_reason_code: string | null
+          station_id: string | null
+          station_name: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          batch_id: string
+          closed_at?: string | null
+          correction_reason?: string | null
+          corrects_progress_id?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          line_id?: string | null
+          notes?: string | null
+          opened_at?: string
+          operator_id?: string | null
+          operator_name?: string | null
+          organization_id?: string
+          production_order_id?: string | null
+          qty_good?: number
+          qty_in?: number
+          qty_rework?: number
+          qty_scrap?: number
+          scrap_reason_code?: string | null
+          station_id?: string | null
+          station_name?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          batch_id?: string
+          closed_at?: string | null
+          correction_reason?: string | null
+          corrects_progress_id?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          id?: string
+          line_id?: string | null
+          notes?: string | null
+          opened_at?: string
+          operator_id?: string | null
+          operator_name?: string | null
+          organization_id?: string
+          production_order_id?: string | null
+          qty_good?: number
+          qty_in?: number
+          qty_rework?: number
+          qty_scrap?: number
+          scrap_reason_code?: string | null
+          station_id?: string | null
+          station_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_station_progress_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "production_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_station_progress_corrects_progress_id_fkey"
+            columns: ["corrects_progress_id"]
+            isOneToOne: false
+            referencedRelation: "batch_station_progress"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_station_progress_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_station_progress_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       downtime_events: {
         Row: {
           assignment_id: string | null
@@ -275,6 +382,7 @@ export type Database = {
           area_id: string | null
           availability: number
           current_work_order: string | null
+          enforce_route: boolean
           id: string
           name: string
           oee: number
@@ -287,6 +395,7 @@ export type Database = {
           site_id: string | null
           status: string
           target: number
+          tracking_mode: string
           updated_at: string
           uptime: string
         }
@@ -294,6 +403,7 @@ export type Database = {
           area_id?: string | null
           availability?: number
           current_work_order?: string | null
+          enforce_route?: boolean
           id: string
           name: string
           oee?: number
@@ -306,6 +416,7 @@ export type Database = {
           site_id?: string | null
           status: string
           target?: number
+          tracking_mode?: string
           updated_at?: string
           uptime?: string
         }
@@ -313,6 +424,7 @@ export type Database = {
           area_id?: string | null
           availability?: number
           current_work_order?: string | null
+          enforce_route?: boolean
           id?: string
           name?: string
           oee?: number
@@ -325,6 +437,7 @@ export type Database = {
           site_id?: string | null
           status?: string
           target?: number
+          tracking_mode?: string
           updated_at?: string
           uptime?: string
         }
@@ -453,11 +566,14 @@ export type Database = {
       }
       product_station_recipes: {
         Row: {
+          blocks_on_fail: boolean
           created_at: string
           id: string
           instructions: string | null
+          is_ccp: boolean
           organization_id: string
           product_id: string
+          requires_reading: boolean
           sequence: number
           station_id: string
           target_cycle_sec: number | null
@@ -465,11 +581,14 @@ export type Database = {
           variables: Json
         }
         Insert: {
+          blocks_on_fail?: boolean
           created_at?: string
           id?: string
           instructions?: string | null
+          is_ccp?: boolean
           organization_id?: string
           product_id: string
+          requires_reading?: boolean
           sequence?: number
           station_id: string
           target_cycle_sec?: number | null
@@ -477,11 +596,14 @@ export type Database = {
           variables?: Json
         }
         Update: {
+          blocks_on_fail?: boolean
           created_at?: string
           id?: string
           instructions?: string | null
+          is_ccp?: boolean
           organization_id?: string
           product_id?: string
+          requires_reading?: boolean
           sequence?: number
           station_id?: string
           target_cycle_sec?: number | null
@@ -608,11 +730,15 @@ export type Database = {
           product_name: string
           production_order_id: string
           qty: number
+          qty_good: number
           qty_produced: number
+          qty_rework: number
+          qty_scrap: number
           sequence: number
           shift: string
           sku: string
           status: string
+          tracking_mode: string
           uom: string
           updated_at: string
         }
@@ -632,11 +758,15 @@ export type Database = {
           product_name: string
           production_order_id: string
           qty?: number
+          qty_good?: number
           qty_produced?: number
+          qty_rework?: number
+          qty_scrap?: number
           sequence?: number
           shift?: string
           sku: string
           status?: string
+          tracking_mode?: string
           uom?: string
           updated_at?: string
         }
@@ -656,11 +786,15 @@ export type Database = {
           product_name?: string
           production_order_id?: string
           qty?: number
+          qty_good?: number
           qty_produced?: number
+          qty_rework?: number
+          qty_scrap?: number
           sequence?: number
           shift?: string
           sku?: string
           status?: string
+          tracking_mode?: string
           uom?: string
           updated_at?: string
         }
@@ -697,10 +831,14 @@ export type Database = {
           product_id: string | null
           product_name: string
           qty: number
+          qty_good: number
           qty_produced: number
+          qty_rework: number
+          qty_scrap: number
           shift: string
           sku: string
           status: string
+          tracking_mode: string
           uom: string
           updated_at: string
         }
@@ -719,10 +857,14 @@ export type Database = {
           product_id?: string | null
           product_name: string
           qty?: number
+          qty_good?: number
           qty_produced?: number
+          qty_rework?: number
+          qty_scrap?: number
           shift?: string
           sku: string
           status?: string
+          tracking_mode?: string
           uom?: string
           updated_at?: string
         }
@@ -741,10 +883,14 @@ export type Database = {
           product_id?: string | null
           product_name?: string
           qty?: number
+          qty_good?: number
           qty_produced?: number
+          qty_rework?: number
+          qty_scrap?: number
           shift?: string
           sku?: string
           status?: string
+          tracking_mode?: string
           uom?: string
           updated_at?: string
         }
@@ -1631,6 +1777,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assert_status_transition: {
+        Args: { _entity: string; _from: string; _to: string }
+        Returns: undefined
+      }
       can_admin_users: { Args: { _user_id: string }; Returns: boolean }
       has_action: {
         Args: { _action: string; _user_id: string }
