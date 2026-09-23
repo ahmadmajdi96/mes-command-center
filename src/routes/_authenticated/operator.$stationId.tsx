@@ -71,31 +71,53 @@ function OperatorApp() {
     setUid(uidInput.trim());
     setUidInput("");
   }
+  function say(e: unknown) {
+    toast.error(e instanceof Error ? e.message : String(e));
+  }
   async function pass() {
     if (!uid) return;
-    const ev = await process.mutateAsync({ unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id, event: "processed", result: "pass" });
-    await logReading.mutateAsync({ unit_uid: uid, station_id: stationId, unit_event_id: ev.id, mode, variables: values });
-    toast.success(`PASS · ${uid}`);
-    setUid(null);
+    try {
+      // Values are recorded first: critical steps refuse the exit without them.
+      if (Object.keys(values).length > 0) {
+        await logReading.mutateAsync({ unit_uid: uid, station_id: stationId, mode, variables: values });
+      }
+      await process.mutateAsync({
+        unit_uid: uid, station_id: stationId, station_name: station!.name,
+        line_id: line?.id, event: "processed",
+      });
+      toast.success(`PASS · ${uid}`);
+      setUid(null);
+    } catch (e) {
+      say(e);
+    }
   }
   async function scrap() {
     const r = options.find((x) => x.id === wasteReason);
     if (!r || !uid) return toast.error("Pick a reason");
-    await logWaste.mutateAsync({
-      unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id,
-      production_order_id: po?.id ?? null, lot_number: po?.lot_number ?? null,
-      reason_code: r.code, reason_label: r.label, reason_category: r.category,
-      notes: wasteNotes, evidence_urls: wasteFiles,
-    });
-    toast.error(`WASTE · ${uid}`);
-    setWasteOpen(false); setWasteReason(""); setWasteNotes(""); setWasteFiles([]); setUid(null);
+    try {
+      await logWaste.mutateAsync({
+        unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id,
+        production_order_id: po?.id ?? null, lot_number: po?.lot_number ?? null,
+        reason_code: r.code, reason_label: r.label, reason_category: r.category,
+        notes: wasteNotes, evidence_urls: wasteFiles,
+      });
+      toast.error(`WASTE · ${uid}`);
+      setWasteOpen(false); setWasteReason(""); setWasteNotes(""); setWasteFiles([]); setUid(null);
+    } catch (e) {
+      say(e);
+    }
   }
   async function submitHold() {
     if (!holdReason.trim()) return toast.error("Enter reason");
-    await openHold.mutateAsync({ station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles });
-    toast.warning("Station on hold");
-    setHoldOpen(false); setHoldReason(""); setHoldFiles([]);
+    try {
+      await openHold.mutateAsync({ station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles });
+      toast.warning("Station on hold");
+      setHoldOpen(false); setHoldReason(""); setHoldFiles([]);
+    } catch (e) {
+      say(e);
+    }
   }
+
 
   const Icon = auto ? Cpu : semi ? Zap : Hand;
 
