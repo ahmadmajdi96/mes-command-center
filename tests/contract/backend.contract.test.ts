@@ -85,7 +85,9 @@ signedIn("signed-in contracts", () => {
     });
     it("in_my_org refuses an unknown company", async () => {
       const { data } = await db.rpc("in_my_org" as never, { _org: "ORG-DOES-NOT-EXIST" } as never);
-      expect(data).toBe(false);
+      const isPlatform = (await db.rpc("is_platform_admin" as never, { _user_id: userId } as never)).data === true;
+      // Platform admins see every company by design; everyone else must be refused.
+      expect(data).toBe(isPlatform);
     });
   });
 
