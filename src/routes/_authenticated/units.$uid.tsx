@@ -4,6 +4,8 @@ import { ArrowLeft, Package, Send, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useUnit, useUnitEvents, useProcessUnitAtStation, useUnitsRealtime } from "@/lib/units-db";
 import { useSendToRework } from "@/lib/lifecycle-db";
+import { submitOrQueue } from "@/lib/offline-queue";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCan } from "@/lib/access";
 import { DataMatrix } from "@/components/datamatrix";
 import { useMes } from "@/lib/mes-store";
@@ -21,6 +23,7 @@ function UnitDetail() {
   const { data: events = [] } = useUnitEvents(uid);
   const process = useProcessUnitAtStation();
   const rework = useSendToRework();
+  const qc = useQueryClient();
   const canRework = useCan("execution.rework");
 
 
