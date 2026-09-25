@@ -78,14 +78,17 @@ function OperatorApp() {
     if (!uid) return;
     try {
       // Values are recorded first: critical steps refuse the exit without them.
+      let queued = false;
       if (Object.keys(values).length > 0) {
-        await logReading.mutateAsync({ unit_uid: uid, station_id: stationId, mode, variables: values });
+        const r = await submitOrQueue("reading", { unit_uid: uid, station_id: stationId, mode, variables: values }, `Values · ${uid} @ ${station!.name}`);
+        queued = r.queued;
       }
-      await process.mutateAsync({
-        unit_uid: uid, station_id: stationId, station_name: station!.name,
-        line_id: line?.id, event: "processed",
-      });
-      toast.success(`PASS · ${uid}`);
+      const ev = { unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id, event: "processed" };
+      const r2 = queued
+        ? (await submitOrQueueForced("unit_event", ev, `Pass · ${uid} @ ${station!.name}`))
+        : await submitOrQueue("unit_event", ev, `Pass · ${uid} @ ${station!.name}`);
+      if (r2.queued) toast.warning(`Offline · PASS ${uid} saved on this device, will send when back online`);
+      else { toast.success(`PASS · ${uid}`); qc.invalidateQueries(); }
       setUid(null);
     } catch (e) {
       say(e);
@@ -110,8 +113,9 @@ function OperatorApp() {
   async function submitHold() {
     if (!holdReason.trim()) return toast.error("Enter reason");
     try {
-      await openHold.mutateAsync({ station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles });
-      toast.warning("Station on hold");
+      const r = await submitOrQueue("hold", { station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles }, `Hold · ${station!.name}: ${holdReason}`);
+      toast.warning(r.queued ? "Offline · hold saved on this device, will send when back online" : "Station on hold");
+      if (!r.queued) qc.invalidateQueries();
       setHoldOpen(false); setHoldReason(""); setHoldFiles([]);
     } catch (e) {
       say(e);
