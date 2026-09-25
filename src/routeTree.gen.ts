@@ -24,6 +24,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
@@ -131,6 +132,11 @@ const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
 const AuthenticatedLiveRoute = AuthenticatedLiveRouteImport.update({
   id: '/live',
   path: '/live',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
@@ -313,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/planner': typeof AuthenticatedPlannerRoute
@@ -359,6 +366,7 @@ export interface FileRoutesByTo {
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/planner': typeof AuthenticatedPlannerRoute
@@ -408,6 +416,7 @@ export interface FileRoutesById {
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
@@ -458,6 +467,7 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
+    | '/inventory'
     | '/live'
     | '/master-data'
     | '/planner'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
+    | '/inventory'
     | '/live'
     | '/master-data'
     | '/planner'
@@ -552,6 +563,7 @@ export interface FileRouteTypes {
     | '/_authenticated/downtime'
     | '/_authenticated/execution'
     | '/_authenticated/genealogy'
+    | '/_authenticated/inventory'
     | '/_authenticated/live'
     | '/_authenticated/master-data'
     | '/_authenticated/planner'
@@ -709,6 +721,13 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/live'
       preLoaderRoute: typeof AuthenticatedLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/genealogy': {
@@ -938,6 +957,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
@@ -978,6 +998,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
