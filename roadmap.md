@@ -1,7 +1,9 @@
 # Roadmap
-- [x] Wheat Flour T55 BOM, routing, production version + full test order (fixed triple material deduction)
-- [x] ERP contract page
-- [ ] Live pull from custom ERP — on hold per user (standalone for now)
-- [ ] Line-side box offline hardening (waste offline, device pairing)
-- [ ] Machine read/command edge apps — needs user's machine list + safety sign-off (protocols: OPC UA, Modbus TCP/RTU, MQTT, PROFINET, EtherNet/IP, EtherCAT, S7, BACnet, DNP3, CC-Link)
-- [ ] Page-by-page review: clickable list rows, detail pages, back arrows
+- [x] Wheat Flour T55 master data + full test order (fixed triple material deduction)
+- [x] ERP contract page + manual import (paste/upload JSON or CSV), materials matched by SKU
+- [x] ERP round trip verified (order in, confirmations/receipts/consumption out)
+- [x] Offline waste recording
+- [x] Machines: 11 protocols, tags/limits/hold-on-breach, commands (simulated/manual/edge), edge box feed
+- [ ] Live pull from custom ERP — on hold per user (standalone)
+- [ ] Real machine drivers on the edge box — needs real machine list + safety sign-off
+- [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page (next)
