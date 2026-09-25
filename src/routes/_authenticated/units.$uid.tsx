@@ -58,12 +58,12 @@ function UnitDetail() {
                   onClick={() => {
                     const reason = window.prompt("Why is this item going to rework?")?.trim();
                     if (!reason) return;
-                    rework.mutate(
-                      { unit_uid: unit.uid, reason },
-                      {
-                        onSuccess: () => toast.success("Sent to rework"),
-                        onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+                    submitOrQueue("rework", { unit_uid: unit.uid, reason }, `Rework · ${unit.uid}: ${reason}`).then(
+                      (r) => {
+                        if (r.queued) toast.warning("Offline · rework saved on this device, will send when back online");
+                        else { toast.success("Sent to rework"); rework.reset(); qc.invalidateQueries(); }
                       },
+                      (e) => toast.error(e instanceof Error ? e.message : String(e)),
                     );
                   }}
                   className="rounded-lg border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning hover:bg-warning/20 disabled:opacity-50"
