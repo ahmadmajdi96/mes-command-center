@@ -13,6 +13,10 @@ import {
 import { EvidenceUploader } from "@/components/evidence-uploader";
 import { LotProgressPanel } from "@/components/lot-progress-panel";
 import { useLineRules } from "@/lib/lifecycle-db";
+import { useQueryClient } from "@tanstack/react-query";
+import { submitOrQueue } from "@/lib/offline-queue";
+import { OfflineQueuePanel } from "@/components/offline-queue-panel";
+import { TroubleshootPanel } from "@/components/troubleshoot-panel";
 
 
 export const Route = createFileRoute("/_authenticated/operator/$stationId")({
@@ -52,6 +56,7 @@ function OperatorApp() {
   const { data: all = [] } = useWasteReasons();
   const options = allowed.length ? allowed : all;
   const process = useProcessUnitAtStation();
+  const qc = useQueryClient();
   const logReading = useLogReading();
   const logWaste = useLogWaste();
   const openHold = useOpenHold();
@@ -84,9 +89,8 @@ function OperatorApp() {
         queued = r.queued;
       }
       const ev = { unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id, event: "processed" };
-      const r2 = queued
-        ? (await submitOrQueueForced("unit_event", ev, `Pass · ${uid} @ ${station!.name}`))
-        : await submitOrQueue("unit_event", ev, `Pass · ${uid} @ ${station!.name}`);
+      void queued;
+      const r2 = await submitOrQueue("unit_event", ev, `Pass · ${uid} @ ${station!.name}`);
       if (r2.queued) toast.warning(`Offline · PASS ${uid} saved on this device, will send when back online`);
       else { toast.success(`PASS · ${uid}`); qc.invalidateQueries(); }
       setUid(null);
@@ -127,6 +131,7 @@ function OperatorApp() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
+      <OfflineQueuePanel />
       <div className="flex items-center justify-between">
         <Link to="/operator" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> Stations
@@ -274,6 +279,7 @@ function OperatorApp() {
           </div>
         </Modal>
       )}
+      <TroubleshootPanel stationId={stationId} stationName={station.name} lineName={line?.name} unitUid={uid} />
     </div>
   );
 }

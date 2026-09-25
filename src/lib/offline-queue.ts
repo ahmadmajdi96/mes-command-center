@@ -61,7 +61,9 @@ function isNetworkError(e: unknown) {
  */
 export async function submitOrQueue(kind: QueueKind, payload: Record<string, unknown>, label: string) {
   const withId = { ...payload, correlation_id: (payload.correlation_id as string) ?? newCorrelationId(kind.slice(0, 3).toUpperCase()) };
-  if (typeof navigator !== "undefined" && navigator.onLine) {
+  // Keep capture order: if older records are still waiting, this one waits behind them.
+  const backlog = read().some((i) => i.status === "pending");
+  if (!backlog && typeof navigator !== "undefined" && navigator.onLine) {
     try { return { queued: false, result: await senders[kind](withId) }; }
     catch (e) { if (!isNetworkError(e)) throw e; }
   }

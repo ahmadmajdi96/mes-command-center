@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { submitOrQueue } from "@/lib/offline-queue";
 import { toast } from "sonner";
 import { Boxes } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,11 +84,11 @@ export function LotProgressPanel({
     [history],
   );
 
+  const qc = useQueryClient();
   function submit() {
     if (!effBatch) return toast.error("Pick a batch");
     if (!effStation) return toast.error("Pick a station");
-    record.mutate(
-      {
+    const payload = {
         batch_id: effBatch,
         station_id: effStation,
         qty_good: good,
@@ -95,18 +96,18 @@ export function LotProgressPanel({
         qty_scrap: scrap,
         scrap_reason_code: scrap > 0 ? reason || null : null,
         notes: notes || undefined,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Quantities recorded");
+    };
+    submitOrQueue("lot_progress", payload, `Quantities · ${effBatch} @ ${effStation}`).then(
+      (r) => {
+          if (r.queued) toast.warning("Offline · quantities saved on this device, will send when back online");
+          else { toast.success("Quantities recorded"); qc.invalidateQueries(); }
           setGood(0);
           setRework(0);
           setScrap(0);
           setReason("");
           setNotes("");
-        },
-        onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
       },
+      (e) => toast.error(e instanceof Error ? e.message : String(e)),
     );
   }
 
