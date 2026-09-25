@@ -397,6 +397,7 @@ export const recordLotProgress = createServerFn({ method: "POST" })
   .handler(async ({ data: v, context }) => {
     const ctx = context as Ctx;
     await requireAction(ctx, "execution.record");
+    if (await alreadyRecorded(ctx, "batch_station_progress", v.correlation_id)) return { duplicate: true } as never;
     const who = await actor(ctx);
     const supabase = ctx.supabase;
 
