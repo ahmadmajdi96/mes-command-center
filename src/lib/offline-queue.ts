@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from "react";
 import {
-  recordUnitEvent, recordReading, recordLotProgress, sendToRework, openStationHold,
+  recordUnitEvent, recordReading, recordLotProgress, sendToRework, openStationHold, recordWaste,
 } from "./mes/execution.functions";
 
 /**
@@ -9,7 +9,7 @@ import {
  * connection never double-records. Items the server refuses (rule broken,
  * item moved meanwhile) are kept as "needs attention" with the refusal reason.
  */
-export type QueueKind = "unit_event" | "reading" | "lot_progress" | "rework" | "hold";
+export type QueueKind = "unit_event" | "reading" | "lot_progress" | "rework" | "hold" | "waste";
 export type QueueItem = {
   id: string;
   kind: QueueKind;
@@ -48,6 +48,7 @@ const senders: Record<QueueKind, (p: any) => Promise<unknown>> = {
   lot_progress: (p) => recordLotProgress({ data: p }),
   rework: (p) => sendToRework({ data: p }),
   hold: (p) => openStationHold({ data: p }),
+  waste: (p) => recordWaste({ data: p }),
 };
 
 function isNetworkError(e: unknown) {

@@ -589,6 +589,7 @@ export const recordWaste = createServerFn({ method: "POST" })
       notes?: string;
       evidence_urls?: string[];
       device_id?: string | null;
+      correlation_id?: string | null;
     }) => {
       if (!d.reason_code) throw new Error("A waste reason is required");
       return d;
@@ -597,9 +598,10 @@ export const recordWaste = createServerFn({ method: "POST" })
   .handler(async ({ data: v, context }) => {
     const ctx = context as Ctx;
     await requireAction(ctx, "execution.record");
+    if (await alreadyRecorded(ctx, "waste_events", v.correlation_id)) return { duplicate: true } as never;
     const who = await actor(ctx);
     const supabase = ctx.supabase;
-    const correlationId = newId("WC");
+    const correlationId = v.correlation_id ?? newId("WC");
 
     const { data, error } = await supabase
       .from("waste_events")
