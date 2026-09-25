@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Download, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-export const PAGE_SIZES = [50, 57, 100, 150, 200] as const;
+export const PAGE_SIZES = [50, 75, 100, 150, 200] as const;
 
 type Opts<T> = {
   /** Fields searched by the text box. */
@@ -46,7 +46,7 @@ export function exportRows(rows: Record<string, unknown>[], name: string, kind: 
   }
 }
 
-/** Search, created date/time range, page size (50/57/100/150/200), paging and CSV/Excel export for any list. */
+/** Search, created date/time range, page size (50/75/100/150/200), paging and CSV/Excel export for any list. */
 export function useListControls<T extends object>(rows: T[], opts: Opts<T> = {}) {
   const [q, setQ] = useState("");
   const [from, setFrom] = useState("");
