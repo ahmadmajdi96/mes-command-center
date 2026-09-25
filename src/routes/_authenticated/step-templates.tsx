@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
@@ -93,8 +94,10 @@ function StepTemplatesPage() {
 
   const ccpCount = store.stepTemplates.filter((t) => t.isCCP).length;
 
+  const lc = useListControls(filtered as any[], { exportName: "step-templates" });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Step Templates</h1>
@@ -143,7 +146,7 @@ function StepTemplatesPage() {
 
       {/* Grid */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((t) => {
+        {lc.visible.map((t) => {
           const C = categoryStyles[t.category];
           const Icon = C.icon;
           const used = usageOf(t.id);
@@ -237,6 +240,7 @@ function StepTemplatesPage() {
           </div>
         )}
       </div>
+      {lc.pager}
     </div>
   );
 }

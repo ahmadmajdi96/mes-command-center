@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
@@ -58,8 +59,10 @@ function AuditPage() {
     });
   }, [store.audit, q, entity]);
 
+  const lc = useListControls(filtered as any[], { exportName: "audit", dateKey: "at" as never });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Audit Log</h1>
@@ -114,7 +117,7 @@ function AuditPage() {
                   <History className="mx-auto mb-2 h-5 w-5" /> No audit entries match.
                 </td></tr>
               )}
-              {filtered.map((e) => {
+              {lc.visible.map((e) => {
                 const isOpen = openId === e.id;
                 return (
                   <Row key={e.id} entry={e} open={isOpen} onToggle={() => setOpenId(isOpen ? null : e.id)} />
@@ -124,6 +127,7 @@ function AuditPage() {
           </table>
         </div>
       </div>
+      {lc.pager}
     </div>
   );
 }

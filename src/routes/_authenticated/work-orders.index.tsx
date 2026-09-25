@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMes } from "@/lib/mes-store";
@@ -41,8 +42,10 @@ function WorkOrdersPage() {
   const [f, setF] = useState<WOStatus | "all">("all");
   const list = f === "all" ? store.workOrders : store.workOrders.filter((w) => w.status === f);
 
+  const lc = useListControls(list as any[], { exportName: "work-orders", dateKey: "started_at" as never });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Work Orders</h1>
@@ -98,7 +101,7 @@ function WorkOrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {list.map((w) => (
+              {lc.visible.map((w) => (
                 <tr key={w.id} className="border-t border-border/40 hover:bg-card/40">
                   <td className="px-4 py-3">
                     <Link to="/work-orders/$woId" params={{ woId: w.id }} className="font-mono text-xs hover:text-primary">{w.id}</Link>
@@ -151,6 +154,7 @@ function WorkOrdersPage() {
           </table>
         </div>
       </div>
+      {lc.pager}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Plus, Search, ClipboardList, Pencil, Trash2 } from "lucide-react";
@@ -58,8 +59,10 @@ function PosPage() {
     { name: "notes", label: "Notes", type: "textarea", span: 2 },
   ];
 
+  const lc = useListControls(filtered as any[], { exportName: "production-orders", dateKey: "created_at" as never });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Production Orders</h1>
@@ -137,7 +140,7 @@ function PosPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((o) => (
+            {lc.visible.map((o) => (
               <tr key={o.id} className="border-t border-border/40 hover:bg-card/40">
                 <td className="px-4 py-3">
                   <Link to="/production-orders/$poId" params={{ poId: o.id }} className="flex items-center gap-2">
@@ -205,6 +208,7 @@ function PosPage() {
           </tbody>
         </table>
       </div>
+      {lc.pager}
     </div>
   );
 }

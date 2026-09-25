@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Plus, Package, Pencil, Trash2 } from "lucide-react";
@@ -54,8 +55,10 @@ function ProductsPage() {
     return c;
   }, [products]);
 
+  const lc = useListControls(filtered as any[], { exportName: "products", dateKey: "created_at" as never });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Products</h1>
@@ -121,7 +124,7 @@ function ProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
+            {lc.visible.map((p) => (
               <tr key={p.id} className="border-t border-border/40 hover:bg-card/40">
                 <td className="px-4 py-3">
                   <Link to="/products/$productId" params={{ productId: p.id }} className="flex items-center gap-2">
@@ -166,6 +169,7 @@ function ProductsPage() {
           </tbody>
         </table>
       </div>
+      {lc.pager}
     </div>
   );
 }

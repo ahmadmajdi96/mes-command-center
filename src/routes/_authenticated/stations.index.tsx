@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
@@ -171,8 +172,10 @@ function StationsPage() {
     down: store.stations.filter((s) => s.status === "down").length,
   };
 
+  const lc = useListControls(filtered as any[], { exportName: "stations", dateKey: "updated_at" as never });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Stations</h1>
@@ -242,7 +245,7 @@ function StationsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((s) => {
+              {lc.visible.map((s) => {
                 const line = store.lines.find((l) => l.id === s.lineId);
                 const asmt = store.assignments.find((a) => a.active && a.targetType === "station" && a.targetId === s.id);
                 const op = asmt ? store.users.find((u) => u.id === asmt.userId) : undefined;
@@ -341,6 +344,7 @@ function StationsPage() {
           </table>
         </div>
       </div>
+      {lc.pager}
     </div>
   );
 }
