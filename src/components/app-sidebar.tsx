@@ -51,6 +51,7 @@ const planning = [
   { title: "Recipes", url: "/recipes", icon: ClipboardCheck },
   { title: "Production Orders", url: "/production-orders", icon: ClipboardList },
   { title: "Planner", url: "/planner", icon: CalendarDays },
+  { title: "Inventory", url: "/inventory", icon: Package },
 ];
 
 const execution = [

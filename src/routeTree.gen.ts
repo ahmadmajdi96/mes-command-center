@@ -24,6 +24,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
@@ -54,6 +55,7 @@ import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/tr
 import { Route as ApiMesV1QualityHoldsRouteImport } from './routes/api/mes/v1/quality-holds'
 import { Route as ApiMesV1KpiRouteImport } from './routes/api/mes/v1/kpi'
 import { Route as ApiMesV1DowntimeRouteImport } from './routes/api/mes/v1/downtime'
+import { Route as ApiMesV1ErpEntityRouteImport } from './routes/api/mes/v1/erp.$entity'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -130,6 +132,11 @@ const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
 const AuthenticatedLiveRoute = AuthenticatedLiveRouteImport.update({
   id: '/live',
   path: '/live',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
@@ -297,6 +304,11 @@ const ApiMesV1DowntimeRoute = ApiMesV1DowntimeRouteImport.update({
   path: '/api/mes/v1/downtime',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMesV1ErpEntityRoute = ApiMesV1ErpEntityRouteImport.update({
+  id: '/api/mes/v1/erp/$entity',
+  path: '/api/mes/v1/erp/$entity',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -307,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/planner': typeof AuthenticatedPlannerRoute
@@ -343,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -352,6 +366,7 @@ export interface FileRoutesByTo {
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/planner': typeof AuthenticatedPlannerRoute
@@ -389,6 +404,7 @@ export interface FileRoutesByTo {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -400,6 +416,7 @@ export interface FileRoutesById {
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
@@ -437,6 +454,7 @@ export interface FileRoutesById {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -449,6 +467,7 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
+    | '/inventory'
     | '/live'
     | '/master-data'
     | '/planner'
@@ -485,6 +504,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/mes/v1/erp/$entity'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -494,6 +514,7 @@ export interface FileRouteTypes {
     | '/downtime'
     | '/execution'
     | '/genealogy'
+    | '/inventory'
     | '/live'
     | '/master-data'
     | '/planner'
@@ -531,6 +552,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/mes/v1/erp/$entity'
   id:
     | '__root__'
     | '/_authenticated'
@@ -541,6 +563,7 @@ export interface FileRouteTypes {
     | '/_authenticated/downtime'
     | '/_authenticated/execution'
     | '/_authenticated/genealogy'
+    | '/_authenticated/inventory'
     | '/_authenticated/live'
     | '/_authenticated/master-data'
     | '/_authenticated/planner'
@@ -578,6 +601,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/mes/v1/erp/$entity'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -589,6 +613,7 @@ export interface RootRouteChildren {
   ApiMesV1TraceabilityRoute: typeof ApiMesV1TraceabilityRoute
   ApiMesV1WorkOrdersRoute: typeof ApiMesV1WorkOrdersRoute
   ApiPublicMesSummaryRoute: typeof ApiPublicMesSummaryRoute
+  ApiMesV1ErpEntityRoute: typeof ApiMesV1ErpEntityRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -696,6 +721,13 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/live'
       preLoaderRoute: typeof AuthenticatedLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/genealogy': {
@@ -908,6 +940,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMesV1DowntimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mes/v1/erp/$entity': {
+      id: '/api/mes/v1/erp/$entity'
+      path: '/api/mes/v1/erp/$entity'
+      fullPath: '/api/mes/v1/erp/$entity'
+      preLoaderRoute: typeof ApiMesV1ErpEntityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -918,6 +957,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
@@ -958,6 +998,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
@@ -1005,6 +1046,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMesV1TraceabilityRoute: ApiMesV1TraceabilityRoute,
   ApiMesV1WorkOrdersRoute: ApiMesV1WorkOrdersRoute,
   ApiPublicMesSummaryRoute: ApiPublicMesSummaryRoute,
+  ApiMesV1ErpEntityRoute: ApiMesV1ErpEntityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
