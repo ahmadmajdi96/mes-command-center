@@ -376,6 +376,7 @@ export const recordLotProgress = createServerFn({ method: "POST" })
       scrap_reason_code?: string | null;
       notes?: string;
       device_id?: string | null;
+      correlation_id?: string | null;
     }) => {
       if (!d.batch_id) throw new Error("A batch is required");
       if (!d.station_id) throw new Error("A station is required");
@@ -452,7 +453,7 @@ export const recordLotProgress = createServerFn({ method: "POST" })
         operator_name: who.name,
         actor_user_id: who.id,
         device_id: v.device_id ?? null,
-        correlation_id: newId("LP"),
+        correlation_id: v.correlation_id ?? newId("LP"),
         closed_at: new Date().toISOString(),
       })
       .select()
