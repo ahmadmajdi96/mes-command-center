@@ -1,3 +1,4 @@
+import { useListControls } from "@/components/list-controls";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
@@ -93,8 +94,10 @@ function UsersPage() {
     team_lead: store.users.filter((u) => u.role === "team_lead").length,
   };
 
+  const lc = useListControls(filtered, { exportName: "users" });
   return (
     <div className="space-y-6">
+      {lc.toolbar}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Users</h1>
@@ -143,7 +146,7 @@ function UsersPage() {
 
       {/* Grid */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((u) => {
+        {lc.visible.map((u) => {
           const activeAssignments = store.assignments.filter((a) => a.userId === u.id && a.active);
           return (
             <div key={u.id} className="glass-panel rounded-2xl p-4">
@@ -210,6 +213,7 @@ function UsersPage() {
           </div>
         )}
       </div>
+      {lc.pager}
     </div>
   );
 }
