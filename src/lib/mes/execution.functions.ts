@@ -24,6 +24,18 @@ async function actor(context: Ctx) {
   };
 }
 
+/** Offline replays resend the same correlation id; skip writes already stored. */
+async function alreadyRecorded(context: Ctx, table: string, correlationId?: string | null) {
+  if (!correlationId) return false;
+  const { data } = await context.supabase
+    .from(table)
+    .select("id")
+    .eq("correlation_id", correlationId)
+    .limit(1);
+  return !!data?.length;
+}
+
+
 async function requireAction(context: Ctx, action: string) {
   const { data, error } = await context.supabase.rpc("has_action", {
     _user_id: context.userId,
@@ -234,6 +246,7 @@ export const recordUnitEvent = createServerFn({ method: "POST" })
   .handler(async ({ data: v, context }) => {
     const ctx = context as Ctx;
     await requireAction(ctx, "execution.record");
+    if (await alreadyRecorded(ctx, "unit_events", v.correlation_id)) return { duplicate: true } as never;
     const who = await actor(ctx);
     const supabase = ctx.supabase;
     const nowIso = new Date().toISOString();
@@ -529,6 +542,7 @@ export const recordReading = createServerFn({ method: "POST" })
   .handler(async ({ data: v, context }) => {
     const ctx = context as Ctx;
     await requireAction(ctx, "execution.record");
+    if (await alreadyRecorded(ctx, "unit_readings", v.correlation_id)) return { duplicate: true } as never;
     const who = await actor(ctx);
     const { data: unit } = await ctx.supabase
       .from("product_units")
