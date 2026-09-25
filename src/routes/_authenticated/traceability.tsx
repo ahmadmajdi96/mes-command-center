@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { PAGE_SIZES } from "@/components/list-controls";
 import { useMes } from "@/lib/mes-store";
 import type { AuditAction, AuditEntity, AuditEntry } from "@/lib/mes-data";
 import {
@@ -270,20 +271,27 @@ function TraceabilityPage() {
     });
   }, [store.audit, store.downtime, store.holds, store.genealogy, entity, action, actorId, plant, lineId, stationId, woId, q, from, to, stationToLine, woToLine, lineToPlant]);
 
+  const [size, setSize] = useState<number>(50);
+  const [pg, setPg] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / size));
+  const curPg = Math.min(pg, pageCount - 1);
+  const pageRows = useMemo(() => filtered.slice(curPg * size, curPg * size + size), [filtered, curPg, size]);
+  useEffect(() => { setPg(0); }, [filtered.length, size]);
+
   const groups = useMemo(() => {
     const map = new Map<string, AuditEntry[]>();
-    for (const e of filtered) {
+    for (const e of pageRows) {
       const key = fmt(e.at).date;
       const arr = map.get(key) ?? [];
       arr.push(e);
       map.set(key, arr);
     }
     return [...map.entries()];
-  }, [filtered]);
+  }, [pageRows]);
 
   const woGroups = useMemo(() => {
     const map = new Map<string, AuditEntry[]>();
-    for (const e of filtered) {
+    for (const e of pageRows) {
       const key = relatedWorkOrderForEntry(e) ?? "__no_wo__";
       const arr = map.get(key) ?? [];
       arr.push(e);
@@ -301,7 +309,7 @@ function TraceabilityPage() {
       return lb - la;
     });
     return entries;
-  }, [filtered]);
+  }, [pageRows]);
 
   const relatedLineIndex = useMemo(() => {
     const m = new Map<string, string | undefined>();
@@ -534,6 +542,18 @@ function TraceabilityPage() {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-muted-foreground print:hidden">
+        <span>{filtered.length ? `${curPg * size + 1}–${Math.min(filtered.length, (curPg + 1) * size)} of ${filtered.length}` : "0 results"}</span>
+        <div className="flex items-center gap-2">
+          <select className="h-8 rounded-lg border border-border/60 bg-card/60 px-2 text-xs" value={size} onChange={(e) => setSize(Number(e.target.value))} aria-label="Rows per page">
+            {PAGE_SIZES.map((n) => <option key={n} value={n}>{n} / page</option>)}
+          </select>
+          <button className="h-8 rounded-lg border border-border/60 bg-card/60 px-2.5 disabled:opacity-40" disabled={curPg === 0} onClick={() => setPg(curPg - 1)}>‹ Prev</button>
+          <span>Page {curPg + 1} / {pageCount}</span>
+          <button className="h-8 rounded-lg border border-border/60 bg-card/60 px-2.5 disabled:opacity-40" disabled={curPg >= pageCount - 1} onClick={() => setPg(curPg + 1)}>Next ›</button>
+        </div>
       </div>
 
       {/* Timeline */}
