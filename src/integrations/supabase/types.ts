@@ -14,6 +14,70 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_confirmations: {
+        Row: {
+          activity_type: string
+          actor_name: string | null
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          minutes: number
+          notes: string | null
+          operation_id: string | null
+          organization_id: string
+          people: number
+          production_order_id: string
+        }
+        Insert: {
+          activity_type: string
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          minutes: number
+          notes?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          people?: number
+          production_order_id: string
+        }
+        Update: {
+          activity_type?: string
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          minutes?: number
+          notes?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          people?: number
+          production_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_confirmations_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_confirmations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_confirmations_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           active: boolean
@@ -265,6 +329,129 @@ export type Database = {
           },
         ]
       }
+      bom_items: {
+        Row: {
+          auto_confirm: boolean
+          backflush: boolean
+          bom_id: string
+          component_name: string
+          component_product_id: string | null
+          component_sku: string
+          created_at: string
+          id: string
+          item_type: string
+          organization_id: string
+          qty: number
+          sequence: number
+          uom: string
+        }
+        Insert: {
+          auto_confirm?: boolean
+          backflush?: boolean
+          bom_id: string
+          component_name: string
+          component_product_id?: string | null
+          component_sku: string
+          created_at?: string
+          id?: string
+          item_type?: string
+          organization_id?: string
+          qty: number
+          sequence?: number
+          uom?: string
+        }
+        Update: {
+          auto_confirm?: boolean
+          backflush?: boolean
+          bom_id?: string
+          component_name?: string
+          component_product_id?: string | null
+          component_sku?: string
+          created_at?: string
+          id?: string
+          item_type?: string
+          organization_id?: string
+          qty?: number
+          sequence?: number
+          uom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bom_items_bom_id_fkey"
+            columns: ["bom_id"]
+            isOneToOne: false
+            referencedRelation: "boms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bom_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      boms: {
+        Row: {
+          base_qty: number
+          created_at: string
+          erp_id: string | null
+          id: string
+          mes_override: boolean
+          organization_id: string
+          product_id: string | null
+          sku: string
+          status: string
+          uom: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          base_qty?: number
+          created_at?: string
+          erp_id?: string | null
+          id: string
+          mes_override?: boolean
+          organization_id?: string
+          product_id?: string | null
+          sku: string
+          status?: string
+          uom?: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          base_qty?: number
+          created_at?: string
+          erp_id?: string | null
+          id?: string
+          mes_override?: boolean
+          organization_id?: string
+          product_id?: string | null
+          sku?: string
+          status?: string
+          uom?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boms_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "boms_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       downtime_events: {
         Row: {
           assignment_id: string | null
@@ -330,6 +517,53 @@ export type Database = {
           },
         ]
       }
+      erp_sync_log: {
+        Row: {
+          action: string
+          created_at: string
+          direction: string
+          entity: string
+          erp_id: string | null
+          id: string
+          message: string | null
+          organization_id: string
+          payload: Json | null
+          status: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          direction?: string
+          entity: string
+          erp_id?: string | null
+          id?: string
+          message?: string | null
+          organization_id?: string
+          payload?: Json | null
+          status: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          direction?: string
+          entity?: string
+          erp_id?: string | null
+          id?: string
+          message?: string | null
+          organization_id?: string
+          payload?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_sync_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       genealogy_records: {
         Row: {
           id: string
@@ -373,6 +607,85 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goods_receipts: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          auto: boolean
+          batch_id: string | null
+          confirmation_id: string | null
+          created_at: string
+          id: string
+          lot_number: string | null
+          name: string
+          organization_id: string
+          production_order_id: string
+          qty: number
+          receipt_type: string
+          sku: string
+          storage_location: string | null
+          uom: string
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          auto?: boolean
+          batch_id?: string | null
+          confirmation_id?: string | null
+          created_at?: string
+          id?: string
+          lot_number?: string | null
+          name: string
+          organization_id?: string
+          production_order_id: string
+          qty: number
+          receipt_type: string
+          sku: string
+          storage_location?: string | null
+          uom?: string
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          auto?: boolean
+          batch_id?: string | null
+          confirmation_id?: string | null
+          created_at?: string
+          id?: string
+          lot_number?: string | null
+          name?: string
+          organization_id?: string
+          production_order_id?: string
+          qty?: number
+          receipt_type?: string
+          sku?: string
+          storage_location?: string | null
+          uom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goods_receipts_confirmation_id_fkey"
+            columns: ["confirmation_id"]
+            isOneToOne: false
+            referencedRelation: "production_confirmations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goods_receipts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goods_receipts_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -465,6 +778,95 @@ export type Database = {
           },
         ]
       }
+      material_consumptions: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          backflush: boolean
+          batch_id: string | null
+          component_name: string
+          component_sku: string
+          confirmation_id: string | null
+          correlation_id: string | null
+          created_at: string
+          id: string
+          input_lot: string | null
+          notes: string | null
+          operation_id: string | null
+          organization_id: string
+          production_order_id: string
+          qty: number
+          uom: string
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          backflush?: boolean
+          batch_id?: string | null
+          component_name: string
+          component_sku: string
+          confirmation_id?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          id?: string
+          input_lot?: string | null
+          notes?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          production_order_id: string
+          qty: number
+          uom?: string
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          backflush?: boolean
+          batch_id?: string | null
+          component_name?: string
+          component_sku?: string
+          confirmation_id?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          id?: string
+          input_lot?: string | null
+          notes?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          production_order_id?: string
+          qty?: number
+          uom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_consumptions_confirmation_id_fkey"
+            columns: ["confirmation_id"]
+            isOneToOne: false
+            referencedRelation: "production_confirmations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_consumptions_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_consumptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_consumptions_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mes_users: {
         Row: {
           active: boolean
@@ -525,6 +927,144 @@ export type Database = {
           },
         ]
       }
+      order_components: {
+        Row: {
+          auto_confirm: boolean
+          backflush: boolean
+          component_name: string
+          component_product_id: string | null
+          component_sku: string
+          created_at: string
+          id: string
+          item_type: string
+          organization_id: string
+          planned_qty: number
+          production_order_id: string
+          uom: string
+        }
+        Insert: {
+          auto_confirm?: boolean
+          backflush?: boolean
+          component_name: string
+          component_product_id?: string | null
+          component_sku: string
+          created_at?: string
+          id?: string
+          item_type?: string
+          organization_id?: string
+          planned_qty?: number
+          production_order_id: string
+          uom?: string
+        }
+        Update: {
+          auto_confirm?: boolean
+          backflush?: boolean
+          component_name?: string
+          component_product_id?: string | null
+          component_sku?: string
+          created_at?: string
+          id?: string
+          item_type?: string
+          organization_id?: string
+          planned_qty?: number
+          production_order_id?: string
+          uom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_components_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_components_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_operations: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          production_order_id: string
+          qty_scrap: number
+          qty_yield: number
+          run_min_per_unit: number
+          sequence: number
+          setup_min: number
+          started_at: string | null
+          started_by: string | null
+          status: string
+          updated_at: string
+          work_center_id: string | null
+          work_instructions: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          organization_id?: string
+          production_order_id: string
+          qty_scrap?: number
+          qty_yield?: number
+          run_min_per_unit?: number
+          sequence: number
+          setup_min?: number
+          started_at?: string | null
+          started_by?: string | null
+          status?: string
+          updated_at?: string
+          work_center_id?: string | null
+          work_instructions?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          production_order_id?: string
+          qty_scrap?: number
+          qty_yield?: number
+          run_min_per_unit?: number
+          sequence?: number
+          setup_min?: number
+          started_at?: string | null
+          started_by?: string | null
+          status?: string
+          updated_at?: string
+          work_center_id?: string | null
+          work_instructions?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_operations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_operations_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -545,6 +1085,105 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      packing_unit_items: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          id: string
+          organization_id: string
+          packing_unit_id: string
+          partial: boolean
+          qty: number
+          unit_uid: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          packing_unit_id: string
+          partial?: boolean
+          qty: number
+          unit_uid?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          packing_unit_id?: string
+          partial?: boolean
+          qty?: number
+          unit_uid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packing_unit_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "packing_unit_items_packing_unit_id_fkey"
+            columns: ["packing_unit_id"]
+            isOneToOne: false
+            referencedRelation: "packing_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packing_units: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          organization_id: string
+          pack_type: string
+          production_order_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          created_by?: string | null
+          id: string
+          organization_id?: string
+          pack_type?: string
+          production_order_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id?: string
+          pack_type?: string
+          production_order_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packing_units_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "packing_units_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       permissions: {
         Row: {
@@ -716,6 +1355,7 @@ export type Database = {
       production_batches: {
         Row: {
           created_at: string
+          erp_id: string | null
           id: string
           line_id: string | null
           lot_number: string
@@ -744,6 +1384,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          erp_id?: string | null
           id: string
           line_id?: string | null
           lot_number: string
@@ -772,6 +1413,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          erp_id?: string | null
           id?: string
           line_id?: string | null
           lot_number?: string
@@ -815,12 +1457,90 @@ export type Database = {
           },
         ]
       }
+      production_confirmations: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          batch_id: string | null
+          correlation_id: string | null
+          created_at: string
+          final: boolean
+          id: string
+          notes: string | null
+          operation_id: string | null
+          organization_id: string
+          post_goods_receipt: boolean
+          production_order_id: string
+          qty_scrap: number
+          qty_yield: number
+          scrap_reason: string | null
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          batch_id?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          final?: boolean
+          id?: string
+          notes?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          post_goods_receipt?: boolean
+          production_order_id: string
+          qty_scrap?: number
+          qty_yield?: number
+          scrap_reason?: string | null
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          batch_id?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          final?: boolean
+          id?: string
+          notes?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          post_goods_receipt?: boolean
+          production_order_id?: string
+          qty_scrap?: number
+          qty_yield?: number
+          scrap_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_confirmations_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_confirmations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_confirmations_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       production_orders: {
         Row: {
           created_at: string
+          erp_id: string | null
           id: string
           line_id: string | null
           lot_number: string
+          mes_override: boolean
           notes: string | null
           number: string
           operator: string | null
@@ -830,6 +1550,7 @@ export type Database = {
           priority: string
           product_id: string | null
           product_name: string
+          production_version_id: string | null
           qty: number
           qty_good: number
           qty_produced: number
@@ -844,9 +1565,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          erp_id?: string | null
           id: string
           line_id?: string | null
           lot_number: string
+          mes_override?: boolean
           notes?: string | null
           number: string
           operator?: string | null
@@ -856,6 +1579,7 @@ export type Database = {
           priority?: string
           product_id?: string | null
           product_name: string
+          production_version_id?: string | null
           qty?: number
           qty_good?: number
           qty_produced?: number
@@ -870,9 +1594,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          erp_id?: string | null
           id?: string
           line_id?: string | null
           lot_number?: string
+          mes_override?: boolean
           notes?: string | null
           number?: string
           operator?: string | null
@@ -882,6 +1608,7 @@ export type Database = {
           priority?: string
           product_id?: string | null
           product_name?: string
+          production_version_id?: string | null
           qty?: number
           qty_good?: number
           qty_produced?: number
@@ -909,6 +1636,96 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "production_orders_production_version_id_fkey"
+            columns: ["production_version_id"]
+            isOneToOne: false
+            referencedRelation: "production_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_versions: {
+        Row: {
+          bom_id: string | null
+          created_at: string
+          description: string | null
+          erp_id: string | null
+          id: string
+          is_default: boolean
+          mes_override: boolean
+          organization_id: string
+          product_id: string | null
+          routing_id: string | null
+          sku: string
+          updated_at: string
+          valid_from: string | null
+          valid_to: string | null
+          version: string
+        }
+        Insert: {
+          bom_id?: string | null
+          created_at?: string
+          description?: string | null
+          erp_id?: string | null
+          id: string
+          is_default?: boolean
+          mes_override?: boolean
+          organization_id?: string
+          product_id?: string | null
+          routing_id?: string | null
+          sku: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+          version: string
+        }
+        Update: {
+          bom_id?: string | null
+          created_at?: string
+          description?: string | null
+          erp_id?: string | null
+          id?: string
+          is_default?: boolean
+          mes_override?: boolean
+          organization_id?: string
+          product_id?: string | null
+          routing_id?: string | null
+          sku?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_versions_bom_id_fkey"
+            columns: ["bom_id"]
+            isOneToOne: false
+            referencedRelation: "boms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_versions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_versions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_versions_routing_id_fkey"
+            columns: ["routing_id"]
+            isOneToOne: false
+            referencedRelation: "routings"
+            referencedColumns: ["id"]
+          },
         ]
       }
       products: {
@@ -918,8 +1735,10 @@ export type Database = {
           batching_limit: number
           created_at: string
           description: string | null
+          erp_id: string | null
           id: string
           lead_time: number
+          mes_override: boolean
           name: string
           organization_id: string
           sale_price: number
@@ -936,8 +1755,10 @@ export type Database = {
           batching_limit?: number
           created_at?: string
           description?: string | null
+          erp_id?: string | null
           id: string
           lead_time?: number
+          mes_override?: boolean
           name: string
           organization_id?: string
           sale_price?: number
@@ -954,8 +1775,10 @@ export type Database = {
           batching_limit?: number
           created_at?: string
           description?: string | null
+          erp_id?: string | null
           id?: string
           lead_time?: number
+          mes_override?: boolean
           name?: string
           organization_id?: string
           sale_price?: number
@@ -1109,6 +1932,121 @@ export type Database = {
           label?: string
         }
         Relationships: []
+      }
+      routing_operations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          routing_id: string
+          run_min_per_unit: number
+          sequence: number
+          setup_min: number
+          work_center_id: string | null
+          work_instructions: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id?: string
+          routing_id: string
+          run_min_per_unit?: number
+          sequence: number
+          setup_min?: number
+          work_center_id?: string | null
+          work_instructions?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          routing_id?: string
+          run_min_per_unit?: number
+          sequence?: number
+          setup_min?: number
+          work_center_id?: string | null
+          work_instructions?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routing_operations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routing_operations_routing_id_fkey"
+            columns: ["routing_id"]
+            isOneToOne: false
+            referencedRelation: "routings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routing_operations_work_center_id_fkey"
+            columns: ["work_center_id"]
+            isOneToOne: false
+            referencedRelation: "work_centers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routings: {
+        Row: {
+          created_at: string
+          erp_id: string | null
+          id: string
+          mes_override: boolean
+          organization_id: string
+          product_id: string | null
+          sku: string
+          status: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          erp_id?: string | null
+          id: string
+          mes_override?: boolean
+          organization_id?: string
+          product_id?: string | null
+          sku: string
+          status?: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          created_at?: string
+          erp_id?: string | null
+          id?: string
+          mes_override?: boolean
+          organization_id?: string
+          product_id?: string | null
+          sku?: string
+          status?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sites: {
         Row: {
@@ -1707,6 +2645,53 @@ export type Database = {
           },
         ]
       }
+      work_centers: {
+        Row: {
+          created_at: string
+          erp_id: string | null
+          id: string
+          kind: string
+          line_id: string | null
+          mes_override: boolean
+          name: string
+          organization_id: string
+          station_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          erp_id?: string | null
+          id: string
+          kind?: string
+          line_id?: string | null
+          mes_override?: boolean
+          name: string
+          organization_id?: string
+          station_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          erp_id?: string | null
+          id?: string
+          kind?: string
+          line_id?: string | null
+          mes_override?: boolean
+          name?: string
+          organization_id?: string
+          station_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_centers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_orders: {
         Row: {
           ends_at: string | null
@@ -1774,9 +2759,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      stock_on_hand: {
+        Row: {
+          name: string | null
+          organization_id: string | null
+          qty: number | null
+          sku: string | null
+          uom: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      apply_production_version: {
+        Args: { _po_id: string; _version_id: string }
+        Returns: undefined
+      }
       assert_status_transition: {
         Args: { _entity: string; _from: string; _to: string }
         Returns: undefined
