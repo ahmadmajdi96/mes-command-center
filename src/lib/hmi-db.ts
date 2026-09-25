@@ -234,7 +234,11 @@ export function useLogWaste() {
       reason_category?: string;
       notes?: string;
       evidence_urls?: string[];
-    }) => recordWaste({ data: v }),
+    }) => {
+      const { submitOrQueue } = await import("./offline-queue");
+      const r = await submitOrQueue("waste", v as never, `Waste · ${v.unit_uid ?? v.station_name ?? ""}: ${v.reason_label}`);
+      return r.queued ? { queued: true } : r.result;
+    },
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["waste_events"] });
       qc.invalidateQueries({ queryKey: ["product_unit", v.unit_uid] });

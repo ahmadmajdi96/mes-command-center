@@ -778,6 +778,210 @@ export type Database = {
           },
         ]
       }
+      machine_commands: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          command: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          machine_id: string
+          organization_id: string
+          params: Json
+          production_order_id: string | null
+          reason: string | null
+          result: string | null
+          status: string
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          command: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          machine_id: string
+          organization_id?: string
+          params?: Json
+          production_order_id?: string | null
+          reason?: string | null
+          result?: string | null
+          status?: string
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          command?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          machine_id?: string
+          organization_id?: string
+          params?: Json
+          production_order_id?: string | null
+          reason?: string | null
+          result?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_commands_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_commands_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      machine_readings: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          in_limits: boolean | null
+          machine_id: string
+          organization_id: string
+          production_order_id: string | null
+          source: string
+          station_id: string | null
+          tag: string
+          text_value: string | null
+          unit: string | null
+          unit_uid: string | null
+          value: number | null
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          in_limits?: boolean | null
+          machine_id: string
+          organization_id?: string
+          production_order_id?: string | null
+          source?: string
+          station_id?: string | null
+          tag: string
+          text_value?: string | null
+          unit?: string | null
+          unit_uid?: string | null
+          value?: number | null
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          in_limits?: boolean | null
+          machine_id?: string
+          organization_id?: string
+          production_order_id?: string | null
+          source?: string
+          station_id?: string | null
+          tag?: string
+          text_value?: string | null
+          unit?: string | null
+          unit_uid?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_readings_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_readings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      machines: {
+        Row: {
+          commands: Json
+          connection_mode: string
+          created_at: string
+          endpoint: string | null
+          id: string
+          last_seen_at: string | null
+          model: string | null
+          name: string
+          notes: string | null
+          organization_id: string
+          protocol: string
+          station_id: string | null
+          status: string
+          tags: Json
+          updated_at: string
+          vendor: string | null
+        }
+        Insert: {
+          commands?: Json
+          connection_mode?: string
+          created_at?: string
+          endpoint?: string | null
+          id: string
+          last_seen_at?: string | null
+          model?: string | null
+          name: string
+          notes?: string | null
+          organization_id?: string
+          protocol: string
+          station_id?: string | null
+          status?: string
+          tags?: Json
+          updated_at?: string
+          vendor?: string | null
+        }
+        Update: {
+          commands?: Json
+          connection_mode?: string
+          created_at?: string
+          endpoint?: string | null
+          id?: string
+          last_seen_at?: string | null
+          model?: string | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          protocol?: string
+          station_id?: string | null
+          status?: string
+          tags?: Json
+          updated_at?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machines_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machines_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       material_consumptions: {
         Row: {
           actor_name: string | null

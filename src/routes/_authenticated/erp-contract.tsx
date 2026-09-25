@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { importErpData } from "@/lib/mes/erp.functions";
 
 export const Route = createFileRoute("/_authenticated/erp-contract")({
   head: () => ({
@@ -65,6 +69,8 @@ function Page() {
         </ul>
       </section>
 
+      <ImportBox />
+
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">ERP → MES (send)</h2>
         {INBOUND.map((e) => (
@@ -91,5 +97,47 @@ function Page() {
         ))}
       </section>
     </div>
+  );
+}
+
+function ImportBox() {
+  const run = useServerFn(importErpData);
+  const qc = useQueryClient();
+  const [entity, setEntity] = useState("materials");
+  const [format, setFormat] = useState<"json" | "csv">("json");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [res, setRes] = useState<{ id: string; status: string; message?: string }[]>([]);
+  const example = () => setText(JSON.stringify(INBOUND.find((e) => e.path === entity)!.example, null, 2));
+  const onFile = async (f?: File) => { if (!f) return; setText(await f.text()); setFormat(f.name.endsWith(".csv") ? "csv" : "json"); };
+  const go = async () => {
+    setBusy(true); setErr(""); setRes([]);
+    try { const r = await run({ data: { entity, format, text } }); setRes(r.results); qc.invalidateQueries(); }
+    catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
+    finally { setBusy(false); }
+  };
+  return (
+    <section className="glass-panel space-y-3 rounded-2xl p-4 text-sm">
+      <h2 className="text-lg font-semibold">Manual import</h2>
+      <p className="text-muted-foreground">Paste or upload ERP data (JSON or CSV with a header row). Same rules as the ERP link: matched by id, MES-override records skipped, every record logged.</p>
+      <div className="flex flex-wrap gap-2">
+        <select aria-label="Data type" value={entity} onChange={(e) => setEntity(e.target.value)} className="rounded-lg border border-border/60 bg-background px-2 py-1">
+          {INBOUND.map((e) => <option key={e.path} value={e.path}>{e.name}</option>)}
+        </select>
+        <select aria-label="Format" value={format} onChange={(e) => setFormat(e.target.value as "json" | "csv")} className="rounded-lg border border-border/60 bg-background px-2 py-1">
+          <option value="json">JSON</option><option value="csv">CSV</option>
+        </select>
+        <button onClick={example} className="rounded-lg border border-border/60 px-3 py-1">Load example</button>
+        <label className="cursor-pointer rounded-lg border border-border/60 px-3 py-1">Upload file<input type="file" accept=".json,.csv" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} /></label>
+      </div>
+      <textarea aria-label="Data" value={text} onChange={(e) => setText(e.target.value)} rows={8} className="w-full rounded-lg border border-border/60 bg-background p-2 font-mono text-xs" placeholder='[{"erp_id":"MAT-1","sku":"...","name":"..."}]' />
+      <button disabled={busy || !text.trim()} onClick={go} className="rounded-lg bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50">{busy ? "Importing…" : "Import"}</button>
+      {err && <div className="text-destructive">{err}</div>}
+      {res.length > 0 && (
+        <table className="w-full text-xs"><thead><tr className="text-left text-muted-foreground"><th>Record</th><th>Result</th><th>Note</th></tr></thead>
+          <tbody>{res.map((r) => <tr key={r.id} className="border-t border-border/40"><td>{r.id}</td><td className={r.status === "error" ? "text-destructive" : r.status === "skipped" ? "text-warning" : "text-success"}>{r.status}</td><td>{r.message ?? ""}</td></tr>)}</tbody></table>
+      )}
+    </section>
   );
 }
