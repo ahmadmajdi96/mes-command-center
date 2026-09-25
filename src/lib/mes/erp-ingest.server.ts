@@ -45,6 +45,10 @@ export async function ingestErp(entity: string, records: Rec[], org: string, sou
     let id = String(r?.id ?? r?.erp_id ?? "?");
     try {
       const row = shape(entity, r, org);
+      if (entity === "materials") {
+        const { data: bySku } = await db.from("products").select("id").eq("sku", row.sku).eq("organization_id", org).maybeSingle();
+        if (bySku && bySku.id !== row.id) row.id = bySku.id; // same material already known under the MES id
+      }
       id = row.id;
       const { data: existing } = await db.from(table as never).select("organization_id" + (entity === "batch-numbers" ? "" : ", mes_override")).eq("id", id).maybeSingle();
       const ex = existing as Rec | null;
