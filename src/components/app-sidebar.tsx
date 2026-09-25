@@ -79,6 +79,7 @@ const workforce = [
 const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
   { title: "ERP Contract", url: "/erp-contract", icon: Boxes },
+  { title: "Machines", url: "/machines", icon: Activity },
   { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "People & Access", url: "/access", icon: ShieldCheck },

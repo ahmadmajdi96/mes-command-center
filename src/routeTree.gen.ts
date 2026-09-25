@@ -38,6 +38,7 @@ import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products.index'
 import { Route as AuthenticatedProductionOrdersIndexRouteImport } from './routes/_authenticated/production-orders.index'
 import { Route as AuthenticatedOperatorIndexRouteImport } from './routes/_authenticated/operator.index'
+import { Route as AuthenticatedMachinesIndexRouteImport } from './routes/_authenticated/machines.index'
 import { Route as AuthenticatedLinesIndexRouteImport } from './routes/_authenticated/lines.index'
 import { Route as AuthenticatedHmiIndexRouteImport } from './routes/_authenticated/hmi.index'
 import { Route as AuthenticatedWorkOrdersWoIdRouteImport } from './routes/_authenticated/work-orders.$woId'
@@ -47,6 +48,7 @@ import { Route as AuthenticatedStationsStationIdRouteImport } from './routes/_au
 import { Route as AuthenticatedProductsProductIdRouteImport } from './routes/_authenticated/products.$productId'
 import { Route as AuthenticatedProductionOrdersPoIdRouteImport } from './routes/_authenticated/production-orders.$poId'
 import { Route as AuthenticatedOperatorStationIdRouteImport } from './routes/_authenticated/operator.$stationId'
+import { Route as AuthenticatedMachinesMachineIdRouteImport } from './routes/_authenticated/machines.$machineId'
 import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenticated/lines.$lineId'
 import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
 import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
@@ -57,6 +59,7 @@ import { Route as ApiMesV1QualityHoldsRouteImport } from './routes/api/mes/v1/qu
 import { Route as ApiMesV1KpiRouteImport } from './routes/api/mes/v1/kpi'
 import { Route as ApiMesV1DowntimeRouteImport } from './routes/api/mes/v1/downtime'
 import { Route as ApiMesV1ErpEntityRouteImport } from './routes/api/mes/v1/erp.$entity'
+import { Route as ApiMesV1EdgeActionRouteImport } from './routes/api/mes/v1/edge.$action'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -212,6 +215,12 @@ const AuthenticatedOperatorIndexRoute =
     path: '/operator/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMachinesIndexRoute =
+  AuthenticatedMachinesIndexRouteImport.update({
+    id: '/machines/',
+    path: '/machines/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLinesIndexRoute = AuthenticatedLinesIndexRouteImport.update({
   id: '/lines/',
   path: '/lines/',
@@ -261,6 +270,12 @@ const AuthenticatedOperatorStationIdRoute =
   AuthenticatedOperatorStationIdRouteImport.update({
     id: '/operator/$stationId',
     path: '/operator/$stationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMachinesMachineIdRoute =
+  AuthenticatedMachinesMachineIdRouteImport.update({
+    id: '/machines/$machineId',
+    path: '/machines/$machineId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedLinesLineIdRoute =
@@ -316,6 +331,11 @@ const ApiMesV1ErpEntityRoute = ApiMesV1ErpEntityRouteImport.update({
   path: '/api/mes/v1/erp/$entity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMesV1EdgeActionRoute = ApiMesV1EdgeActionRouteImport.update({
+  id: '/api/mes/v1/edge/$action',
+  path: '/api/mes/v1/edge/$action',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -343,6 +363,7 @@ export interface FileRoutesByFullPath {
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
+  '/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRoute
@@ -352,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/hmi/': typeof AuthenticatedHmiIndexRoute
   '/lines/': typeof AuthenticatedLinesIndexRoute
+  '/machines/': typeof AuthenticatedMachinesIndexRoute
   '/operator/': typeof AuthenticatedOperatorIndexRoute
   '/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
   '/products/': typeof AuthenticatedProductsIndexRoute
@@ -364,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
 export interface FileRoutesByTo {
@@ -392,6 +415,7 @@ export interface FileRoutesByTo {
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
+  '/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRoute
@@ -401,6 +425,7 @@ export interface FileRoutesByTo {
   '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/hmi': typeof AuthenticatedHmiIndexRoute
   '/lines': typeof AuthenticatedLinesIndexRoute
+  '/machines': typeof AuthenticatedMachinesIndexRoute
   '/operator': typeof AuthenticatedOperatorIndexRoute
   '/production-orders': typeof AuthenticatedProductionOrdersIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
@@ -413,6 +438,7 @@ export interface FileRoutesByTo {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
 export interface FileRoutesById {
@@ -443,6 +469,7 @@ export interface FileRoutesById {
   '/_authenticated/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/_authenticated/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/_authenticated/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
+  '/_authenticated/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
   '/_authenticated/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/_authenticated/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRoute
@@ -452,6 +479,7 @@ export interface FileRoutesById {
   '/_authenticated/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/_authenticated/hmi/': typeof AuthenticatedHmiIndexRoute
   '/_authenticated/lines/': typeof AuthenticatedLinesIndexRoute
+  '/_authenticated/machines/': typeof AuthenticatedMachinesIndexRoute
   '/_authenticated/operator/': typeof AuthenticatedOperatorIndexRoute
   '/_authenticated/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
@@ -464,6 +492,7 @@ export interface FileRoutesById {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
 export interface FileRouteTypes {
@@ -494,6 +523,7 @@ export interface FileRouteTypes {
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
+    | '/machines/$machineId'
     | '/operator/$stationId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -503,6 +533,7 @@ export interface FileRouteTypes {
     | '/work-orders/$woId'
     | '/hmi/'
     | '/lines/'
+    | '/machines/'
     | '/operator/'
     | '/production-orders/'
     | '/products/'
@@ -515,6 +546,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -543,6 +575,7 @@ export interface FileRouteTypes {
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
+    | '/machines/$machineId'
     | '/operator/$stationId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -552,6 +585,7 @@ export interface FileRouteTypes {
     | '/work-orders/$woId'
     | '/hmi'
     | '/lines'
+    | '/machines'
     | '/operator'
     | '/production-orders'
     | '/products'
@@ -564,6 +598,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   id:
     | '__root__'
@@ -593,6 +628,7 @@ export interface FileRouteTypes {
     | '/_authenticated/batches/$batchId'
     | '/_authenticated/hmi/$stationId'
     | '/_authenticated/lines/$lineId'
+    | '/_authenticated/machines/$machineId'
     | '/_authenticated/operator/$stationId'
     | '/_authenticated/production-orders/$poId'
     | '/_authenticated/products/$productId'
@@ -602,6 +638,7 @@ export interface FileRouteTypes {
     | '/_authenticated/work-orders/$woId'
     | '/_authenticated/hmi/'
     | '/_authenticated/lines/'
+    | '/_authenticated/machines/'
     | '/_authenticated/operator/'
     | '/_authenticated/production-orders/'
     | '/_authenticated/products/'
@@ -614,6 +651,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   fileRoutesById: FileRoutesById
 }
@@ -626,6 +664,7 @@ export interface RootRouteChildren {
   ApiMesV1TraceabilityRoute: typeof ApiMesV1TraceabilityRoute
   ApiMesV1WorkOrdersRoute: typeof ApiMesV1WorkOrdersRoute
   ApiPublicMesSummaryRoute: typeof ApiPublicMesSummaryRoute
+  ApiMesV1EdgeActionRoute: typeof ApiMesV1EdgeActionRoute
   ApiMesV1ErpEntityRoute: typeof ApiMesV1ErpEntityRoute
 }
 
@@ -834,6 +873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/machines/': {
+      id: '/_authenticated/machines/'
+      path: '/machines'
+      fullPath: '/machines/'
+      preLoaderRoute: typeof AuthenticatedMachinesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lines/': {
       id: '/_authenticated/lines/'
       path: '/lines'
@@ -895,6 +941,13 @@ declare module '@tanstack/react-router' {
       path: '/operator/$stationId'
       fullPath: '/operator/$stationId'
       preLoaderRoute: typeof AuthenticatedOperatorStationIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/machines/$machineId': {
+      id: '/_authenticated/machines/$machineId'
+      path: '/machines/$machineId'
+      fullPath: '/machines/$machineId'
+      preLoaderRoute: typeof AuthenticatedMachinesMachineIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lines/$lineId': {
@@ -967,6 +1020,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMesV1ErpEntityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mes/v1/edge/$action': {
+      id: '/api/mes/v1/edge/$action'
+      path: '/api/mes/v1/edge/$action'
+      fullPath: '/api/mes/v1/edge/$action'
+      preLoaderRoute: typeof ApiMesV1EdgeActionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -995,6 +1055,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
   AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
   AuthenticatedLinesLineIdRoute: typeof AuthenticatedLinesLineIdRoute
+  AuthenticatedMachinesMachineIdRoute: typeof AuthenticatedMachinesMachineIdRoute
   AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
   AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
   AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
@@ -1004,6 +1065,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWorkOrdersWoIdRoute: typeof AuthenticatedWorkOrdersWoIdRoute
   AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
   AuthenticatedLinesIndexRoute: typeof AuthenticatedLinesIndexRoute
+  AuthenticatedMachinesIndexRoute: typeof AuthenticatedMachinesIndexRoute
   AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
   AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
@@ -1037,6 +1099,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBatchesBatchIdRoute: AuthenticatedBatchesBatchIdRoute,
   AuthenticatedHmiStationIdRoute: AuthenticatedHmiStationIdRoute,
   AuthenticatedLinesLineIdRoute: AuthenticatedLinesLineIdRoute,
+  AuthenticatedMachinesMachineIdRoute: AuthenticatedMachinesMachineIdRoute,
   AuthenticatedOperatorStationIdRoute: AuthenticatedOperatorStationIdRoute,
   AuthenticatedProductionOrdersPoIdRoute:
     AuthenticatedProductionOrdersPoIdRoute,
@@ -1047,6 +1110,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWorkOrdersWoIdRoute: AuthenticatedWorkOrdersWoIdRoute,
   AuthenticatedHmiIndexRoute: AuthenticatedHmiIndexRoute,
   AuthenticatedLinesIndexRoute: AuthenticatedLinesIndexRoute,
+  AuthenticatedMachinesIndexRoute: AuthenticatedMachinesIndexRoute,
   AuthenticatedOperatorIndexRoute: AuthenticatedOperatorIndexRoute,
   AuthenticatedProductionOrdersIndexRoute:
     AuthenticatedProductionOrdersIndexRoute,
@@ -1068,6 +1132,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMesV1TraceabilityRoute: ApiMesV1TraceabilityRoute,
   ApiMesV1WorkOrdersRoute: ApiMesV1WorkOrdersRoute,
   ApiPublicMesSummaryRoute: ApiPublicMesSummaryRoute,
+  ApiMesV1EdgeActionRoute: ApiMesV1EdgeActionRoute,
   ApiMesV1ErpEntityRoute: ApiMesV1ErpEntityRoute,
 }
 export const routeTree = rootRouteImport
