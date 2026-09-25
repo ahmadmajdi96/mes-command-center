@@ -94,7 +94,7 @@ function StepTemplatesPage() {
 
   const ccpCount = store.stepTemplates.filter((t) => t.isCCP).length;
 
-  const lc = useListControls(filtered as any[], { exportName: "step-templates" });
+  const lc = useListControls(filtered, { exportName: "step-templates" });
   return (
     <div className="space-y-6">
       {lc.toolbar}

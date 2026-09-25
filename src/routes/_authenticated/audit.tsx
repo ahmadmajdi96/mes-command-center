@@ -59,7 +59,7 @@ function AuditPage() {
     });
   }, [store.audit, q, entity]);
 
-  const lc = useListControls(filtered as any[], { exportName: "audit", dateKey: "at" as never });
+  const lc = useListControls(filtered, { exportName: "audit", dateKey: "at" as never });
   return (
     <div className="space-y-6">
       {lc.toolbar}

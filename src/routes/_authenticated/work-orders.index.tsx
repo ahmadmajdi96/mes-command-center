@@ -42,7 +42,7 @@ function WorkOrdersPage() {
   const [f, setF] = useState<WOStatus | "all">("all");
   const list = f === "all" ? store.workOrders : store.workOrders.filter((w) => w.status === f);
 
-  const lc = useListControls(list as any[], { exportName: "work-orders", dateKey: "started_at" as never });
+  const lc = useListControls(list, { exportName: "work-orders", dateKey: "started_at" as never });
   return (
     <div className="space-y-6">
       {lc.toolbar}

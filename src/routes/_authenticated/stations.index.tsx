@@ -172,7 +172,7 @@ function StationsPage() {
     down: store.stations.filter((s) => s.status === "down").length,
   };
 
-  const lc = useListControls(filtered as any[], { exportName: "stations", dateKey: "updated_at" as never });
+  const lc = useListControls(filtered, { exportName: "stations", dateKey: "updated_at" as never });
   return (
     <div className="space-y-6">
       {lc.toolbar}

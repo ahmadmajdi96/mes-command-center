@@ -59,7 +59,7 @@ function PosPage() {
     { name: "notes", label: "Notes", type: "textarea", span: 2 },
   ];
 
-  const lc = useListControls(filtered as any[], { exportName: "production-orders", dateKey: "created_at" as never });
+  const lc = useListControls(filtered, { exportName: "production-orders", dateKey: "created_at" as never });
   return (
     <div className="space-y-6">
       {lc.toolbar}

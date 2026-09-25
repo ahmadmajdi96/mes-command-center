@@ -94,7 +94,7 @@ function UsersPage() {
     team_lead: store.users.filter((u) => u.role === "team_lead").length,
   };
 
-  const lc = useListControls(filtered as any[], { exportName: "users" });
+  const lc = useListControls(filtered, { exportName: "users" });
   return (
     <div className="space-y-6">
       {lc.toolbar}

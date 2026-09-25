@@ -55,7 +55,7 @@ function ProductsPage() {
     return c;
   }, [products]);
 
-  const lc = useListControls(filtered as any[], { exportName: "products", dateKey: "created_at" as never });
+  const lc = useListControls(filtered, { exportName: "products", dateKey: "created_at" as never });
   return (
     <div className="space-y-6">
       {lc.toolbar}
