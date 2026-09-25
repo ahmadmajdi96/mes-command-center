@@ -13,6 +13,10 @@ import {
 import { EvidenceUploader } from "@/components/evidence-uploader";
 import { LotProgressPanel } from "@/components/lot-progress-panel";
 import { useLineRules } from "@/lib/lifecycle-db";
+import { useQueryClient } from "@tanstack/react-query";
+import { submitOrQueue } from "@/lib/offline-queue";
+import { OfflineQueuePanel } from "@/components/offline-queue-panel";
+import { TroubleshootPanel } from "@/components/troubleshoot-panel";
 
 
 export const Route = createFileRoute("/_authenticated/operator/$stationId")({
@@ -52,6 +56,7 @@ function OperatorApp() {
   const { data: all = [] } = useWasteReasons();
   const options = allowed.length ? allowed : all;
   const process = useProcessUnitAtStation();
+  const qc = useQueryClient();
   const logReading = useLogReading();
   const logWaste = useLogWaste();
   const openHold = useOpenHold();
@@ -78,14 +83,16 @@ function OperatorApp() {
     if (!uid) return;
     try {
       // Values are recorded first: critical steps refuse the exit without them.
+      let queued = false;
       if (Object.keys(values).length > 0) {
-        await logReading.mutateAsync({ unit_uid: uid, station_id: stationId, mode, variables: values });
+        const r = await submitOrQueue("reading", { unit_uid: uid, station_id: stationId, mode, variables: values }, `Values · ${uid} @ ${station!.name}`);
+        queued = r.queued;
       }
-      await process.mutateAsync({
-        unit_uid: uid, station_id: stationId, station_name: station!.name,
-        line_id: line?.id, event: "processed",
-      });
-      toast.success(`PASS · ${uid}`);
+      const ev = { unit_uid: uid, station_id: stationId, station_name: station!.name, line_id: line?.id, event: "processed" };
+      void queued;
+      const r2 = await submitOrQueue("unit_event", ev, `Pass · ${uid} @ ${station!.name}`);
+      if (r2.queued) toast.warning(`Offline · PASS ${uid} saved on this device, will send when back online`);
+      else { toast.success(`PASS · ${uid}`); qc.invalidateQueries(); }
       setUid(null);
     } catch (e) {
       say(e);
@@ -110,8 +117,9 @@ function OperatorApp() {
   async function submitHold() {
     if (!holdReason.trim()) return toast.error("Enter reason");
     try {
-      await openHold.mutateAsync({ station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles });
-      toast.warning("Station on hold");
+      const r = await submitOrQueue("hold", { station_id: stationId, hold_type: holdType, reason: holdReason, evidence_urls: holdFiles }, `Hold · ${station!.name}: ${holdReason}`);
+      toast.warning(r.queued ? "Offline · hold saved on this device, will send when back online" : "Station on hold");
+      if (!r.queued) qc.invalidateQueries();
       setHoldOpen(false); setHoldReason(""); setHoldFiles([]);
     } catch (e) {
       say(e);
@@ -123,6 +131,7 @@ function OperatorApp() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
+      <OfflineQueuePanel />
       <div className="flex items-center justify-between">
         <Link to="/operator" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> Stations
@@ -270,6 +279,7 @@ function OperatorApp() {
           </div>
         </Modal>
       )}
+      <TroubleshootPanel stationId={stationId} stationName={station.name} lineName={line?.name} unitUid={uid} />
     </div>
   );
 }
