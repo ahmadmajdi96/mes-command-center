@@ -27,6 +27,7 @@ import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
+import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
@@ -149,6 +150,12 @@ const AuthenticatedExecutionRoute = AuthenticatedExecutionRouteImport.update({
   path: '/execution',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedErpContractRoute =
+  AuthenticatedErpContractRouteImport.update({
+    id: '/erp-contract',
+    path: '/erp-contract',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDowntimeRoute = AuthenticatedDowntimeRouteImport.update({
   id: '/downtime',
   path: '/downtime',
@@ -317,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
+  '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
   '/inventory': typeof AuthenticatedInventoryRoute
@@ -364,6 +372,7 @@ export interface FileRoutesByTo {
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
+  '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
   '/inventory': typeof AuthenticatedInventoryRoute
@@ -414,6 +423,7 @@ export interface FileRoutesById {
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
+  '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
@@ -465,6 +475,7 @@ export interface FileRouteTypes {
     | '/assignments'
     | '/audit'
     | '/downtime'
+    | '/erp-contract'
     | '/execution'
     | '/genealogy'
     | '/inventory'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/assignments'
     | '/audit'
     | '/downtime'
+    | '/erp-contract'
     | '/execution'
     | '/genealogy'
     | '/inventory'
@@ -561,6 +573,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
+    | '/_authenticated/erp-contract'
     | '/_authenticated/execution'
     | '/_authenticated/genealogy'
     | '/_authenticated/inventory'
@@ -742,6 +755,13 @@ declare module '@tanstack/react-router' {
       path: '/execution'
       fullPath: '/execution'
       preLoaderRoute: typeof AuthenticatedExecutionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/erp-contract': {
+      id: '/_authenticated/erp-contract'
+      path: '/erp-contract'
+      fullPath: '/erp-contract'
+      preLoaderRoute: typeof AuthenticatedErpContractRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/downtime': {
@@ -955,6 +975,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
+  AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
@@ -996,6 +1017,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
+  AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
