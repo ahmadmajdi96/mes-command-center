@@ -7,10 +7,14 @@ import {
   Factory, ArrowLeft, ArrowRight, Cpu, Hand, Plus, Pencil, Network, Wifi,
   Activity, User as UserIcon, Gauge, Clock, AlertTriangle, AlertOctagon, ShieldAlert,
   ListChecks, Radio, X, RefreshCw, ChevronUp, ChevronDown, Check, Ban, FileUp, Download, FileText,
+  ZoomIn, ZoomOut, Maximize2, SlidersHorizontal,
 } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
 import { toast } from "sonner";
+import { useListControls } from "@/components/list-controls";
+import { LineOperatorAssignments } from "@/components/line-operator-assignments";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/lines/$lineId")({
   head: ({ params }) => ({
@@ -159,6 +163,9 @@ function LineDetailPage() {
   const store = useMes();
   const line = store.lines.find((l) => l.id === lineId);
   if (!line) throw notFound();
+  const [flowZoom, setFlowZoom] = useState(1);
+  const [stationType, setStationType] = useState<"all" | StationType>("all");
+  const [stationStatus, setStationStatus] = useState<"all" | StationStatus>("all");
 
   // Auto-poll the live state every 5s (in addition to the 3s store live tick).
   useEffect(() => {
@@ -184,6 +191,18 @@ function LineDetailPage() {
   }, [lineStations]);
 
   const stationFields = baseStationFields(lineId, store.stepTemplates);
+  const configuredStations = useMemo(
+    () => lineStations.filter((station) =>
+      (stationType === "all" || station.type === stationType) &&
+      (stationStatus === "all" || station.status === stationStatus),
+    ),
+    [lineStations, stationType, stationStatus],
+  );
+  const stationList = useListControls(configuredStations, {
+    searchKeys: ["id", "name", "type", "status", "currentStep", "currentValue", "target"],
+    exportName: `${lineId}-stations`,
+  });
+  const currentWorkOrder = store.workOrders.find((workOrder) => workOrder.id === line.currentWorkOrder);
 
   // Resolve assignments → user(s) per station/team — recomputes on every assignment change
   const stationOperators = (stationId: string) =>
@@ -229,6 +248,7 @@ function LineDetailPage() {
               <h1 className="font-display text-2xl font-semibold tracking-tight">{line.name}</h1>
               <p className="text-xs text-muted-foreground">
                 <span className="font-mono">{line.id}</span> · {line.plant} · {line.product ?? "no product"}
+                {currentWorkOrder && <> · <Link to="/work-orders/$woId" params={{ woId: currentWorkOrder.id }} className="font-mono text-primary hover:underline">{currentWorkOrder.id}</Link></>}
               </p>
             </div>
             <StatusPill status={line.status} />
@@ -306,9 +326,15 @@ function LineDetailPage() {
 
       {/* Flow visualization */}
       <div className="glass-panel rounded-2xl p-5">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-display text-lg font-semibold tracking-tight">Live station flow</h2>
-          <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setFlowZoom((value) => Math.max(0.6, value - 0.1))} title="Zoom out"><ZoomOut /></Button>
+            <span className="w-12 text-center font-mono text-[10px] text-muted-foreground">{Math.round(flowZoom * 100)}%</span>
+            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setFlowZoom((value) => Math.min(1.6, value + 0.1))} title="Zoom in"><ZoomIn /></Button>
+            <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setFlowZoom(1)} title="Reset zoom"><Maximize2 /></Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
             <span className="flex items-center gap-1 text-success">
               <Radio className="h-3 w-3 animate-pulse" /> live{lastTick ? ` · ${lastTick}` : ""}
             </span>
@@ -323,8 +349,8 @@ function LineDetailPage() {
             No stations yet. Click <span className="text-foreground">Add station</span> to design this line.
           </div>
         ) : (
-          <div className="relative overflow-x-auto pb-2">
-            <div className="flex min-w-max items-stretch gap-3">
+          <div className="relative overflow-auto pb-2">
+            <div className="flex min-w-max origin-top-left items-stretch gap-3 transition-transform" style={{ transform: `scale(${flowZoom})`, marginRight: `${Math.max(0, (flowZoom - 1) * 100)}%`, marginBottom: `${Math.max(0, (flowZoom - 1) * 420)}px` }}>
               {stepsGrouped.map(([seq, group], idx) => (
                 <div key={seq} className="flex items-stretch gap-3">
                   {/* Step column: stack parallel stations vertically */}
@@ -395,7 +421,7 @@ function LineDetailPage() {
                     })}
                   </div>
                   {idx < stepsGrouped.length - 1 && (
-                    <div className="flex w-6 items-center justify-center">
+                    <div className="flex w-6 self-stretch items-center justify-center">
                       <div className="relative h-px w-full bg-gradient-to-r from-primary/60 to-info/60">
                         <ArrowRight className="absolute -right-1 -top-2 h-4 w-4 text-primary" />
                       </div>
@@ -409,9 +435,15 @@ function LineDetailPage() {
         )}
       </div>
 
+      <LineOperatorAssignments lineId={lineId} />
+
       {/* Station table — config view */}
       <div className="glass-panel rounded-2xl p-5">
-        <h2 className="mb-3 font-display text-lg font-semibold tracking-tight">Stations · configuration</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div><h2 className="font-display text-lg font-semibold tracking-tight">Stations · configuration</h2><p className="text-xs text-muted-foreground">{stationList.filtered.length} of {lineStations.length} stations</p></div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><SlidersHorizontal className="h-4 w-4" /><select value={stationType} onChange={(event) => setStationType(event.target.value as "all" | StationType)} aria-label="Filter stations by type" className="h-9 rounded-md border border-border/60 bg-background px-2"><option value="all">All types</option><option value="automatic">Automatic</option><option value="manual">Manual</option></select><select value={stationStatus} onChange={(event) => setStationStatus(event.target.value as "all" | StationStatus)} aria-label="Filter stations by status" className="h-9 rounded-md border border-border/60 bg-background px-2"><option value="all">All statuses</option><option value="running">Running</option><option value="idle">Idle</option><option value="down">Down</option><option value="maintenance">Maintenance</option></select></div>
+        </div>
+        {stationList.toolbar}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -427,7 +459,7 @@ function LineDetailPage() {
               </tr>
             </thead>
             <tbody>
-              {lineStations.map((s) => {
+              {stationList.visible.map((s) => {
                 const operators = stationOperators(s.id);
                 return (
                   <tr key={s.id} className="border-b border-border/30 align-top">
@@ -500,12 +532,13 @@ function LineDetailPage() {
                   </tr>
                 );
               })}
-              {lineStations.length === 0 && (
-                <tr><td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">No stations configured.</td></tr>
+              {stationList.visible.length === 0 && (
+                <tr><td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">No stations match these filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
+        <div className="mt-3">{stationList.pager}</div>
       </div>
     </div>
   );
