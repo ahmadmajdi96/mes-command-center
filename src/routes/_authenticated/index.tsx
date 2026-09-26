@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,8 @@ import {
   Pie,
   PieChart,
   PolarAngleAxis,
+  ReferenceArea,
+  ReferenceLine,
   RadialBar,
   RadialBarChart,
   ResponsiveContainer,
@@ -37,13 +39,10 @@ import {
   Zap,
 } from "lucide-react";
 
-import {
-  andonAlerts,
-  downtimeReasons,
-  oeeTrend,
-  plantKpis,
-  sensorSeries,
-} from "@/lib/mes-data";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DashFilterBar } from "@/components/dash-filters";
+import { allDowntime, computeOee, oeeBand, oeeTrendSeries, paretoOf, scope, SHIFT_WINDOWS, useDashFilters, type DashFilters, type DtRow } from "@/lib/dashboard-metrics";
+import { buildAndon, readingSources, useReadings, type AndonItem } from "@/lib/dash-feeds";
 import { useMes } from "@/lib/mes-store";
 import { StatusPill } from "@/components/status-pill";
 import { getKpiSummary } from "@/lib/mes/kpi.functions";
@@ -113,8 +112,7 @@ function Kpi({
 
 function Dashboard() {
   const store = useMes();
-  const runningWOs = store.workOrders.filter((w) => w.status === "running");
-  const lines = store.lines;
+  const [f, set] = useDashFilters();
   const [clock, setClock] = useState<string>("");
   useEffect(() => {
     const update = () => setClock(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
@@ -123,247 +121,242 @@ function Dashboard() {
     return () => clearInterval(id);
   }, []);
 
+  const dtAll = useMemo(() => allDowntime(store.downtime, store.audit, store.lines), [store.downtime, store.audit, store.lines]);
+  const s = scope(f, { lines: store.lines, stations: store.stations, downtime: dtAll });
+  const oee = computeOee(f, s);
+  const trend = oeeTrendSeries(f, s);
+  const pareto = paretoOf(s.downtime);
+  const lineIds = new Set(s.lines.map((l) => l.id));
+  const andon = buildAndon(s.downtime, store.holds, store.stations.filter((x) => lineIds.has(x.lineId)), lineIds);
+  const runningWOs = store.workOrders.filter((w) => w.status === "running" && lineIds.has(w.lineId) && (f.shift === "all" || w.shift === f.shift));
+  const goodUnits = s.lines.reduce((a, l) => a + l.output, 0);
+  const lineStations = store.stations.filter((x) => f.lineId === "all" ? lineIds.has(x.lineId) : x.lineId === f.lineId);
+  const band = oeeBand(oee.oee);
+  const [selLine, setSelLine] = useState<string | null>(null);
+  const shiftLabel = f.shift === "all" ? "All shifts" : SHIFT_WINDOWS[f.shift].label;
+  const plantLabel = f.plant === "all" ? "All plants" : f.plant;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Control Center</h1>
-          <p className="text-sm text-muted-foreground">Plant 01 — Riyadh · Shift A · <span suppressHydrationWarning>{clock}</span></p>
+          <p className="text-sm text-muted-foreground">{plantLabel} · {shiftLabel} · {s.iv.label} · <span suppressHydrationWarning>{clock}</span></p>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Last 8h</button>
-          <button className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">Live</button>
-        </div>
+        <DashFilterBar f={f} set={set} />
       </div>
 
-      {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Kpi label="Plant OEE" value={plantKpis.oee} suffix="%" delta="+3.2 vs yesterday" icon={Gauge} accent="primary" />
-        <Kpi label="Availability" value={plantKpis.availability} suffix="%" icon={Timer} accent="info" />
-        <Kpi label="Performance" value={plantKpis.performance} suffix="%" icon={TrendingUp} accent="accent" />
-        <Kpi label="Quality" value={plantKpis.quality} suffix="%" icon={CheckCircle2} accent="success" />
-        <Kpi label="Good Units" value={plantKpis.goodUnits.toLocaleString()} delta={`scrap ${plantKpis.scrap}`} icon={Package} accent="primary" />
+        <Kpi label="OEE" value={oee.oee} suffix="%" delta={band.label} icon={Gauge} accent="primary" />
+        <Kpi label="Availability" value={oee.availability} suffix="%" delta={`${oee.downMin} min down`} icon={Timer} accent="info" />
+        <Kpi label="Performance" value={oee.performance} suffix="%" icon={TrendingUp} accent="accent" />
+        <Kpi label="Quality" value={oee.quality} suffix="%" icon={CheckCircle2} accent="success" />
+        <Kpi label="Good Units" value={goodUnits.toLocaleString()} delta={`${s.lines.length} lines`} icon={Package} accent="primary" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* OEE trend - 2 cols */}
         <div className="glass-panel rounded-2xl p-5 lg:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
             <div>
-              <h3 className="text-sm font-semibold">OEE — Last 12 hours</h3>
-              <p className="text-xs text-muted-foreground">Availability × Performance × Quality</p>
+              <h3 className="text-sm font-semibold">OEE — {s.iv.label}</h3>
+              <p className="text-xs text-muted-foreground">Availability × Performance × Quality · bands: ≥85 world-class, 60–85 typical, &lt;60 low</p>
             </div>
-            <div className="flex gap-3 text-[11px]">
-              <Legend dot="bg-primary" label="OEE" />
-              <Legend dot="bg-info" label="Availability" />
-              <Legend dot="bg-accent" label="Performance" />
-              <Legend dot="bg-success" label="Quality" />
+            <div className="flex flex-wrap gap-2">
+              <select aria-label="OEE line" className="rounded-lg border border-border/60 bg-card/60 px-2 py-1 text-xs" value={f.lineId} onChange={(e) => set({ lineId: e.target.value, stationId: "all" })}>
+                <option value="all">All lines</option>
+                {store.lines.filter((l) => f.plant === "all" || l.plant === f.plant).map((l) => <option key={l.id} value={l.id}>{l.id} · {l.name}</option>)}
+              </select>
+              <select aria-label="OEE station" className="rounded-lg border border-border/60 bg-card/60 px-2 py-1 text-xs" value={f.stationId} onChange={(e) => set({ stationId: e.target.value })}>
+                <option value="all">All stations</option>
+                {lineStations.map((st) => <option key={st.id} value={st.id}>{st.id} · {st.name}</option>)}
+              </select>
             </div>
           </div>
+          <div className="mb-2 flex flex-wrap gap-3 text-[11px]">
+            <Legend dot="bg-primary" label="OEE" />
+            <Legend dot="bg-info" label="Availability" />
+            <Legend dot="bg-accent" label="Performance" />
+            <Legend dot="bg-success" label="Quality" />
+          </div>
           <div className="h-64">
-            <ResponsiveContainer>
-              <AreaChart data={oeeTrend}>
-                <defs>
-                  <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="oklch(0.78 0.16 195)" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="oklch(0.78 0.16 195)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.02 245 / 0.4)" />
-                <XAxis dataKey="hour" stroke="oklch(0.68 0.02 245)" fontSize={11} />
-                <YAxis stroke="oklch(0.68 0.02 245)" fontSize={11} domain={[40, 100]} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="oee" stroke="oklch(0.78 0.16 195)" fill="url(#g1)" strokeWidth={2} />
-                <RLine type="monotone" dataKey="availability" stroke="oklch(0.72 0.14 230)" strokeWidth={1.5} dot={false} />
-                <RLine type="monotone" dataKey="performance" stroke="oklch(0.82 0.17 80)" strokeWidth={1.5} dot={false} />
-                <RLine type="monotone" dataKey="quality" stroke="oklch(0.72 0.18 155)" strokeWidth={1.5} dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {trend.length === 0 ? (
+              <p className="grid h-full place-items-center text-xs text-muted-foreground">No planned time in this shift/interval.</p>
+            ) : (
+              <ResponsiveContainer>
+                <AreaChart data={trend}>
+                  <defs>
+                    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.5} />
+                      <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <ReferenceArea y1={85} y2={100} fill="var(--color-success)" fillOpacity={0.06} />
+                  <ReferenceArea y1={60} y2={85} fill="var(--color-warning)" fillOpacity={0.05} />
+                  <ReferenceArea y1={0} y2={60} fill="var(--color-destructive)" fillOpacity={0.05} />
+                  <ReferenceLine y={85} stroke="var(--color-success)" strokeDasharray="4 4" />
+                  <ReferenceLine y={60} stroke="var(--color-destructive)" strokeDasharray="4 4" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.02 245 / 0.4)" />
+                  <XAxis dataKey="label" stroke="oklch(0.68 0.02 245)" fontSize={11} />
+                  <YAxis stroke="oklch(0.68 0.02 245)" fontSize={11} domain={[0, 100]} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="oee" name="OEE" stroke="var(--color-primary)" fill="url(#g1)" strokeWidth={2} />
+                  <RLine type="monotone" dataKey="availability" name="Availability" stroke="var(--color-info)" strokeWidth={1.5} dot={false} />
+                  <RLine type="monotone" dataKey="performance" name="Performance" stroke="var(--color-accent)" strokeWidth={1.5} dot={false} />
+                  <RLine type="monotone" dataKey="quality" name="Quality" stroke="var(--color-success)" strokeWidth={1.5} dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
-        {/* Radial OEE gauge */}
         <div className="glass-panel rounded-2xl p-5">
-          <h3 className="text-sm font-semibold">Plant-wide OEE</h3>
-          <p className="text-xs text-muted-foreground">Live composite score</p>
-          <div className="relative mt-2 h-64">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">{f.stationId !== "all" ? `Station ${f.stationId}` : f.lineId !== "all" ? `Line ${f.lineId}` : "Plant-wide"} OEE</h3>
+              <p className="text-xs text-muted-foreground">Composite for selected scope</p>
+            </div>
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${band.cls}`}>{band.label}</span>
+          </div>
+          <div className="relative mt-2 h-48">
             <ResponsiveContainer>
-              <RadialBarChart innerRadius="60%" outerRadius="95%" data={[{ name: "oee", value: plantKpis.oee, fill: "oklch(0.78 0.16 195)" }]} startAngle={210} endAngle={-30}>
+              <RadialBarChart innerRadius="60%" outerRadius="95%" data={[{ name: "oee", value: oee.oee, fill: oee.oee >= 85 ? "var(--color-success)" : oee.oee >= 60 ? "var(--color-warning)" : "var(--color-destructive)" }]} startAngle={210} endAngle={-30}>
                 <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
                 <RadialBar dataKey="value" background={{ fill: "oklch(0.25 0.02 245)" }} cornerRadius={12} />
               </RadialBarChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-mono text-5xl font-semibold text-glow">{plantKpis.oee}</span>
+              <span className="font-mono text-4xl font-semibold text-glow">{oee.oee}</span>
               <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">OEE %</span>
-              <div className="mt-3 flex gap-3 text-[10px] text-muted-foreground">
-                <span>A {plantKpis.availability}</span>
-                <span>P {plantKpis.performance}</span>
-                <span>Q {plantKpis.quality}</span>
-              </div>
             </div>
+          </div>
+          <div className="space-y-2">
+            {([["Availability", oee.availability, "bg-info"], ["Performance", oee.performance, "bg-accent"], ["Quality", oee.quality, "bg-success"]] as const).map(([k, v, c]) => (
+              <div key={k}>
+                <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">{k}</span><span className="font-mono">{v}%</span></div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className={`h-full rounded-full ${c}`} style={{ width: `${v}%` }} /></div>
+              </div>
+            ))}
+            <p className="pt-1 text-[10px] text-muted-foreground">Planned {oee.plannedMin.toLocaleString()} min · downtime {oee.downMin} min</p>
           </div>
         </div>
       </div>
 
-      {/* Lines + Andon */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="glass-panel rounded-2xl p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">Lines · Live</h3>
-              <p className="text-xs text-muted-foreground">{plantKpis.activeLines} of {plantKpis.totalLines} active</p>
+              <p className="text-xs text-muted-foreground">{s.lines.filter((l) => l.status === "running").length} of {s.lines.length} running · click a line for details</p>
             </div>
             <Link to="/lines" className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {lines.slice(0, 6).map((l) => (
-              <div key={l.id} className="rounded-xl border border-border/60 bg-card/40 p-3">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] text-muted-foreground">{l.id}</span>
-                      <span className="truncate text-sm font-medium">{l.name}</span>
+            {s.lines.map((l) => {
+              const b = oeeBand(l.oee);
+              return (
+                <button key={l.id} onClick={() => setSelLine(l.id)} className="rounded-xl border border-border/60 bg-card/40 p-3 text-left transition hover:border-primary/50">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[11px] text-muted-foreground">{l.id}</span>
+                        <span className="truncate text-sm font-medium">{l.name}</span>
+                      </div>
+                      <p className="truncate text-[11px] text-muted-foreground">{l.product ?? "—"}</p>
                     </div>
-                    <p className="truncate text-[11px] text-muted-foreground">{l.product ?? "—"}</p>
+                    <StatusPill status={l.status} />
                   </div>
-                  <StatusPill status={l.status} />
-                </div>
-                <div className="mt-3 flex items-center justify-between text-[11px]">
-                  <span className="text-muted-foreground">OEE</span>
-                  <span className="font-mono font-medium">{l.oee}%</span>
-                </div>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${l.oee}%`,
-                      background:
-                        l.oee >= 80
-                          ? "var(--color-success)"
-                          : l.oee >= 60
-                          ? "var(--color-accent)"
-                          : "var(--color-destructive)",
-                    }}
-                  />
-                </div>
-                <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-                  <span>{l.output.toLocaleString()} / {l.target.toLocaleString()}</span>
-                  <span>↻ {l.uptime}</span>
-                </div>
-              </div>
-            ))}
+                  <div className="mt-3 flex items-center justify-between text-[11px]">
+                    <span className={`rounded-full border px-1.5 text-[9px] uppercase ${b.cls}`}>{b.label}</span>
+                    <span className="font-mono font-medium">OEE {l.oee}%</span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full" style={{ width: `${l.oee}%`, background: l.oee >= 85 ? "var(--color-success)" : l.oee >= 60 ? "var(--color-warning)" : "var(--color-destructive)" }} />
+                  </div>
+                  <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
+                    <span>{l.output.toLocaleString()} / {l.target.toLocaleString()}</span>
+                    <span>↻ {l.uptime}</span>
+                  </div>
+                </button>
+              );
+            })}
+            {s.lines.length === 0 && <p className="text-xs text-muted-foreground">No lines in this plant.</p>}
           </div>
         </div>
 
-        {/* Andon feed */}
         <div className="glass-panel rounded-2xl p-5">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold">Andon Feed</h3>
-              <p className="text-xs text-muted-foreground">{andonAlerts.filter(a => a.level !== 'info').length} active</p>
+              <p className="text-xs text-muted-foreground">{andon.filter((a) => a.level !== "info").length} active</p>
             </div>
-            <Zap className="h-4 w-4 text-accent" />
+            <Link to="/analytics" search={{ view: "andon" }} className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="space-y-2">
-            {andonAlerts.map((a) => {
-              const color = a.level === "critical" ? "border-destructive/40 bg-destructive/5" : a.level === "warn" ? "border-warning/40 bg-warning/5" : "border-border/60 bg-card/40";
-              const icon = a.level === "critical" ? <AlertTriangle className="h-3.5 w-3.5 text-destructive" /> : a.level === "warn" ? <AlertTriangle className="h-3.5 w-3.5 text-warning" /> : <Activity className="h-3.5 w-3.5 text-info" />;
-              return (
-                <div key={a.id} className={`rounded-lg border p-2.5 ${color}`}>
-                  <div className="flex items-start gap-2">
-                    {icon}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-xs font-medium">{a.source}</span>
-                        <span className="font-mono text-[10px] text-muted-foreground">{a.at}</span>
-                      </div>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">{a.message}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {andon.length === 0 && <p className="text-xs text-muted-foreground">No active alerts in this scope.</p>}
+            {andon.slice(0, 6).map((a) => <AndonRow key={a.id} a={a} />)}
           </div>
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Downtime Pareto */}
-        <div className="glass-panel rounded-2xl p-5">
-          <h3 className="text-sm font-semibold">Downtime — Pareto (today)</h3>
-          <p className="text-xs text-muted-foreground">Minutes by reason</p>
-          <div className="h-56">
-            <ResponsiveContainer>
-              <BarChart data={downtimeReasons} layout="vertical" margin={{ left: 10 }}>
-                <XAxis type="number" stroke="oklch(0.68 0.02 245)" fontSize={11} />
-                <YAxis type="category" dataKey="name" stroke="oklch(0.68 0.02 245)" fontSize={10} width={110} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-                  {downtimeReasons.map((d, i) => (
-                    <Cell key={i} fill={d.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Live sensor */}
         <div className="glass-panel rounded-2xl p-5">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-semibold">L-01 Mixer Temperature</h3>
-              <p className="text-xs text-muted-foreground">Target 65°C · ±2°C</p>
+              <h3 className="text-sm font-semibold">Downtime — Pareto</h3>
+              <p className="text-xs text-muted-foreground">{s.downtime.length} events · {oee.downMin} min</p>
             </div>
-            <span className="font-mono text-xl font-semibold text-primary">{sensorSeries.temperature.at(-1)?.v}°C</span>
+            <Link to="/analytics" search={{ view: "pareto" }} className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="h-56">
-            <ResponsiveContainer>
-              <LineChart data={sensorSeries.temperature}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.02 245 / 0.4)" />
-                <XAxis dataKey="t" stroke="oklch(0.68 0.02 245)" fontSize={10} />
-                <YAxis stroke="oklch(0.68 0.02 245)" fontSize={10} domain={[55, 75]} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <RLine type="monotone" dataKey="v" stroke="oklch(0.78 0.16 195)" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+            {pareto.length === 0 ? <p className="grid h-full place-items-center text-xs text-muted-foreground">No downtime recorded.</p> : (
+              <ResponsiveContainer>
+                <BarChart data={pareto} layout="vertical" margin={{ left: 10 }}>
+                  <XAxis type="number" stroke="oklch(0.68 0.02 245)" fontSize={11} />
+                  <YAxis type="category" dataKey="name" stroke="oklch(0.68 0.02 245)" fontSize={10} width={110} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v} min`, "Downtime"]} />
+                  <Bar dataKey="minutes" radius={[0, 6, 6, 0]}>
+                    {pareto.map((d, i) => <Cell key={i} fill={d.color} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
-        {/* Downtime distribution donut */}
+        <TemperatureCard since={s.since} />
+
         <div className="glass-panel rounded-2xl p-5">
-          <h3 className="text-sm font-semibold">Stoppage Mix</h3>
-          <p className="text-xs text-muted-foreground">Share of downtime minutes</p>
-          <div className="h-56">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie data={downtimeReasons} dataKey="value" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                  {downtimeReasons.map((d, i) => <Cell key={i} fill={d.color} />)}
-                </Pie>
-                <Tooltip contentStyle={tooltipStyle} />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-sm font-semibold">Stoppage Mix</h3>
+              <p className="text-xs text-muted-foreground">Share of downtime minutes</p>
+            </div>
+            <Link to="/analytics" search={{ view: "stoppage" }} className="text-xs text-primary hover:underline">View all →</Link>
+          </div>
+          <div className="h-44">
+            {pareto.length === 0 ? <p className="grid h-full place-items-center text-xs text-muted-foreground">No downtime recorded.</p> : (
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie data={pareto} dataKey="minutes" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                    {pareto.map((d, i) => <Cell key={i} fill={d.color} />)}
+                  </Pie>
+                  <Tooltip contentStyle={tooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
           <div className="space-y-1 text-[11px]">
-            {downtimeReasons.map((d) => (
-              <div key={d.name} className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-sm" style={{ background: d.color }} />
-                  <span className="text-muted-foreground">{d.name}</span>
-                </span>
-                <span className="font-mono">{d.value}m</span>
+            {pareto.map((d) => (
+              <div key={d.category} className="flex items-center justify-between">
+                <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: d.color }} />{d.name}</span>
+                <span className="font-mono text-muted-foreground">{d.pct}% · {d.minutes}m</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Extra KPI widgets */}
       <KpiWidgets />
-
-      {/* Active WOs */}
 
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">
@@ -387,8 +380,8 @@ function Dashboard() {
             </thead>
             <tbody>
               {runningWOs.map((w) => (
-                <tr key={w.id} className="border-t border-border/40">
-                  <td className="py-3 pr-4 font-mono text-xs">{w.id}</td>
+                <tr key={w.id} className="border-t border-border/40 hover:bg-card/40">
+                  <td className="py-3 pr-4 font-mono text-xs"><Link to="/work-orders/$woId" params={{ woId: w.id }} className="text-primary hover:underline">{w.id}</Link></td>
                   <td className="py-3 pr-4">{w.product}</td>
                   <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">{w.lineId}</td>
                   <td className="py-3 pr-4 text-xs">{w.operator}</td>
@@ -407,7 +400,127 @@ function Dashboard() {
           </table>
         </div>
       </div>
+
+      <LineDetailDialog lineId={selLine} onClose={() => setSelLine(null)} f={f} dt={dtAll} />
     </div>
+  );
+}
+
+export function AndonRow({ a }: { a: AndonItem }) {
+  const color = a.level === "critical" ? "border-destructive/40 bg-destructive/5" : a.level === "warn" ? "border-warning/40 bg-warning/5" : "border-border/60 bg-card/40";
+  const icon = a.level === "info" ? <Activity className="h-3.5 w-3.5 text-info" /> : <AlertTriangle className={`h-3.5 w-3.5 ${a.level === "critical" ? "text-destructive" : "text-warning"}`} />;
+  const body = (
+    <div className="flex items-start gap-2">
+      {icon}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate text-xs font-medium">{a.source}</span>
+          <span className="font-mono text-[10px] text-muted-foreground" suppressHydrationWarning>{a.at.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+        </div>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{a.message}</p>
+      </div>
+    </div>
+  );
+  const cls = `block rounded-lg border p-2.5 hover:ring-1 hover:ring-primary/40 ${color}`;
+  if (a.link.kind === "station") return <Link to="/stations/$stationId" params={{ stationId: a.link.id }} className={cls}>{body}</Link>;
+  if (a.link.kind === "hold") return <Link to="/quality" className={cls}>{body}</Link>;
+  return <Link to="/lines/$lineId" params={{ lineId: a.lineId }} className={cls}>{body}</Link>;
+}
+
+function TemperatureCard({ since }: { since: number }) {
+  const { data = [], isLoading } = useReadings(since);
+  const sources = readingSources(data);
+  const [key, setKey] = useState<string>("");
+  const cur = sources.find((x) => x.key === key) ?? sources[0];
+  const series = cur ? data.filter((r) => `${r.machine_id}|${r.tag}` === cur.key && r.value != null).map((r) => ({ t: new Date(r.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), v: Number(r.value), ok: r.in_limits })) : [];
+  const last = series.at(-1);
+  return (
+    <div className="glass-panel rounded-2xl p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold">{cur?.isTemp === false ? "Machine value" : "Temperature"}</h3>
+          <select aria-label="Sensor" className="mt-1 max-w-[180px] rounded-md border border-border/60 bg-card/60 px-1.5 py-0.5 text-[11px]" value={cur?.key ?? ""} onChange={(e) => setKey(e.target.value)}>
+            {sources.length === 0 && <option value="">No sensors</option>}
+            {sources.map((x) => <option key={x.key} value={x.key}>{x.machine} · {x.tag}{x.unit ? ` (${x.unit})` : ""}</option>)}
+          </select>
+        </div>
+        <div className="text-right">
+          <span className={`font-mono text-xl font-semibold ${last?.ok === false ? "text-destructive" : "text-primary"}`}>{last ? `${last.v}${cur?.unit ?? ""}` : "—"}</span>
+          <Link to="/analytics" search={{ view: "temperature" }} className="block text-xs text-primary hover:underline">View all →</Link>
+        </div>
+      </div>
+      <div className="h-52">
+        {isLoading ? <p className="grid h-full place-items-center text-xs text-muted-foreground">Loading…</p> : series.length === 0 ? (
+          <p className="grid h-full place-items-center text-center text-xs text-muted-foreground">No readings in this interval.<br />Machines send values from the Machines page or the line-side box.</p>
+        ) : (
+          <ResponsiveContainer>
+            <LineChart data={series}>
+              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.02 245 / 0.4)" />
+              <XAxis dataKey="t" stroke="oklch(0.68 0.02 245)" fontSize={10} />
+              <YAxis stroke="oklch(0.68 0.02 245)" fontSize={10} domain={["auto", "auto"]} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <RLine type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={2} dot={(p: { cx?: number; cy?: number; payload?: { ok: boolean | null }; index?: number }) => <circle key={p.index} cx={p.cx} cy={p.cy} r={p.payload?.ok === false ? 3.5 : 0} fill="var(--color-destructive)" />} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LineDetailDialog({ lineId, onClose, f, dt }: { lineId: string | null; onClose: () => void; f: DashFilters; dt: DtRow[] }) {
+  const store = useMes();
+  const line = store.lines.find((l) => l.id === lineId);
+  if (!line) return <Dialog open={false} onOpenChange={() => onClose()}><DialogContent /></Dialog>;
+  const lf: DashFilters = { ...f, plant: "all", lineId: line.id, stationId: "all" };
+  const s = scope(lf, { lines: store.lines, stations: store.stations, downtime: dt });
+  const o = computeOee(lf, s);
+  const stations = store.stations.filter((x) => x.lineId === line.id).sort((a, b) => a.sequence - b.sequence);
+  const wo = store.workOrders.filter((w) => w.lineId === line.id);
+  const crew = store.assignments.filter((a) => a.active && (stations.some((st) => st.id === a.targetId)));
+  return (
+    <Dialog open onOpenChange={(o2) => !o2 && onClose()}>
+      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">{line.id} · {line.name} <StatusPill status={line.status} /></DialogTitle>
+        </DialogHeader>
+        <p className="text-xs text-muted-foreground">{line.plant} · {line.product ?? "no product"} · WO {line.currentWorkOrder ?? "—"} · {s.iv.label}</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          {([["OEE", o.oee], ["Availability", o.availability], ["Performance", o.performance], ["Quality", o.quality]] as const).map(([k, v]) => (
+            <div key={k} className="rounded-lg border border-border/60 bg-card/40 p-2"><div className="text-[10px] uppercase text-muted-foreground">{k}</div><div className="font-mono text-lg">{v}%</div></div>
+          ))}
+          <div className="rounded-lg border border-border/60 bg-card/40 p-2"><div className="text-[10px] uppercase text-muted-foreground">Output</div><div className="font-mono text-lg">{line.output.toLocaleString()}</div><div className="text-[10px] text-muted-foreground">of {line.target.toLocaleString()}</div></div>
+        </div>
+        <div>
+          <h4 className="mb-1 text-xs font-semibold">Stations ({stations.length})</h4>
+          <div className="grid gap-1.5 sm:grid-cols-2">
+            {stations.map((st) => (
+              <Link key={st.id} to="/stations/$stationId" params={{ stationId: st.id }} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/40 px-2 py-1.5 text-xs hover:border-primary/50">
+                <span><span className="font-mono text-muted-foreground">{st.sequence}. </span>{st.name}</span>
+                <span className="flex items-center gap-2"><span className="font-mono">{st.currentValue ?? ""}</span><StatusPill status={st.status} /></span>
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <h4 className="mb-1 text-xs font-semibold">Downtime in interval ({s.downtime.length})</h4>
+            <div className="max-h-40 space-y-1 overflow-y-auto text-[11px]">
+              {s.downtime.slice(0, 30).map((d) => <div key={d.id} className="flex justify-between border-b border-border/30 py-0.5"><span>{d.reason}</span><span className="font-mono text-muted-foreground">{d.durationMin}m · {d.at.toLocaleDateString()}</span></div>)}
+              {s.downtime.length === 0 && <p className="text-muted-foreground">None</p>}
+            </div>
+          </div>
+          <div>
+            <h4 className="mb-1 text-xs font-semibold">Work orders & crew</h4>
+            <div className="space-y-1 text-[11px]">
+              {wo.map((w) => <Link key={w.id} to="/work-orders/$woId" params={{ woId: w.id }} className="flex justify-between hover:text-primary"><span className="font-mono">{w.id}</span><span>{w.status} · {w.progress}%</span></Link>)}
+              {crew.map((a) => <div key={a.id} className="flex justify-between text-muted-foreground"><span>{store.users.find((u) => u.id === a.userId)?.name ?? a.userId}</span><span>{a.targetId} · shift {a.shift}</span></div>)}
+            </div>
+          </div>
+        </div>
+        <Link to="/lines/$lineId" params={{ lineId: line.id }} className="inline-flex items-center gap-1 text-xs text-primary hover:underline">Open full line page <ArrowUpRight className="h-3 w-3" /></Link>
+      </DialogContent>
+    </Dialog>
   );
 }
 
