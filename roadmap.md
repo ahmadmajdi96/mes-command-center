@@ -7,3 +7,5 @@
 - [ ] Live pull from custom ERP — on hold per user (standalone)
 - [ ] Real machine drivers on the edge box — needs real machine list + safety sign-off
 - [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page (next)
+- [x] Control Center: plant/shift/interval filters, live OEE bands + station picker, clickable lines, Andon/Pareto/Stoppage/Temperature "View all" (Plant Analytics page)
+- [x] Workforce: Shift Management (shift definitions, weekly roster, coverage vs minimum, hourly headcount, shift performance)
