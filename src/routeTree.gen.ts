@@ -17,6 +17,7 @@ import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedTraceabilityRouteImport } from './routes/_authenticated/traceability'
 import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authenticated/telemetry'
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
+import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
@@ -104,6 +105,11 @@ const AuthenticatedStepTemplatesRoute =
     path: '/step-templates',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
+  id: '/shifts',
+  path: '/shifts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -362,6 +368,7 @@ export interface FileRoutesByFullPath {
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/traceability': typeof AuthenticatedTraceabilityRoute
@@ -414,6 +421,7 @@ export interface FileRoutesByTo {
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/traceability': typeof AuthenticatedTraceabilityRoute
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/_authenticated/telemetry': typeof AuthenticatedTelemetryRoute
   '/_authenticated/traceability': typeof AuthenticatedTraceabilityRoute
@@ -525,6 +534,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/recipes'
     | '/settings'
+    | '/shifts'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
@@ -577,6 +587,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/recipes'
     | '/settings'
+    | '/shifts'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
     | '/_authenticated/settings'
+    | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
     | '/_authenticated/telemetry'
     | '/_authenticated/traceability'
@@ -736,6 +748,13 @@ declare module '@tanstack/react-router' {
       path: '/step-templates'
       fullPath: '/step-templates'
       preLoaderRoute: typeof AuthenticatedStepTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shifts': {
+      id: '/_authenticated/shifts'
+      path: '/shifts'
+      fullPath: '/shifts'
+      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings': {
@@ -1066,6 +1085,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
   AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
   AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
@@ -1111,6 +1131,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
   AuthenticatedTelemetryRoute: AuthenticatedTelemetryRoute,
   AuthenticatedTraceabilityRoute: AuthenticatedTraceabilityRoute,
