@@ -9,3 +9,4 @@
 - [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page (next)
 - [x] Control Center: plant/shift/interval filters, live OEE bands + station picker, clickable lines, Andon/Pareto/Stoppage/Temperature "View all" (Plant Analytics page)
 - [x] Workforce: Shift Management (shift definitions, weekly roster, coverage vs minimum, hourly headcount, shift performance)
+- [ ] Production Lines: move Shop Floor navigation, add list/detail search, filters and CSV export, simplify line creation with automatic IDs and field guidance, link current work orders, add zoomable aligned station flow, and manage line operators inline
