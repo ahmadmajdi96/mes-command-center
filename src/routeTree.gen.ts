@@ -17,6 +17,7 @@ import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedTraceabilityRouteImport } from './routes/_authenticated/traceability'
 import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authenticated/telemetry'
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
+import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
@@ -31,6 +32,7 @@ import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenti
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
+import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
 import { Route as AuthenticatedWorkOrdersIndexRouteImport } from './routes/_authenticated/work-orders.index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users.index'
@@ -103,6 +105,11 @@ const AuthenticatedStepTemplatesRoute =
     path: '/step-templates',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
+  id: '/shifts',
+  path: '/shifts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -175,6 +182,11 @@ const AuthenticatedAssignmentsRoute =
     path: '/assignments',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAccessRoute = AuthenticatedAccessRouteImport.update({
   id: '/access',
   path: '/access',
@@ -341,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/access': typeof AuthenticatedAccessRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -355,6 +368,7 @@ export interface FileRoutesByFullPath {
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/traceability': typeof AuthenticatedTraceabilityRoute
@@ -392,6 +406,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/access': typeof AuthenticatedAccessRoute
+  '/analytics': typeof AuthenticatedAnalyticsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
@@ -406,6 +421,7 @@ export interface FileRoutesByTo {
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/traceability': typeof AuthenticatedTraceabilityRoute
@@ -446,6 +462,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/access': typeof AuthenticatedAccessRoute
+  '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
@@ -460,6 +477,7 @@ export interface FileRoutesById {
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/_authenticated/telemetry': typeof AuthenticatedTelemetryRoute
   '/_authenticated/traceability': typeof AuthenticatedTraceabilityRoute
@@ -501,6 +519,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/access'
+    | '/analytics'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -515,6 +534,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/recipes'
     | '/settings'
+    | '/shifts'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
@@ -552,6 +572,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/access'
+    | '/analytics'
     | '/assignments'
     | '/audit'
     | '/downtime'
@@ -566,6 +587,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/recipes'
     | '/settings'
+    | '/shifts'
     | '/step-templates'
     | '/telemetry'
     | '/traceability'
@@ -605,6 +627,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/access'
+    | '/_authenticated/analytics'
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
@@ -619,6 +642,7 @@ export interface FileRouteTypes {
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
     | '/_authenticated/settings'
+    | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
     | '/_authenticated/telemetry'
     | '/_authenticated/traceability'
@@ -726,6 +750,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStepTemplatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/shifts': {
+      id: '/_authenticated/shifts'
+      path: '/shifts'
+      fullPath: '/shifts'
+      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -822,6 +853,13 @@ declare module '@tanstack/react-router' {
       path: '/assignments'
       fullPath: '/assignments'
       preLoaderRoute: typeof AuthenticatedAssignmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/access': {
@@ -1032,6 +1070,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccessRoute: typeof AuthenticatedAccessRoute
+  AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
@@ -1046,6 +1085,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
   AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
   AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
@@ -1076,6 +1116,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccessRoute: AuthenticatedAccessRoute,
+  AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
@@ -1090,6 +1131,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
   AuthenticatedTelemetryRoute: AuthenticatedTelemetryRoute,
   AuthenticatedTraceabilityRoute: AuthenticatedTraceabilityRoute,

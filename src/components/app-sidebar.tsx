@@ -66,6 +66,7 @@ const execution = [
 
 const monitoring = [
   { title: "Andon / Downtime", url: "/downtime", icon: AlertOctagon },
+  { title: "Plant Analytics", url: "/analytics", icon: Activity },
   { title: "Telemetry", url: "/telemetry", icon: Activity },
   { title: "Quality Holds", url: "/quality", icon: ShieldCheck },
   { title: "Waste Reasons", url: "/waste-reasons", icon: Trash2 },
@@ -74,6 +75,7 @@ const monitoring = [
 const workforce = [
   { title: "Users", url: "/users", icon: Users },
   { title: "Assignments", url: "/assignments", icon: UserCog },
+  { title: "Shifts", url: "/shifts", icon: CalendarDays },
 ];
 
 const platform = [
