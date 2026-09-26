@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Line staffing is derived from active station assignments, so line views aggregate existing assignment records instead of storing a separate line-operator relation.

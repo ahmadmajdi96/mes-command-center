@@ -27,6 +27,8 @@ export interface Field {
   label: string;
   type: FieldType;
   placeholder?: string;
+  /** Optional guidance shown directly beneath the field. */
+  description?: string;
   options?: { value: string; label: string }[];
   required?: boolean;
   span?: 1 | 2;
@@ -271,6 +273,9 @@ export function EntityFormDialog<T extends Record<string, any>>({
                 </div>
                 {errors[f.name] && (
                   <div className="mt-1 text-[11px] text-destructive">{errors[f.name]}</div>
+                )}
+                {!errors[f.name] && f.description && (
+                  <div className="mt-1 text-[11px] leading-snug text-muted-foreground">{f.description}</div>
                 )}
               </div>
             );
