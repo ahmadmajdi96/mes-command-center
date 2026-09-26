@@ -406,7 +406,7 @@ function Dashboard() {
   );
 }
 
-export function AndonRow({ a }: { a: AndonItem }) {
+function AndonRow({ a }: { a: AndonItem }) {
   const color = a.level === "critical" ? "border-destructive/40 bg-destructive/5" : a.level === "warn" ? "border-warning/40 bg-warning/5" : "border-border/60 bg-card/40";
   const icon = a.level === "info" ? <Activity className="h-3.5 w-3.5 text-info" /> : <AlertTriangle className={`h-3.5 w-3.5 ${a.level === "critical" ? "text-destructive" : "text-warning"}`} />;
   const body = (
