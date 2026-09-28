@@ -437,7 +437,6 @@ export const releaseOrderHold = createServerFn({ method: "POST" })
       if (po?.status === "hold") {
         const { data: first } = await ctx.supabase.from("order_holds").select("prev_status").eq("production_order_id", h.production_order_id).not("prev_status", "is", null).order("opened_at", { ascending: false }).limit(1);
         back = first?.[0]?.prev_status ?? "released";
-        if (back === "running") back = "paused";
         const { error: e2 } = await (await admin()).from("production_orders").update({ status: back }).eq("id", h.production_order_id);
         if (e2) throw new Error(e2.message);
       }
