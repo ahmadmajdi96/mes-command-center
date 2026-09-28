@@ -1,0 +1,1 @@
+ALTER TABLE public.audit_entries ALTER COLUMN at SET DEFAULT now();
