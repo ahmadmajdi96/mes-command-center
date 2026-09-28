@@ -1131,6 +1131,67 @@ export type Database = {
           },
         ]
       }
+      operation_events: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          at: string
+          event_type: string
+          id: string
+          operation_id: string
+          organization_id: string
+          payload: Json
+          production_order_id: string
+          reason: string | null
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          at?: string
+          event_type: string
+          id?: string
+          operation_id: string
+          organization_id?: string
+          payload?: Json
+          production_order_id: string
+          reason?: string | null
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          at?: string
+          event_type?: string
+          id?: string
+          operation_id?: string
+          organization_id?: string
+          payload?: Json
+          production_order_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operation_events_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operation_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operation_events_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_components: {
         Row: {
           auto_confirm: boolean
@@ -1191,63 +1252,213 @@ export type Database = {
           },
         ]
       }
+      order_holds: {
+        Row: {
+          comments: string | null
+          created_at: string
+          hold_type: string
+          id: string
+          opened_at: string
+          opened_by_name: string | null
+          opened_by_user_id: string | null
+          organization_id: string
+          prev_status: string | null
+          production_order_id: string
+          reason: string
+          release_comments: string | null
+          released_at: string | null
+          released_by_name: string | null
+          released_by_user_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          hold_type?: string
+          id?: string
+          opened_at?: string
+          opened_by_name?: string | null
+          opened_by_user_id?: string | null
+          organization_id?: string
+          prev_status?: string | null
+          production_order_id: string
+          reason: string
+          release_comments?: string | null
+          released_at?: string | null
+          released_by_name?: string | null
+          released_by_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          hold_type?: string
+          id?: string
+          opened_at?: string
+          opened_by_name?: string | null
+          opened_by_user_id?: string | null
+          organization_id?: string
+          prev_status?: string | null
+          production_order_id?: string
+          reason?: string
+          release_comments?: string | null
+          released_at?: string | null
+          released_by_name?: string | null
+          released_by_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_holds_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_holds_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_operations: {
         Row: {
+          actual_downtime_min: number | null
+          actual_duration_min: number | null
+          actual_processing_min: number | null
+          actual_setup_min: number | null
+          actual_waiting_min: number | null
+          approval_comment: string | null
+          approved_at: string | null
+          approved_by_name: string | null
+          approved_by_user_id: string | null
+          batch_id: string | null
           completed_at: string | null
           completed_by: string | null
+          completion_notes: string | null
+          completion_reason: string | null
           created_at: string
+          hold_category: string | null
           id: string
+          machine_id: string | null
           name: string
           organization_id: string
+          parameters: Json
           production_order_id: string
+          qty_input: number
+          qty_processed: number
+          qty_rejected: number
           qty_scrap: number
           qty_yield: number
+          required_fields: string[]
+          requires_approval: boolean
           run_min_per_unit: number
           sequence: number
+          setup_completed_at: string | null
           setup_min: number
+          setup_started_at: string | null
           started_at: string | null
           started_by: string | null
+          started_by_user_id: string | null
+          station_id: string | null
           status: string
+          status_reason: string | null
           updated_at: string
           work_center_id: string | null
           work_instructions: string | null
         }
         Insert: {
+          actual_downtime_min?: number | null
+          actual_duration_min?: number | null
+          actual_processing_min?: number | null
+          actual_setup_min?: number | null
+          actual_waiting_min?: number | null
+          approval_comment?: string | null
+          approved_at?: string | null
+          approved_by_name?: string | null
+          approved_by_user_id?: string | null
+          batch_id?: string | null
           completed_at?: string | null
           completed_by?: string | null
+          completion_notes?: string | null
+          completion_reason?: string | null
           created_at?: string
+          hold_category?: string | null
           id?: string
+          machine_id?: string | null
           name: string
           organization_id?: string
+          parameters?: Json
           production_order_id: string
+          qty_input?: number
+          qty_processed?: number
+          qty_rejected?: number
           qty_scrap?: number
           qty_yield?: number
+          required_fields?: string[]
+          requires_approval?: boolean
           run_min_per_unit?: number
           sequence: number
+          setup_completed_at?: string | null
           setup_min?: number
+          setup_started_at?: string | null
           started_at?: string | null
           started_by?: string | null
+          started_by_user_id?: string | null
+          station_id?: string | null
           status?: string
+          status_reason?: string | null
           updated_at?: string
           work_center_id?: string | null
           work_instructions?: string | null
         }
         Update: {
+          actual_downtime_min?: number | null
+          actual_duration_min?: number | null
+          actual_processing_min?: number | null
+          actual_setup_min?: number | null
+          actual_waiting_min?: number | null
+          approval_comment?: string | null
+          approved_at?: string | null
+          approved_by_name?: string | null
+          approved_by_user_id?: string | null
+          batch_id?: string | null
           completed_at?: string | null
           completed_by?: string | null
+          completion_notes?: string | null
+          completion_reason?: string | null
           created_at?: string
+          hold_category?: string | null
           id?: string
+          machine_id?: string | null
           name?: string
           organization_id?: string
+          parameters?: Json
           production_order_id?: string
+          qty_input?: number
+          qty_processed?: number
+          qty_rejected?: number
           qty_scrap?: number
           qty_yield?: number
+          required_fields?: string[]
+          requires_approval?: boolean
           run_min_per_unit?: number
           sequence?: number
+          setup_completed_at?: string | null
           setup_min?: number
+          setup_started_at?: string | null
           started_at?: string | null
           started_by?: string | null
+          started_by_user_id?: string | null
+          station_id?: string | null
           status?: string
+          status_reason?: string | null
           updated_at?: string
           work_center_id?: string | null
           work_instructions?: string | null
@@ -1666,6 +1877,7 @@ export type Database = {
           actor_name: string | null
           actor_user_id: string | null
           batch_id: string | null
+          completion_reason: string | null
           correlation_id: string | null
           created_at: string
           final: boolean
@@ -1675,14 +1887,19 @@ export type Database = {
           organization_id: string
           post_goods_receipt: boolean
           production_order_id: string
+          qty_input: number | null
+          qty_produced: number | null
+          qty_rejected: number
           qty_scrap: number
           qty_yield: number
+          reject_reason: string | null
           scrap_reason: string | null
         }
         Insert: {
           actor_name?: string | null
           actor_user_id?: string | null
           batch_id?: string | null
+          completion_reason?: string | null
           correlation_id?: string | null
           created_at?: string
           final?: boolean
@@ -1692,14 +1909,19 @@ export type Database = {
           organization_id?: string
           post_goods_receipt?: boolean
           production_order_id: string
+          qty_input?: number | null
+          qty_produced?: number | null
+          qty_rejected?: number
           qty_scrap?: number
           qty_yield?: number
+          reject_reason?: string | null
           scrap_reason?: string | null
         }
         Update: {
           actor_name?: string | null
           actor_user_id?: string | null
           batch_id?: string | null
+          completion_reason?: string | null
           correlation_id?: string | null
           created_at?: string
           final?: boolean
@@ -1709,8 +1931,12 @@ export type Database = {
           organization_id?: string
           post_goods_receipt?: boolean
           production_order_id?: string
+          qty_input?: number | null
+          qty_produced?: number | null
+          qty_rejected?: number
           qty_scrap?: number
           qty_yield?: number
+          reject_reason?: string | null
           scrap_reason?: string | null
         }
         Relationships: [
@@ -1730,6 +1956,106 @@ export type Database = {
           },
           {
             foreignKeyName: "production_confirmations_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_exceptions: {
+        Row: {
+          blocks_execution: boolean
+          created_at: string
+          description: string
+          ended_at: string | null
+          exception_type: string
+          id: string
+          line_id: string | null
+          machine_id: string | null
+          operation_id: string | null
+          operator_name: string | null
+          operator_user_id: string | null
+          organization_id: string
+          production_order_id: string | null
+          reason_code: string | null
+          resolution: string | null
+          resolved_by_name: string | null
+          resolved_by_user_id: string | null
+          resource: string | null
+          severity: string
+          started_at: string
+          station_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          blocks_execution?: boolean
+          created_at?: string
+          description: string
+          ended_at?: string | null
+          exception_type: string
+          id?: string
+          line_id?: string | null
+          machine_id?: string | null
+          operation_id?: string | null
+          operator_name?: string | null
+          operator_user_id?: string | null
+          organization_id?: string
+          production_order_id?: string | null
+          reason_code?: string | null
+          resolution?: string | null
+          resolved_by_name?: string | null
+          resolved_by_user_id?: string | null
+          resource?: string | null
+          severity?: string
+          started_at?: string
+          station_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          blocks_execution?: boolean
+          created_at?: string
+          description?: string
+          ended_at?: string | null
+          exception_type?: string
+          id?: string
+          line_id?: string | null
+          machine_id?: string | null
+          operation_id?: string | null
+          operator_name?: string | null
+          operator_user_id?: string | null
+          organization_id?: string
+          production_order_id?: string | null
+          reason_code?: string | null
+          resolution?: string | null
+          resolved_by_name?: string | null
+          resolved_by_user_id?: string | null
+          resource?: string | null
+          severity?: string
+          started_at?: string
+          station_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_exceptions_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_exceptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_exceptions_production_order_id_fkey"
             columns: ["production_order_id"]
             isOneToOne: false
             referencedRelation: "production_orders"
@@ -2143,6 +2469,8 @@ export type Database = {
           id: string
           name: string
           organization_id: string
+          required_fields: string[]
+          requires_approval: boolean
           routing_id: string
           run_min_per_unit: number
           sequence: number
@@ -2155,6 +2483,8 @@ export type Database = {
           id?: string
           name: string
           organization_id?: string
+          required_fields?: string[]
+          requires_approval?: boolean
           routing_id: string
           run_min_per_unit?: number
           sequence: number
@@ -2167,6 +2497,8 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string
+          required_fields?: string[]
+          requires_approval?: boolean
           routing_id?: string
           run_min_per_unit?: number
           sequence?: number
@@ -2815,6 +3147,7 @@ export type Database = {
           code: string
           created_at: string
           id: string
+          kind: string
           label: string
           organization_id: string
           updated_at: string
@@ -2825,6 +3158,7 @@ export type Database = {
           code: string
           created_at?: string
           id?: string
+          kind?: string
           label: string
           organization_id?: string
           updated_at?: string
@@ -2835,6 +3169,7 @@ export type Database = {
           code?: string
           created_at?: string
           id?: string
+          kind?: string
           label?: string
           organization_id?: string
           updated_at?: string
@@ -3006,6 +3341,15 @@ export type Database = {
       }
       in_my_org: { Args: { _org: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      operation_block_reason: {
+        Args: { _check_sequence: boolean; _op_id: string }
+        Returns: string
+      }
+      operation_hold_minutes: {
+        Args: { _op_id: string; _until: string }
+        Returns: Record<string, unknown>
+      }
+      order_release_check: { Args: { _po_id: string }; Returns: Json }
       scope_ancestors: {
         Args: { _id: string; _kind: string }
         Returns: {
