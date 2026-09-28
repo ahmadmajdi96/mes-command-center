@@ -161,7 +161,7 @@ export function useUpsertWasteReason() {
       const { data, error } = await supabase
         .from("waste_reasons")
         .upsert(
-          { code: v.code, label: v.label, category: v.category ?? "other", active: v.active ?? true },
+          { code: v.code, label: v.label, category: v.category ?? "other", kind: (v as { kind?: string }).kind ?? "scrap", active: v.active ?? true } as never,
           { onConflict: "code" },
         )
         .select()
