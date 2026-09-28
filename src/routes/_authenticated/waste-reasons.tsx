@@ -28,6 +28,7 @@ function WasteReasonsPage() {
   const [code, setCode] = useState("");
   const [label, setLabel] = useState("");
   const [category, setCategory] = useState("quality");
+  const [kind, setKind] = useState("scrap");
 
   async function add() {
     if (!code.trim() || !label.trim()) return toast.error("Code and label required");
@@ -35,7 +36,8 @@ function WasteReasonsPage() {
       code: code.trim().toUpperCase().replace(/\s+/g, "_"),
       label: label.trim(),
       category,
-    });
+      kind,
+    } as never);
     setCode(""); setLabel("");
     toast.success("Reason saved");
   }
@@ -46,17 +48,22 @@ function WasteReasonsPage() {
         <Link to="/settings" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> Settings
         </Link>
-        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">Waste / Scrap Reasons</h1>
+        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">Scrap &amp; Reject Reasons</h1>
         <p className="text-xs text-muted-foreground">Global catalog. Per-station subsets are configured from the HMI setup page.</p>
       </div>
 
       <div className="glass-panel rounded-2xl p-4">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Add new reason</div>
-        <div className="mt-2 grid gap-2 md:grid-cols-[160px_1fr_180px_auto]">
+        <div className="mt-2 grid gap-2 md:grid-cols-[160px_1fr_180px_150px_auto]">
           <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="CODE_NAME" className="rounded-lg border border-border/60 bg-background/60 px-3 py-1.5 font-mono text-xs" />
           <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Human-readable label" className="rounded-lg border border-border/60 bg-background/60 px-3 py-1.5 text-xs" />
           <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-lg border border-border/60 bg-background/60 px-3 py-1.5 text-xs">
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Used for" className="rounded-lg border border-border/60 bg-background/60 px-3 py-1.5 text-xs">
+            <option value="scrap">Scrap reason</option>
+            <option value="reject">Reject reason</option>
+            <option value="both">Scrap and reject</option>
           </select>
           <button onClick={add} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20">
             <Plus className="h-3.5 w-3.5" /> Add
@@ -74,6 +81,7 @@ function WasteReasonsPage() {
               <th className="px-2 py-1 text-left">Code</th>
               <th className="px-2 py-1 text-left">Label</th>
               <th className="px-2 py-1 text-left">Category</th>
+              <th className="px-2 py-1 text-left">Used for</th>
               <th className="px-2 py-1"></th>
             </tr>
           </thead>
@@ -83,6 +91,7 @@ function WasteReasonsPage() {
                 <td className="px-2 py-1.5 font-mono">{r.code}</td>
                 <td className="px-2 py-1.5">{r.label}</td>
                 <td className="px-2 py-1.5"><span className="rounded border border-border/60 bg-background/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">{r.category}</span></td>
+                <td className="px-2 py-1.5">{({ scrap: "Scrap", reject: "Reject", both: "Scrap + reject" } as Record<string, string>)[(r as { kind?: string }).kind ?? "scrap"]}</td>
                 <td className="px-2 py-1.5 text-right">
                   <button onClick={() => del.mutate(r.id)} className="text-destructive hover:text-destructive/80" title="Delete">
                     <Trash2 className="h-3.5 w-3.5" />

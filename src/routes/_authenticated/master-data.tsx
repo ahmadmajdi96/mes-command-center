@@ -184,7 +184,7 @@ function Routings() {
       {lc.toolbar}
       {lc.visible.map((r: any) => {
         const mine = ops.filter((o: any) => o.routing_id === r.id);
-        const n = op[r.id] ?? { name: "", work_center_id: "", setup_min: 0, run_min_per_unit: 0, work_instructions: "" };
+        const n = op[r.id] ?? { name: "", work_center_id: "", setup_min: 0, run_min_per_unit: 0, work_instructions: "", requires_approval: false, required_fields: [] as string[] };
         const set = (patch: any) => setOp({ ...op, [r.id]: { ...n, ...patch } });
         return (
           <div key={r.id} className="glass-panel space-y-2 rounded-2xl p-3">
@@ -192,8 +192,8 @@ function Routings() {
               <div><span className="font-mono text-sm text-primary">{r.id}</span> <span className="text-xs text-muted-foreground">{r.sku} · v{r.version}</span></div>
               <div className="flex gap-1"><OverrideToggle table="routings" row={r} /><Del table="routings" id={r.id} /></div>
             </div>
-            <Table cols={["Seq", "Operation", "Work center", "Setup / run", "Work instructions", ""]} rows={mine} render={(o) => [
-              o.sequence, o.name, o.work_center_id ?? "—", `${o.setup_min} min / ${o.run_min_per_unit} min·unit`, <span className="whitespace-pre-wrap">{o.work_instructions ?? "—"}</span>, <Del table="routing_operations" id={o.id} />,
+            <Table cols={["Seq", "Operation", "Work center", "Setup / run", "Work instructions", "Rules", ""]} rows={mine} render={(o) => [
+              o.sequence, o.name, o.work_center_id ?? "—", `${o.setup_min} min / ${o.run_min_per_unit} min·unit`, <span className="whitespace-pre-wrap">{o.work_instructions ?? "—"}</span>, <span className="text-[11px]">{[o.requires_approval ? "needs approval" : null, ...(o.required_fields ?? []).map((f: string) => `requires ${f.replace("_", " ")}`)].filter(Boolean).join(" · ") || "—"}</span>, <Del table="routing_operations" id={o.id} />,
             ]} />
             <div className="flex flex-wrap items-center gap-2">
               <input className={inp} placeholder="Operation name" value={n.name} onChange={(e) => set({ name: e.target.value })} />
@@ -203,7 +203,11 @@ function Routings() {
               <input className={`${inp} w-20`} type="number" title="Setup minutes" value={n.setup_min} onChange={(e) => set({ setup_min: Number(e.target.value) })} />
               <input className={`${inp} w-20`} type="number" title="Run minutes per unit" value={n.run_min_per_unit} onChange={(e) => set({ run_min_per_unit: Number(e.target.value) })} />
               <input className={`${inp} min-w-[240px] flex-1`} placeholder="Work instructions for the operator" value={n.work_instructions} onChange={(e) => set({ work_instructions: e.target.value })} />
-              <button className={btn} disabled={!n.name} onClick={() => wo.insert.mutate({ routing_id: r.id, organization_id: r.organization_id, sequence: (mine.length + 1) * 10, name: n.name, work_center_id: n.work_center_id || null, setup_min: n.setup_min, run_min_per_unit: n.run_min_per_unit, work_instructions: n.work_instructions || null }, { onSuccess: () => set({ name: "", work_instructions: "" }), onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Operation</button>
+              <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={n.requires_approval} onChange={(e) => set({ requires_approval: e.target.checked })} />Needs approval</label>
+              {["machine", "batch", "parameters", "notes", "completion_reason"].map((f) => (
+                <label key={f} className="flex items-center gap-1 text-xs"><input type="checkbox" checked={n.required_fields.includes(f)} onChange={(e) => set({ required_fields: e.target.checked ? [...n.required_fields, f] : n.required_fields.filter((x: string) => x !== f) })} />Requires {f.replace("_", " ")}</label>
+              ))}
+              <button className={btn} disabled={!n.name} onClick={() => wo.insert.mutate({ routing_id: r.id, organization_id: r.organization_id, sequence: (mine.length + 1) * 10, name: n.name, work_center_id: n.work_center_id || null, setup_min: n.setup_min, run_min_per_unit: n.run_min_per_unit, work_instructions: n.work_instructions || null, requires_approval: n.requires_approval, required_fields: n.required_fields }, { onSuccess: () => set({ name: "", work_instructions: "", requires_approval: false, required_fields: [] }), onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Operation</button>
             </div>
           </div>
         );

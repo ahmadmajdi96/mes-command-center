@@ -56,12 +56,12 @@ async function audit(
 }
 
 export const orderTransitions: Record<string, string[]> = {
-  scheduled: ["released", "cancelled"],
-  planned: ["released", "cancelled"],
-  released: ["running", "scheduled", "cancelled"],
+  scheduled: ["released", "hold", "cancelled"],
+  planned: ["released", "hold", "cancelled"],
+  released: ["running", "scheduled", "hold", "cancelled"],
   running: ["paused", "hold", "completed", "cancelled"],
   paused: ["running", "hold", "cancelled"],
-  hold: ["running", "paused", "cancelled"],
+  hold: ["cancelled"],
   completed: ["closed"],
   finished: ["closed"],
   closed: [],
@@ -99,6 +99,14 @@ export const setOrderStatus = createServerFn({ method: "POST" })
     if (bErr) throw new Error(bErr.message);
     if (!before) throw new Error("That order no longer exists");
 
+    if (v.status === "hold" || before.status === "hold" && v.status !== "cancelled") {
+      throw new Error("Use Place hold / Release hold so the reason and release are recorded");
+    }
+    if (v.status === "cancelled") {
+      if (!v.reason?.trim()) throw new Error("A cancellation reason is required");
+      const { data: running } = await ctx.supabase.from("order_operations").select("name").eq("production_order_id", v.id).in("status", ["running", "partially_completed", "on_hold"]);
+      if (running?.length) throw new Error(`Stop or finish the operations in progress first: ${running.map((r: any) => r.name).join(", ")}`);
+    }
     const allowed = orderTransitions[before.status] ?? null;
     if (allowed && !allowed.includes(v.status)) {
       throw new Error(
