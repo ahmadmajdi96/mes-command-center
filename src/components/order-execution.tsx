@@ -33,7 +33,7 @@ export function OrderExecution({ po }: { po: Po }) {
   // Keep the order screen live for other people's actions
   useEffect(() => { const t = setInterval(() => qc.invalidateQueries({ queryKey: ["exec"] }), 10000); return () => clearInterval(t); }, [qc]);
 
-  const yieldQty = sum(confs, "qty_yield");
+  const yieldQty = outputQty(ops, confs);
   const scrapQty = sum(confs, "qty_scrap");
 
   return (
@@ -296,14 +296,21 @@ function Packing({ po, packs, items }: any) {
   );
 }
 
+/** Finished output = accepted qty on the last active operation (plus order-level confirmations); earlier steps are intermediate. */
+function outputQty(ops: any[], confs: any[]) {
+  const active = ops.filter((o: any) => !["skipped", "cancelled"].includes(o.status));
+  const last = active.at(-1);
+  return sum(confs.filter((c: any) => !c.operation_id || (last && c.operation_id === last.id)), "qty_yield");
+}
+
 function Report({ po, ops, confs, cons, acts, grs, comps }: any) {
   const rows = useMemo(() => {
-    const yieldQty = sum(confs, "qty_yield"), scrap = sum(confs, "qty_scrap");
+    const yieldQty = outputQty(ops, confs), scrap = sum(confs, "qty_scrap");
     const out: Record<string, unknown>[] = [
       { section: "Quantity", item: "Planned", value: po.qty, uom: po.uom },
-      { section: "Quantity", item: "Yield confirmed", value: yieldQty, uom: po.uom },
-      { section: "Quantity", item: "Rejected", value: sum(confs, "qty_rejected"), uom: po.uom },
-      { section: "Quantity", item: "Scrap", value: scrap, uom: po.uom },
+      { section: "Quantity", item: "Finished output (accepted at last step)", value: yieldQty, uom: po.uom },
+      { section: "Quantity", item: "Rejected (all steps)", value: sum(confs, "qty_rejected"), uom: po.uom },
+      { section: "Quantity", item: "Scrap (all steps)", value: scrap, uom: po.uom },
       { section: "Quantity", item: "Yield %", value: po.qty ? +((yieldQty / po.qty) * 100).toFixed(1) : 0, uom: "%" },
     ];
     const reasons: Record<string, number> = {};
@@ -313,8 +320,8 @@ function Report({ po, ops, confs, cons, acts, grs, comps }: any) {
     ["labor", "machine", "setup"].forEach((t) => out.push({ section: "Activity", item: t, value: sum(acts.filter((a: any) => a.activity_type === t), "minutes"), uom: "min" }));
     ["finished", "co_product", "by_product"].forEach((t) => out.push({ section: "Goods receipt", item: t, value: sum(grs.filter((g: any) => g.receipt_type === t), "qty") }));
     ops.forEach((o: any) => {
-      const dur = o.started_at && o.completed_at ? Math.round((new Date(o.completed_at).getTime() - new Date(o.started_at).getTime()) / 60000) : null;
-      out.push({ section: "Operation", item: `${o.sequence} ${o.name}`, value: o.status, planned: Math.round(Number(o.setup_min) + Number(o.run_min_per_unit) * po.qty), actual_min: dur, uom: "min" });
+      const dur = o.actual_duration_min ?? (o.started_at && o.completed_at ? +((new Date(o.completed_at).getTime() - new Date(o.started_at).getTime()) / 60000).toFixed(1) : null);
+      out.push({ section: "Operation", item: `${o.sequence} ${o.name} (${String(o.status).replace(/_/g, " ")})`, planned: Math.round(Number(o.setup_min) + Number(o.run_min_per_unit) * po.qty), value: dur ?? "—", uom: "min" });
       out.push({ section: "Operation time", item: `${o.sequence} ${o.name} — setup / processing / waiting / downtime`, planned: Number(o.setup_min), value: [o.actual_setup_min, o.actual_processing_min, o.actual_waiting_min, o.actual_downtime_min].map((x: any) => x ?? "—").join(" / "), uom: "min" });
       out.push({ section: "Operation qty", item: `${o.sequence} ${o.name} — input / accepted / rejected / scrap`, value: `${o.qty_input} / ${o.qty_yield} / ${o.qty_rejected} / ${o.qty_scrap}`, uom: po.uom });
     });
