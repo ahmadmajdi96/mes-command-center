@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Play, CheckCircle2, Plus, Printer, Download, Package } from "lucide-react";
+import { Plus, Printer, Download, Package } from "lucide-react";
 import { useRows, useWrite, applyProductionVersion, errMsg } from "@/lib/execution-db";
 import { exportRows } from "@/components/list-controls";
 import { useWasteReasons } from "@/lib/hmi-db";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { OperationsBoard, ReleaseReadiness, ExceptionsPanel, OrderHoldsPanel, OrderTimeline } from "@/components/operation-execution";
 
 const inp = "h-8 rounded-lg border border-border/60 bg-card/60 px-2 text-xs focus:border-primary/50 focus:outline-none";
 const btn = "flex h-8 items-center gap-1 rounded-lg bg-primary px-2.5 text-xs font-medium text-primary-foreground disabled:opacity-50";
@@ -27,14 +29,21 @@ export function OrderExecution({ po }: { po: Po }) {
   const { data: packItems = [] } = useRows("packing_unit_items");
   const { data: batches = [] } = useRows("production_batches", { eq });
   const locked = ["completed", "closed", "cancelled"].includes(po.status);
+  const qc = useQueryClient();
+  // Keep the order screen live for other people's actions
+  useEffect(() => { const t = setInterval(() => qc.invalidateQueries({ queryKey: ["exec"] }), 10000); return () => clearInterval(t); }, [qc]);
 
   const yieldQty = sum(confs, "qty_yield");
   const scrapQty = sum(confs, "qty_scrap");
 
   return (
     <div className="space-y-4">
+      <ReleaseReadiness po={po as never} />
       <Scenario po={po} hasConfs={confs.length > 0} />
-      <Operations po={po} ops={ops} locked={locked} />
+      <OrderHoldsPanel po={po as never} />
+      <OperationsBoard po={po as never} ops={ops} batches={batches} locked={locked} />
+      <AddOperation po={po} ops={ops} locked={locked} />
+      <ExceptionsPanel po={po as never} ops={ops} />
       <Confirm po={po} ops={ops} batches={batches} locked={locked} yieldQty={yieldQty} scrapQty={scrapQty} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Consumption po={po} comps={comps} cons={cons} batches={batches} ops={ops} locked={locked} />
@@ -43,6 +52,7 @@ export function OrderExecution({ po }: { po: Po }) {
       <Receipts po={po} comps={comps} grs={grs} batches={batches} />
       <Packing po={po} packs={packs} items={packItems} />
       <Report po={po} ops={ops} confs={confs} cons={cons} acts={acts} grs={grs} comps={comps} />
+      <OrderTimeline po={po as never} ops={ops} />
     </div>
   );
 }
@@ -78,60 +88,16 @@ function Scenario({ po, hasConfs }: { po: Po; hasConfs: boolean }) {
   );
 }
 
-function Operations({ po, ops, locked }: { po: Po; ops: any[]; locked: boolean }) {
+function AddOperation({ po, ops, locked }: { po: Po; ops: any[]; locked: boolean }) {
   const w = useWrite("order_operations");
   const [n, setN] = useState({ name: "", work_instructions: "" });
-  const [editing, setEditing] = useState<string | null>(null);
-  const [text, setText] = useState("");
-  const stamp = async () => (await import("@/integrations/supabase/client")).supabase.auth.getUser().then((r) => r.data.user?.email ?? "operator");
-  const setStatus = async (o: any, status: string) => {
-    const who = await stamp();
-    const patch: Record<string, unknown> = { status };
-    if (status === "running") { patch.started_at = new Date().toISOString(); patch.started_by = who; }
-    if (status === "completed") { patch.completed_at = new Date().toISOString(); patch.completed_by = who; }
-    w.update.mutate({ id: o.id, patch }, { onError: (e) => toast.error(errMsg(e)), onSuccess: () => toast.success(`${o.name}: ${status}`) });
-  };
+  if (locked) return null;
   return (
-    <div className={card}>
-      <H>Operations (order-specific routing)</H>
-      {ops.length === 0 && <p className="text-xs text-muted-foreground">No operations yet — apply an execution scenario or add operations below.</p>}
-      <div className="space-y-2">
-        {ops.map((o, i) => {
-          const prevOpen = ops.slice(0, i).some((p) => p.status !== "completed" && p.status !== "skipped");
-          return (
-            <div key={o.id} className="rounded-xl border border-border/50 bg-card/40 p-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm"><span className="font-mono text-xs text-muted-foreground">{o.sequence}</span> <b>{o.name}</b> <span className="text-xs text-muted-foreground">{o.work_center_id ?? ""}</span></div>
-                <div className="flex items-center gap-1.5 text-[11px]">
-                  <span className="rounded-full border border-border/60 px-2 py-0.5 uppercase">{o.status}</span>
-                  <span className="text-muted-foreground">yield {o.qty_yield} · scrap {o.qty_scrap}</span>
-                  <button className={ghost} disabled={locked || o.status !== "pending"} title={prevOpen ? "Previous operations are still open" : ""} onClick={() => setStatus(o, "running")}><Play className="h-3 w-3" />Start</button>
-                  <button className={ghost} disabled={locked || o.status !== "running"} onClick={() => setStatus(o, "completed")}><CheckCircle2 className="h-3 w-3" />Complete</button>
-                </div>
-              </div>
-              {o.started_at && <div className="mt-1 text-[11px] text-muted-foreground">Started {new Date(o.started_at).toLocaleString()} by {o.started_by ?? "—"}{o.completed_at ? ` · completed ${new Date(o.completed_at).toLocaleString()} by ${o.completed_by ?? "—"}` : ""}</div>}
-              {editing === o.id ? (
-                <div className="mt-2 flex gap-2">
-                  <textarea className={`${inp} h-16 flex-1 py-1`} value={text} onChange={(e) => setText(e.target.value)} />
-                  <button className={btn} onClick={() => w.update.mutate({ id: o.id, patch: { work_instructions: text } }, { onSuccess: () => setEditing(null), onError: (e) => toast.error(errMsg(e)) })}>Save</button>
-                </div>
-              ) : (
-                <div className="mt-2 whitespace-pre-wrap text-xs">
-                  <span className="text-muted-foreground">Work instructions: </span>{o.work_instructions || "—"}
-                  {!locked && <button className="ml-2 text-primary underline" onClick={() => { setEditing(o.id); setText(o.work_instructions ?? ""); }}>edit for this order</button>}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      {!locked && (
-        <div className="flex flex-wrap gap-2">
-          <input className={inp} placeholder="Extra operation for this order" value={n.name} onChange={(e) => setN({ ...n, name: e.target.value })} />
-          <input className={`${inp} flex-1`} placeholder="Work instructions" value={n.work_instructions} onChange={(e) => setN({ ...n, work_instructions: e.target.value })} />
-          <button className={btn} disabled={!n.name} onClick={() => w.insert.mutate({ production_order_id: po.id, organization_id: po.organization_id, sequence: ((ops.at(-1)?.sequence ?? 0) + 10), name: n.name, work_instructions: n.work_instructions || null }, { onSuccess: () => setN({ name: "", work_instructions: "" }), onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Add</button>
-        </div>
-      )}
+    <div className="glass-panel flex flex-wrap items-center gap-2 rounded-2xl p-3">
+      <span className="text-xs text-muted-foreground">Add an extra operation to this order only:</span>
+      <input className={inp} placeholder="Operation name" value={n.name} onChange={(e) => setN({ ...n, name: e.target.value })} />
+      <input className={`${inp} flex-1`} placeholder="Work instructions" value={n.work_instructions} onChange={(e) => setN({ ...n, work_instructions: e.target.value })} />
+      <button className={btn} disabled={!n.name} onClick={() => w.insert.mutate({ production_order_id: po.id, organization_id: po.organization_id, sequence: ((ops.at(-1)?.sequence ?? 0) + 10), name: n.name, work_instructions: n.work_instructions || null, status: ops.every((o) => ["completed", "skipped", "cancelled"].includes(o.status)) && ["released", "running"].includes(po.status) ? "ready" : "pending" }, { onSuccess: () => { setN({ name: "", work_instructions: "" }); toast.success("Operation added"); }, onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Add</button>
     </div>
   );
 }
@@ -139,11 +105,12 @@ function Operations({ po, ops, locked }: { po: Po; ops: any[]; locked: boolean }
 function Confirm({ po, ops, batches, locked, yieldQty, scrapQty }: { po: Po; ops: any[]; batches: any[]; locked: boolean; yieldQty: number; scrapQty: number }) {
   const w = useWrite("production_confirmations");
   const { data: reasons = [] } = useWasteReasons();
-  const [f, setF] = useState({ operation_id: "", batch_id: "", qty_yield: 0, qty_scrap: 0, scrap_reason: "", final: false, post_goods_receipt: true, notes: "" });
+  const [f, setF] = useState({ operation_id: "", batch_id: "", qty_yield: 0, qty_scrap: 0, qty_rejected: 0, reject_reason: "", scrap_reason: "", final: false, post_goods_receipt: true, notes: "" });
   const pct = po.qty ? Math.round((yieldQty / Number(po.qty)) * 100) : 0;
   return (
     <div className={card}>
-      <H>Production confirmation</H>
+      <H>Order-level production confirmation</H>
+      <p className="text-[11px] text-muted-foreground">Use "Confirm / complete" on each operation above for step quantities. This box records quantities for the order as a whole (e.g. orders without a routing).</p>
       <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
         <Stat label="Planned" v={`${po.qty} ${po.uom}`} />
         <Stat label="Confirmed yield" v={`${yieldQty} ${po.uom} (${pct}%)`} />
@@ -159,24 +126,31 @@ function Confirm({ po, ops, batches, locked, yieldQty, scrapQty }: { po: Po; ops
             <option value="">Batch (optional)…</option>{batches.map((b: any) => <option key={b.id} value={b.id}>{b.number}</option>)}
           </select>
           <label className="text-xs">Yield <input className={`${inp} w-20`} type="number" min={0} value={f.qty_yield} onChange={(e) => setF({ ...f, qty_yield: Number(e.target.value) })} /></label>
+          <label className="text-xs">Rejected <input className={`${inp} w-20`} type="number" min={0} value={f.qty_rejected} onChange={(e) => setF({ ...f, qty_rejected: Number(e.target.value) })} /></label>
+          {f.qty_rejected > 0 && (
+            <select className={inp} value={f.reject_reason} onChange={(e) => setF({ ...f, reject_reason: e.target.value })}>
+              <option value="">Reject reason…</option>{reasons.filter((r: any) => ["reject", "both"].includes(r.kind ?? "scrap")).map((r: any) => <option key={r.id} value={`${r.code} · ${r.label}`}>{r.code} · {r.label}</option>)}
+            </select>
+          )}
           <label className="text-xs">Scrap <input className={`${inp} w-20`} type="number" min={0} value={f.qty_scrap} onChange={(e) => setF({ ...f, qty_scrap: Number(e.target.value) })} /></label>
           {f.qty_scrap > 0 && (
             <select className={inp} value={f.scrap_reason} onChange={(e) => setF({ ...f, scrap_reason: e.target.value })}>
-              <option value="">Scrap reason…</option>{reasons.map((r: any) => <option key={r.id} value={`${r.code} · ${r.label}`}>{r.code} · {r.label}</option>)}
+              <option value="">Scrap reason…</option>{reasons.filter((r: any) => (r.kind ?? "scrap") !== "reject").map((r: any) => <option key={r.id} value={`${r.code} · ${r.label}`}>{r.code} · {r.label}</option>)}
             </select>
           )}
           <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={f.final} onChange={(e) => setF({ ...f, final: e.target.checked })} />Final (completes operation)</label>
           <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={f.post_goods_receipt} onChange={(e) => setF({ ...f, post_goods_receipt: e.target.checked })} />Post goods receipt</label>
           <input className={`${inp} flex-1`} placeholder="Notes" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} />
           <button className={btn} onClick={() => {
-            if (f.qty_yield + f.qty_scrap <= 0) return toast.error("Enter a yield or scrap quantity");
+            if (f.qty_yield + f.qty_scrap + f.qty_rejected <= 0) return toast.error("Enter an accepted, rejected or scrap quantity");
+            if (f.qty_rejected > 0 && !f.reject_reason) return toast.error("Rejected quantity needs a reject reason");
             if (f.qty_scrap > 0 && !f.scrap_reason) return toast.error("Scrap needs a reason");
             if (yieldQty + f.qty_yield > Number(po.qty) * 1.1 && !confirm("This exceeds the planned quantity by more than 10%. Confirm anyway?")) return;
             w.record.mutate({
               production_order_id: po.id, organization_id: po.organization_id, operation_id: f.operation_id || null, batch_id: f.batch_id || null,
-              qty_yield: f.qty_yield, qty_scrap: f.qty_scrap, scrap_reason: f.scrap_reason || null, final: f.final, post_goods_receipt: f.post_goods_receipt, notes: f.notes || null,
+              qty_yield: f.qty_yield, qty_scrap: f.qty_scrap, qty_rejected: f.qty_rejected, reject_reason: f.reject_reason || null, scrap_reason: f.scrap_reason || null, final: f.final, post_goods_receipt: f.post_goods_receipt, notes: f.notes || null,
             }, {
-              onSuccess: () => { toast.success("Confirmed · backflush and co/by-products recorded automatically"); setF({ ...f, qty_yield: 0, qty_scrap: 0, scrap_reason: "", notes: "" }); },
+              onSuccess: () => { toast.success("Confirmed · backflush and co/by-products recorded automatically"); setF({ ...f, qty_yield: 0, qty_scrap: 0, qty_rejected: 0, reject_reason: "", scrap_reason: "", notes: "" }); },
               onError: (e) => toast.error(errMsg(e)),
             });
           }}>Confirm</button>
@@ -328,6 +302,7 @@ function Report({ po, ops, confs, cons, acts, grs, comps }: any) {
     const out: Record<string, unknown>[] = [
       { section: "Quantity", item: "Planned", value: po.qty, uom: po.uom },
       { section: "Quantity", item: "Yield confirmed", value: yieldQty, uom: po.uom },
+      { section: "Quantity", item: "Rejected", value: sum(confs, "qty_rejected"), uom: po.uom },
       { section: "Quantity", item: "Scrap", value: scrap, uom: po.uom },
       { section: "Quantity", item: "Yield %", value: po.qty ? +((yieldQty / po.qty) * 100).toFixed(1) : 0, uom: "%" },
     ];
@@ -340,6 +315,8 @@ function Report({ po, ops, confs, cons, acts, grs, comps }: any) {
     ops.forEach((o: any) => {
       const dur = o.started_at && o.completed_at ? Math.round((new Date(o.completed_at).getTime() - new Date(o.started_at).getTime()) / 60000) : null;
       out.push({ section: "Operation", item: `${o.sequence} ${o.name}`, value: o.status, planned: Math.round(Number(o.setup_min) + Number(o.run_min_per_unit) * po.qty), actual_min: dur, uom: "min" });
+      out.push({ section: "Operation time", item: `${o.sequence} ${o.name} — setup / processing / waiting / downtime`, planned: Number(o.setup_min), value: [o.actual_setup_min, o.actual_processing_min, o.actual_waiting_min, o.actual_downtime_min].map((x: any) => x ?? "—").join(" / "), uom: "min" });
+      out.push({ section: "Operation qty", item: `${o.sequence} ${o.name} — input / accepted / rejected / scrap`, value: `${o.qty_input} / ${o.qty_yield} / ${o.qty_rejected} / ${o.qty_scrap}`, uom: po.uom });
     });
     return out;
   }, [po, ops, confs, cons, acts, grs, comps]);
