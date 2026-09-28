@@ -52,6 +52,12 @@ async function event(ctx: Ctx, w: { id: string; name: string }, op: any, type: s
   if (error) throw new Error(error.message);
 }
 
+/** Service client for order/step status flips that follow an already-verified permission check (triggers still apply). */
+async function admin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin as any;
+}
+
 const num = (v: unknown, label: string) => {
   const n = Number(v ?? 0);
   if (!Number.isFinite(n) || n < 0) throw new Error(`${label} must be zero or more`);
@@ -120,7 +126,7 @@ export const startOperation = createServerFn({ method: "POST" })
     // Move a released order to running on the first start
     if (po.status === "released") {
       await need(ctx, "orders.lifecycle", "execution.record");
-      const { error } = await ctx.supabase.from("production_orders").update({ status: "running" }).eq("id", po.id);
+      const { error } = await (await admin()).from("production_orders").update({ status: "running" }).eq("id", po.id);
       if (error) throw new Error(error.message);
       await audit(ctx, w, "production_order", po.id, "status:running", `Order ${po.number} started by first operation "${op.name}"`, { status: "released" }, { status: "running" });
     }
@@ -391,13 +397,14 @@ export const placeOrderHold = createServerFn({ method: "POST" })
     }).select().single();
     if (error) throw new Error(error.message);
     if (po.status !== "hold") {
-      const { error: e2 } = await ctx.supabase.from("production_orders").update({ status: "hold" }).eq("id", po.id);
+      const { error: e2 } = await (await admin()).from("production_orders").update({ status: "hold" }).eq("id", po.id);
       if (e2) throw new Error(e2.message);
     }
     // Pause running steps so their hold time is counted
     const { data: running } = await ctx.supabase.from("order_operations").select("id").eq("production_order_id", po.id).in("status", ["running", "partially_completed"]);
     for (const r of running ?? []) {
-      await ctx.supabase.from("order_operations").update({ status: "on_hold", hold_category: "waiting", status_reason: `Order hold: ${v.reason}` }).eq("id", r.id);
+      const { error: e3 } = await (await admin()).from("order_operations").update({ status: "on_hold", hold_category: "waiting", status_reason: `Order hold: ${v.reason}` }).eq("id", r.id);
+      if (e3) throw new Error(e3.message);
     }
     await audit(ctx, w, "production_order", po.id, "hold:place", `Order ${po.number} put on hold (${v.hold_type}): ${v.reason}`, { status: po.status }, { status: "hold", hold_id: h.id }, v.reason);
     return h;
@@ -431,7 +438,7 @@ export const releaseOrderHold = createServerFn({ method: "POST" })
         const { data: first } = await ctx.supabase.from("order_holds").select("prev_status").eq("production_order_id", h.production_order_id).not("prev_status", "is", null).order("opened_at", { ascending: false }).limit(1);
         back = first?.[0]?.prev_status ?? "released";
         if (back === "running") back = "paused";
-        const { error: e2 } = await ctx.supabase.from("production_orders").update({ status: back }).eq("id", h.production_order_id);
+        const { error: e2 } = await (await admin()).from("production_orders").update({ status: back }).eq("id", h.production_order_id);
         if (e2) throw new Error(e2.message);
       }
     }
