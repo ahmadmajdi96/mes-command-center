@@ -288,7 +288,10 @@ export const approveOperation = createServerFn({ method: "POST" })
     if (!op.requires_approval) throw new Error("This operation does not need approval");
     if (op.approved_at) throw new Error("Already approved");
     if (!["completed", "partially_completed"].includes(op.status)) throw new Error("Only a confirmed operation can be approved");
-    if (op.completed_by && op.completed_by === w.name && op.started_by_user_id === w.id) throw new Error("The person who ran the operation cannot approve it");
+    if (op.started_by_user_id === w.id) {
+      const { data: admin } = await ctx.supabase.rpc("has_action", { _user_id: ctx.userId, _action: "platform.admin" });
+      if (!admin) throw new Error("The person who ran the operation cannot approve it");
+    }
     const { error } = await ctx.supabase.from("order_operations").update({ approved_at: new Date().toISOString(), approved_by_name: w.name, approved_by_user_id: w.id, approval_comment: str(v.comment) }).eq("id", op.id);
     if (error) throw new Error(error.message);
     await event(ctx, w, op, "approved", str(v.comment), {});
