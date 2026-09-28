@@ -27,12 +27,13 @@ async function need(ctx: Ctx, ...actions: string[]) {
 }
 
 async function audit(ctx: Ctx, w: { id: string; name: string }, entity: string, entityId: string, action: string, summary: string, before: unknown, after: unknown, reason?: string | null) {
-  await ctx.supabase.from("audit_entries").insert({
+  const { error: auditErr } = await ctx.supabase.from("audit_entries").insert({
     id: `AE-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     actor_id: w.id, actor_name: w.name, actor_user_id: w.id,
     entity, entity_id: entityId, action, summary, reason: reason ?? null,
     before_data: before as never, after_data: after as never,
   });
+  if (auditErr) console.error("audit write failed", auditErr.message);
 }
 
 async function loadOp(ctx: Ctx, id: string) {

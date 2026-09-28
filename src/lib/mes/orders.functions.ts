@@ -41,7 +41,7 @@ async function audit(
   before: unknown,
   after: unknown,
 ) {
-  await context.supabase.from("audit_entries").insert({
+  const { error: auditErr } = await context.supabase.from("audit_entries").insert({
     id: `AE-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     actor_id: who.id,
     actor_name: who.name,
@@ -53,6 +53,7 @@ async function audit(
     before_data: before as never,
     after_data: after as never,
   });
+  if (auditErr) console.error("audit write failed", auditErr.message);
 }
 
 export const orderTransitions: Record<string, string[]> = {
