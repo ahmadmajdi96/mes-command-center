@@ -492,7 +492,9 @@ export function OrderHoldsPanel({ po }: { po: Po }) {
   const [placing, setPlacing] = useState(false);
   const [releasing, setReleasing] = useState<any>(null);
   const canRaise = useCan("holds.raise");
-  const canRelease = useCan("holds.release") || useCan("execution.override");
+  const canReleaseHold = useCan("holds.release");
+  const canOverride = useCan("execution.override");
+  const canRelease = canReleaseHold || canOverride;
   const open = holds.filter((h: any) => h.status === "open");
   const holdable = ["scheduled", "planned", "released", "running", "paused", "hold"].includes(po.status);
   return (

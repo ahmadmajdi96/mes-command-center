@@ -182,7 +182,7 @@ export type Database = {
           actor_name: string
           actor_user_id?: string | null
           after_data?: Json | null
-          at: string
+          at?: string
           before_data?: Json | null
           correlation_id?: string | null
           device_id?: string | null

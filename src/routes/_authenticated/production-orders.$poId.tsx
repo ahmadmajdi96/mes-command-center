@@ -11,6 +11,7 @@ import { usePosRealtime } from "@/lib/production-orders-db";
 import { useSetOrderStatus, nextStatuses } from "@/lib/lifecycle-db";
 import { useCan } from "@/lib/access";
 import { DataMatrix } from "@/components/datamatrix";
+import { ModifyOrderButton } from "@/components/operation-execution";
 
 export const Route = createFileRoute("/_authenticated/production-orders/$poId")({
   head: ({ params }) => ({ meta: [{ title: `PO ${params.poId} · Cortanex MES` }] }),
@@ -70,32 +71,42 @@ function PoDetail() {
             <div className="mt-1 font-mono text-xs text-muted-foreground">Order lot {po.lot_number}</div>
             <p className="mt-3 text-sm">{po.product_name} <span className="text-muted-foreground">· {po.sku}</span></p>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-4">
+            <div className="mt-5 grid gap-3 sm:grid-cols-4 lg:grid-cols-7">
               <Info label="Order qty" value={`${Number(po.qty).toLocaleString()} ${po.uom}`} />
               <Info label="Batched" value={`${totalBatchQty.toLocaleString()} / ${Number(po.qty).toLocaleString()}`} />
               <Info label="Produced" value={`${totalProduced.toLocaleString()} ${po.uom}`} />
               <Info label="Line (default)" value={po.line_id ?? "—"} />
+              <Info label="Priority" value={String((po as any).priority ?? "normal")} />
+              <Info label="Planned start" value={po.planned_start ? new Date(po.planned_start).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"} />
+              <Info label="Planned end" value={po.planned_end ? new Date(po.planned_end).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"} />
             </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-2">
-              {nextStatuses(po.status).map((s) => (
+              {nextStatuses(po.status).filter((s) => s !== "hold").map((s) => (
                 <button
                   key={s}
                   disabled={!canLifecycle || setStatus.isPending}
-                  onClick={() =>
+                  onClick={() => {
+                    let reason: string | undefined;
+                    if (s === "cancelled") {
+                      reason = window.prompt("Why is this order being cancelled?")?.trim();
+                      if (!reason) { toast.error("A cancellation reason is required"); return; }
+                    }
                     setStatus.mutate(
-                      { id: po.id, status: s },
+                      { id: po.id, status: s, reason },
                       {
                         onSuccess: () => toast.success(`Order ${s}`),
                         onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
                       },
-                    )
-                  }
+                    );
+                  }}
                   className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20 disabled:opacity-50"
                 >
                   {STATUS_LABEL[s] ?? s}
                 </button>
               ))}
+              <ModifyOrderButton po={po as never} />
+              {po.status === "hold" && <span className="text-xs text-warning">On hold — release it in "Order holds" below.</span>}
               {nextStatuses(po.status).length === 0 && (
                 <span className="text-xs text-muted-foreground">
                   This order is {po.status} — no further steps.
