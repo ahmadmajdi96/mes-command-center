@@ -111,3 +111,9 @@ RLS helper functions listed above; they are intentional and required by the poli
 - `inspection_plans` (checks, sampling once/every N, done at line or by QA portal), `inspection_results` (append-only). A step cannot complete until its samples are recorded or while a nonconformance is open.
 - `nonconformances` go to the QA portal (`nonconformance_raised`); `nonconformance_decision` (use_as_is / rework / scrap / return_to_supplier) comes back; rework creates a rework task.
 - `routing_rules` + `routing_rule_hits`: inspection fail / value out of range → rework or hold the step, or skip a step; product rules skip steps on release.
+
+## Machine safety sign-off
+
+- `machines.safety_status` (not_signed / approved / needs_resign / revoked) + `safety_valid_until`.
+- `machine_safety_signoffs` is append-only; written only by `signMachineSafety` (password + reason + full checklist).
+- `machine_safety_guard` voids a sign-off when protocol, address, mode, tags or commands change; `machine_command_safety_check` blocks edge-box and safety-relevant commands without a valid sign-off.
