@@ -28,6 +28,7 @@ import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
+import { Route as AuthenticatedMobileRouteImport } from './routes/_authenticated/mobile'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
@@ -179,6 +180,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMobileRoute = AuthenticatedMobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
@@ -500,6 +506,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
+  '/mobile': typeof AuthenticatedMobileRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
@@ -573,6 +580,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
+  '/mobile': typeof AuthenticatedMobileRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
@@ -649,6 +657,7 @@ export interface FileRoutesById {
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
+  '/_authenticated/mobile': typeof AuthenticatedMobileRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
@@ -726,6 +735,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/live'
     | '/master-data'
+    | '/mobile'
     | '/planner'
     | '/profile'
     | '/quality'
@@ -799,6 +809,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/live'
     | '/master-data'
+    | '/mobile'
     | '/planner'
     | '/profile'
     | '/quality'
@@ -874,6 +885,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inventory'
     | '/_authenticated/live'
     | '/_authenticated/master-data'
+    | '/_authenticated/mobile'
     | '/_authenticated/planner'
     | '/_authenticated/profile'
     | '/_authenticated/quality'
@@ -1082,6 +1094,13 @@ declare module '@tanstack/react-router' {
       path: '/planner'
       fullPath: '/planner'
       preLoaderRoute: typeof AuthenticatedPlannerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mobile': {
+      id: '/_authenticated/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof AuthenticatedMobileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/master-data': {
@@ -1479,6 +1498,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
+  AuthenticatedMobileRoute: typeof AuthenticatedMobileRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
@@ -1543,6 +1563,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
+  AuthenticatedMobileRoute: AuthenticatedMobileRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
