@@ -4,7 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PenLine, ShieldCheck } from "lucide-react";
-import { useRows, useWrite, errMsg } from "@/lib/execution-db";
+import { useRows, errMsg } from "@/lib/execution-db";
+import { supabase } from "@/integrations/supabase/client";
 import { useMyOrg } from "@/lib/wip-db";
 import { useCan, useCanAny } from "@/lib/access";
 import { useListControls } from "@/components/list-controls";
@@ -35,7 +36,6 @@ function ApprovalsPage() {
   const { data: ops = [] } = useRows<any>("order_operations", { order: "sequence", asc: true });
   const { data: versions = [] } = useRows<any>("production_versions");
   const { data: settings = [] } = useRows<any>("approval_settings", { order: "updated_at" });
-  const setW = useWrite("approval_settings");
   const request = useServerFn(requestApproval);
   const decide = useServerFn(decideApproval);
 
