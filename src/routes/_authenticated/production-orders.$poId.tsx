@@ -13,6 +13,7 @@ import { useSetOrderStatus, nextStatuses } from "@/lib/lifecycle-db";
 import { useCan } from "@/lib/access";
 import { DataMatrix } from "@/components/datamatrix";
 import { ModifyOrderButton } from "@/components/operation-execution";
+import { RequestApprovalButton } from "@/components/request-approval";
 
 export const Route = createFileRoute("/_authenticated/production-orders/$poId")({
   head: ({ params }) => ({ meta: [{ title: `PO ${params.poId} · Cortanex MES` }] }),
@@ -107,6 +108,9 @@ function PoDetail() {
                 </button>
               ))}
               <ModifyOrderButton po={po as never} />
+              {!["completed", "closed", "cancelled"].includes(po.status) && (
+                <RequestApprovalButton po={po as never} kinds={["order_release", "version_change"]} className="flex items-center gap-1 rounded-lg border border-border/60 px-3 py-1.5 text-xs" />
+              )}
               {po.status === "hold" && <span className="text-xs text-warning">On hold — release it in "Order holds" below.</span>}
               {nextStatuses(po.status).length === 0 && (
                 <span className="text-xs text-muted-foreground">
