@@ -33,6 +33,10 @@ const show = (v: unknown) => {
 function RecordPage() {
   const { kind, id } = Route.useParams();
   if (kind === "assignment") return <AssignmentDetail id={id} />;
+  return <GenericRecord kind={kind} id={id} />;
+}
+
+function GenericRecord({ kind, id }: { kind: string; id: string }) {
   const cfg = KINDS[kind];
   const main = useQuery({
     queryKey: ["record", kind, id],
@@ -44,7 +48,9 @@ function RecordPage() {
     },
   });
   if (!cfg) return <div className="p-8 text-sm text-muted-foreground">Unknown record type. <Link to="/" className="text-primary">Home</Link></div>;
-  const row = main.data;
+  const store = useMes();
+  // downtime also lives in the live shop-floor feed; fall back to it
+  const row = main.data ?? (kind === "downtime" ? (store.downtime.find((d) => d.id === id) as unknown as Record<string, unknown> | undefined) ?? null : null);
   // waste events store the reason code, not its id
   const fkValue = (r: { fk: string }) => (kind === "waste_reason" && r.fk === "reason_code" ? String(row?.code ?? "") : id);
 
