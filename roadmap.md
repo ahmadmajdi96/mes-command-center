@@ -5,6 +5,7 @@
 - [x] Offline waste recording
 - [x] Machines: 11 protocols, tags/limits/hold-on-breach, commands (simulated/manual/edge), edge box feed
 - [ ] Live pull from custom ERP — on hold per user (standalone)
+- [x] Protocol drivers (11 protocols) with mock devices: test connection, reads with wire frames, commands with device answers; 8 demo machines
 - [ ] Real machine drivers on the edge box — needs real machine list + safety sign-off
 - [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page
 - [x] Control Center filters, OEE, Plant Analytics
@@ -16,3 +17,4 @@
 - [ ] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
 - [ ] Phase C: work instructions, approval workflows, e-signatures, tools, shared shift plans, machine connection layer
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
+- [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
