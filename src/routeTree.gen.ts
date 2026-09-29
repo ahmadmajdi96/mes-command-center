@@ -54,6 +54,7 @@ import { Route as AuthenticatedMachinesMachineIdRouteImport } from './routes/_au
 import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenticated/lines.$lineId'
 import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
 import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
+import { Route as ApiPublicPortalsConnectionIdRouteImport } from './routes/api/public/portals.$connectionId'
 import { Route as ApiPublicMesSummaryRouteImport } from './routes/api/public/mes/summary'
 import { Route as ApiMesV1WorkOrdersRouteImport } from './routes/api/mes/v1/work-orders'
 import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/traceability'
@@ -308,6 +309,12 @@ const AuthenticatedBatchesBatchIdRoute =
     path: '/batches/$batchId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicPortalsConnectionIdRoute =
+  ApiPublicPortalsConnectionIdRouteImport.update({
+    id: '/api/public/portals/$connectionId',
+    path: '/api/public/portals/$connectionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMesSummaryRoute = ApiPublicMesSummaryRouteImport.update({
   id: '/api/public/mes/summary',
   path: '/api/public/mes/summary',
@@ -400,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
@@ -454,6 +462,7 @@ export interface FileRoutesByTo {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
@@ -510,6 +519,7 @@ export interface FileRoutesById {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
@@ -566,6 +576,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   fileRoutesByTo: FileRoutesByTo
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   id:
@@ -675,6 +687,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   fileRoutesById: FileRoutesById
@@ -688,6 +701,7 @@ export interface RootRouteChildren {
   ApiMesV1TraceabilityRoute: typeof ApiMesV1TraceabilityRoute
   ApiMesV1WorkOrdersRoute: typeof ApiMesV1WorkOrdersRoute
   ApiPublicMesSummaryRoute: typeof ApiPublicMesSummaryRoute
+  ApiPublicPortalsConnectionIdRoute: typeof ApiPublicPortalsConnectionIdRoute
   ApiMesV1EdgeActionRoute: typeof ApiMesV1EdgeActionRoute
   ApiMesV1ErpEntityRoute: typeof ApiMesV1ErpEntityRoute
 }
@@ -1009,6 +1023,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBatchesBatchIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/portals/$connectionId': {
+      id: '/api/public/portals/$connectionId'
+      path: '/api/public/portals/$connectionId'
+      fullPath: '/api/public/portals/$connectionId'
+      preLoaderRoute: typeof ApiPublicPortalsConnectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mes/summary': {
       id: '/api/public/mes/summary'
       path: '/api/public/mes/summary'
@@ -1174,6 +1195,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMesV1TraceabilityRoute: ApiMesV1TraceabilityRoute,
   ApiMesV1WorkOrdersRoute: ApiMesV1WorkOrdersRoute,
   ApiPublicMesSummaryRoute: ApiPublicMesSummaryRoute,
+  ApiPublicPortalsConnectionIdRoute: ApiPublicPortalsConnectionIdRoute,
   ApiMesV1EdgeActionRoute: ApiMesV1EdgeActionRoute,
   ApiMesV1ErpEntityRoute: ApiMesV1ErpEntityRoute,
 }
