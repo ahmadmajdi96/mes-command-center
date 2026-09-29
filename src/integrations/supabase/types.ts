@@ -125,6 +125,84 @@ export type Database = {
           },
         ]
       }
+      approval_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decided_by_name: string | null
+          decision_reason: string | null
+          details: Json
+          id: string
+          kind: string
+          organization_id: string
+          ref_id: string
+          ref_table: string
+          requested_by: string | null
+          requested_by_name: string | null
+          status: string
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decided_by_name?: string | null
+          decision_reason?: string | null
+          details?: Json
+          id?: string
+          kind: string
+          organization_id: string
+          ref_id: string
+          ref_table: string
+          requested_by?: string | null
+          requested_by_name?: string | null
+          status?: string
+          summary: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decided_by_name?: string | null
+          decision_reason?: string | null
+          details?: Json
+          id?: string
+          kind?: string
+          organization_id?: string
+          ref_id?: string
+          ref_table?: string
+          requested_by?: string | null
+          requested_by_name?: string | null
+          status?: string
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      approval_settings: {
+        Row: {
+          organization_id: string
+          require_release_approval: boolean
+          scrap_limit: number
+          updated_at: string
+        }
+        Insert: {
+          organization_id: string
+          require_release_approval?: boolean
+          scrap_limit?: number
+          updated_at?: string
+        }
+        Update: {
+          organization_id?: string
+          require_release_approval?: boolean
+          scrap_limit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       areas: {
         Row: {
           created_at: string
@@ -556,6 +634,45 @@ export type Database = {
           },
         ]
       }
+      e_signatures: {
+        Row: {
+          id: string
+          meaning: string
+          organization_id: string
+          reason: string
+          ref_id: string
+          ref_table: string
+          signed_at: string
+          signer_email: string | null
+          signer_id: string
+          signer_name: string
+        }
+        Insert: {
+          id?: string
+          meaning: string
+          organization_id: string
+          reason: string
+          ref_id: string
+          ref_table: string
+          signed_at?: string
+          signer_email?: string | null
+          signer_id: string
+          signer_name: string
+        }
+        Update: {
+          id?: string
+          meaning?: string
+          organization_id?: string
+          reason?: string
+          ref_id?: string
+          ref_table?: string
+          signed_at?: string
+          signer_email?: string | null
+          signer_id?: string
+          signer_name?: string
+        }
+        Relationships: []
+      }
       erp_sync_log: {
         Row: {
           action: string
@@ -842,6 +959,93 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      instruction_acks: {
+        Row: {
+          acked_by: string
+          acked_by_name: string | null
+          created_at: string
+          id: string
+          order_operation_id: string
+          organization_id: string
+          step_id: string
+        }
+        Insert: {
+          acked_by?: string
+          acked_by_name?: string | null
+          created_at?: string
+          id?: string
+          order_operation_id: string
+          organization_id: string
+          step_id: string
+        }
+        Update: {
+          acked_by?: string
+          acked_by_name?: string | null
+          created_at?: string
+          id?: string
+          order_operation_id?: string
+          organization_id?: string
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instruction_acks_order_operation_id_fkey"
+            columns: ["order_operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instruction_acks_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "instruction_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instruction_steps: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          operation_name: string
+          organization_id: string
+          product_id: string | null
+          requires_ack: boolean
+          step_no: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          operation_name: string
+          organization_id: string
+          product_id?: string | null
+          requires_ack?: boolean
+          step_no: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          operation_name?: string
+          organization_id?: string
+          product_id?: string | null
+          requires_ack?: boolean
+          step_no?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       lines: {
         Row: {
@@ -3307,6 +3511,30 @@ export type Database = {
           },
         ]
       }
+      shift_plans: {
+        Row: {
+          data: Json
+          key: string
+          organization_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          data?: Json
+          key: string
+          organization_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          data?: Json
+          key?: string
+          organization_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           code: string | null
@@ -3598,6 +3826,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tool_usages: {
+        Row: {
+          created_at: string
+          id: string
+          order_operation_id: string | null
+          organization_id: string
+          tool_id: string
+          used_by: string | null
+          used_by_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_operation_id?: string | null
+          organization_id: string
+          tool_id: string
+          used_by?: string | null
+          used_by_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_operation_id?: string | null
+          organization_id?: string
+          tool_id?: string
+          used_by?: string | null
+          used_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_usages_order_operation_id_fkey"
+            columns: ["order_operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_usages_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tools: {
+        Row: {
+          calibration_due: string | null
+          code: string
+          created_at: string
+          id: string
+          kind: string
+          max_uses: number | null
+          name: string
+          notes: string | null
+          organization_id: string
+          station_id: string | null
+          status: string
+          updated_at: string
+          uses: number
+        }
+        Insert: {
+          calibration_due?: string | null
+          code: string
+          created_at?: string
+          id?: string
+          kind?: string
+          max_uses?: number | null
+          name: string
+          notes?: string | null
+          organization_id: string
+          station_id?: string | null
+          status?: string
+          updated_at?: string
+          uses?: number
+        }
+        Update: {
+          calibration_due?: string | null
+          code?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          max_uses?: number | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          station_id?: string | null
+          status?: string
+          updated_at?: string
+          uses?: number
+        }
+        Relationships: []
       }
       unit_events: {
         Row: {
@@ -4278,6 +4599,10 @@ export type Database = {
       }
       has_action: {
         Args: { _action: string; _user_id: string }
+        Returns: boolean
+      }
+      has_approval: {
+        Args: { _kind: string; _min_qty?: number; _ref: string }
         Returns: boolean
       }
       has_permission: {
