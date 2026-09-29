@@ -46,7 +46,7 @@ export const pollMachine = createServerFn({ method: "POST" })
       const v = Math.round((data.forceOutOfLimits ? hi + span * 0.1 : lo + span * (0.15 + Math.random() * 0.7)) * 100) / 100;
       const w = d.read(t.address, v);
       frames.push({ tag: t.name, ...w });
-      rows.push({ machine_id: m.id, organization_id: m.organization_id, tag: t.name, value: w.value, source: `mock:${m.protocol}`, actor_user_id: context.userId, actor_name: `Mock ${m.protocol} driver` });
+      rows.push({ machine_id: m.id, organization_id: m.organization_id, tag: t.name, value: w.value, source: "simulated", actor_user_id: context.userId, actor_name: `Mock ${m.protocol} driver` });
     }
     if (rows.length) {
       const { error } = await context.supabase.from("machine_readings").insert(rows);
