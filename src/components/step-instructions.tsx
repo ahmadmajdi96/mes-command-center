@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, Circle, Wrench } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
-import { toolState } from "@/routes/_authenticated/tools";
+import { toolState } from "@/lib/tools";
 import { supabase } from "@/integrations/supabase/client";
 
 /** Work-instruction checklist and tool use for one order step. */

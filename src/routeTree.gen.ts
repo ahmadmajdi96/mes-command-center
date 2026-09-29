@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedWorkInstructionsRouteImport } from './routes/_authenticated/work-instructions'
 import { Route as AuthenticatedWipRouteImport } from './routes/_authenticated/wip'
 import { Route as AuthenticatedWasteReasonsRouteImport } from './routes/_authenticated/waste-reasons'
 import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticated/tracking'
 import { Route as AuthenticatedTraceabilityRouteImport } from './routes/_authenticated/traceability'
+import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authenticated/telemetry'
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
@@ -93,6 +95,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWorkInstructionsRoute =
+  AuthenticatedWorkInstructionsRouteImport.update({
+    id: '/work-instructions',
+    path: '/work-instructions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedWipRoute = AuthenticatedWipRouteImport.update({
   id: '/wip',
   path: '/wip',
@@ -115,6 +123,11 @@ const AuthenticatedTraceabilityRoute =
     path: '/traceability',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedToolsRoute = AuthenticatedToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTelemetryRoute = AuthenticatedTelemetryRouteImport.update({
   id: '/telemetry',
   path: '/telemetry',
@@ -483,10 +496,12 @@ export interface FileRoutesByFullPath {
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
+  '/tools': typeof AuthenticatedToolsRoute
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
   '/wip': typeof AuthenticatedWipRoute
+  '/work-instructions': typeof AuthenticatedWorkInstructionsRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/inspection-plans/$planId': typeof AuthenticatedInspectionPlansPlanIdRoute
@@ -552,10 +567,12 @@ export interface FileRoutesByTo {
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
+  '/tools': typeof AuthenticatedToolsRoute
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
   '/wip': typeof AuthenticatedWipRoute
+  '/work-instructions': typeof AuthenticatedWorkInstructionsRoute
   '/': typeof AuthenticatedIndexRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
@@ -624,10 +641,12 @@ export interface FileRoutesById {
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/_authenticated/telemetry': typeof AuthenticatedTelemetryRoute
+  '/_authenticated/tools': typeof AuthenticatedToolsRoute
   '/_authenticated/traceability': typeof AuthenticatedTraceabilityRoute
   '/_authenticated/tracking': typeof AuthenticatedTrackingRoute
   '/_authenticated/waste-reasons': typeof AuthenticatedWasteReasonsRoute
   '/_authenticated/wip': typeof AuthenticatedWipRoute
+  '/_authenticated/work-instructions': typeof AuthenticatedWorkInstructionsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/_authenticated/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
@@ -697,10 +716,12 @@ export interface FileRouteTypes {
     | '/shifts'
     | '/step-templates'
     | '/telemetry'
+    | '/tools'
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
     | '/wip'
+    | '/work-instructions'
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/inspection-plans/$planId'
@@ -766,10 +787,12 @@ export interface FileRouteTypes {
     | '/shifts'
     | '/step-templates'
     | '/telemetry'
+    | '/tools'
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
     | '/wip'
+    | '/work-instructions'
     | '/'
     | '/batches/$batchId'
     | '/hmi/$stationId'
@@ -837,10 +860,12 @@ export interface FileRouteTypes {
     | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
     | '/_authenticated/telemetry'
+    | '/_authenticated/tools'
     | '/_authenticated/traceability'
     | '/_authenticated/tracking'
     | '/_authenticated/waste-reasons'
     | '/_authenticated/wip'
+    | '/_authenticated/work-instructions'
     | '/_authenticated/'
     | '/_authenticated/batches/$batchId'
     | '/_authenticated/hmi/$stationId'
@@ -922,6 +947,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/work-instructions': {
+      id: '/_authenticated/work-instructions'
+      path: '/work-instructions'
+      fullPath: '/work-instructions'
+      preLoaderRoute: typeof AuthenticatedWorkInstructionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/wip': {
       id: '/_authenticated/wip'
       path: '/wip'
@@ -948,6 +980,13 @@ declare module '@tanstack/react-router' {
       path: '/traceability'
       fullPath: '/traceability'
       preLoaderRoute: typeof AuthenticatedTraceabilityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tools': {
+      id: '/_authenticated/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof AuthenticatedToolsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/telemetry': {
@@ -1410,10 +1449,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
   AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
+  AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
   AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
   AuthenticatedTrackingRoute: typeof AuthenticatedTrackingRoute
   AuthenticatedWasteReasonsRoute: typeof AuthenticatedWasteReasonsRoute
   AuthenticatedWipRoute: typeof AuthenticatedWipRoute
+  AuthenticatedWorkInstructionsRoute: typeof AuthenticatedWorkInstructionsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
   AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
@@ -1470,10 +1511,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
   AuthenticatedTelemetryRoute: AuthenticatedTelemetryRoute,
+  AuthenticatedToolsRoute: AuthenticatedToolsRoute,
   AuthenticatedTraceabilityRoute: AuthenticatedTraceabilityRoute,
   AuthenticatedTrackingRoute: AuthenticatedTrackingRoute,
   AuthenticatedWasteReasonsRoute: AuthenticatedWasteReasonsRoute,
   AuthenticatedWipRoute: AuthenticatedWipRoute,
+  AuthenticatedWorkInstructionsRoute: AuthenticatedWorkInstructionsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedBatchesBatchIdRoute: AuthenticatedBatchesBatchIdRoute,
   AuthenticatedHmiStationIdRoute: AuthenticatedHmiStationIdRoute,
