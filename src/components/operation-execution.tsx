@@ -18,6 +18,7 @@ import {
 } from "@/lib/mes/operations.functions";
 import { StepQuality } from "@/components/step-quality";
 import { StepInstructions } from "@/components/step-instructions";
+import { RequestApprovalButton } from "@/components/request-approval";
 
 const inp = "h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-xs focus:border-primary/50 focus:outline-none";
 const btn = "flex h-8 items-center gap-1 rounded-lg bg-primary px-2.5 text-xs font-medium text-primary-foreground disabled:opacity-50";
@@ -184,6 +185,7 @@ export function OperationsBoard({ po, ops, batches, locked }: { po: Po; ops: any
                     {o.status === "blocked" && <button className={ghost} disabled={!canOverride} onClick={() => setDlg({ kind: "status", op: o, action: "unblock" })}><Unlock className="h-3 w-3" />Unblock</button>}
                     {["pending", "ready"].includes(o.status) && <button className={ghost} disabled={!canOverride} onClick={() => setDlg({ kind: "status", op: o, action: "skip" })}><SkipForward className="h-3 w-3" />Skip</button>}
                     {!["completed", "cancelled", "skipped"].includes(o.status) && <button className={ghost} disabled={!canRecord} onClick={() => setDlg({ kind: "exception", op: o })}><AlertTriangle className="h-3 w-3" />Exception</button>}
+                    {!["completed", "cancelled", "skipped"].includes(o.status) && <RequestApprovalButton po={po as never} op={o} kinds={["step_override", "scrap_over_limit"]} className={ghost} />}
                   </div>
                 )}
               </div>
