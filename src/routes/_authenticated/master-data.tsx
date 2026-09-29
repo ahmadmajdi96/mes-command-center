@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Lock, Unlock } from "lucide-react";
@@ -189,7 +190,7 @@ function Routings() {
         return (
           <div key={r.id} className="glass-panel space-y-2 rounded-2xl p-3">
             <div className="flex items-center justify-between">
-              <div><span className="font-mono text-sm text-primary">{r.id}</span> <span className="text-xs text-muted-foreground">{r.sku} · v{r.version}</span></div>
+              <div><RecLink kind="routing" id={r.id} className="font-mono text-sm text-primary hover:underline">{r.id}</RecLink> <span className="text-xs text-muted-foreground">{r.sku} · v{r.version}</span></div>
               <div className="flex gap-1"><OverrideToggle table="routings" row={r} /><Del table="routings" id={r.id} /></div>
             </div>
             <Table cols={["Seq", "Operation", "Work center", "Setup / run", "Work instructions", "Rules", ""]} rows={mine} render={(o) => [

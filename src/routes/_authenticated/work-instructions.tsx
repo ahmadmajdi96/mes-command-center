@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ListChecks, Plus, Trash2 } from "lucide-react";
@@ -64,7 +65,7 @@ function InstructionsPage() {
           <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className={th}>Step</th><th className="text-left">Product</th><th className="text-right">No.</th><th className="text-left">Instruction</th><th className="text-left">Confirm</th><th /></tr></thead>
           <tbody>{l.visible.map((s) => (
             <tr key={s.id} className="border-t border-border/40 align-top">
-              <td className="py-2 font-medium">{s.operation_name}</td><td>{s.product}</td><td className="text-right">{s.step_no}</td>
+              <td className="py-2 font-medium"><RecLink kind="instruction" id={s.id}>{s.operation_name}</RecLink></td><td>{s.product}</td><td className="text-right">{s.step_no}</td>
               <td><div className="font-medium">{s.title}</div>{s.body && <div className="whitespace-pre-wrap text-muted-foreground">{s.body}</div>}{s.image_url && <a className="text-primary underline" href={s.image_url} target="_blank" rel="noreferrer">Picture</a>}</td>
               <td>{s.requires_ack ? "Required" : "Info only"}</td>
               <td className="text-right">{canEdit && <button className={ghost} onClick={async () => { try { await w.remove.mutateAsync(s.id); toast.success("Removed"); } catch (e) { toast.error(errMsg(e)); } }}><Trash2 className="h-3 w-3" /></button>}</td>

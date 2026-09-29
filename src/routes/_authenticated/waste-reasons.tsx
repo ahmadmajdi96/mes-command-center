@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useState } from "react";
 import { Trash2, Plus, ShieldAlert, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -88,7 +89,7 @@ function WasteReasonsPage() {
           <tbody>
             {reasons.map((r) => (
               <tr key={r.id} className="border-t border-border/40">
-                <td className="px-2 py-1.5 font-mono">{r.code}</td>
+                <td className="px-2 py-1.5 font-mono"><RecLink kind="waste_reason" id={r.id}>{r.code}</RecLink></td>
                 <td className="px-2 py-1.5">{r.label}</td>
                 <td className="px-2 py-1.5"><span className="rounded border border-border/60 bg-background/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wider">{r.category}</span></td>
                 <td className="px-2 py-1.5">{({ scrap: "Scrap", reject: "Reject", both: "Scrap + reject" } as Record<string, string>)[(r as { kind?: string }).kind ?? "scrap"]}</td>

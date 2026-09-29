@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Wrench } from "lucide-react";
@@ -69,7 +70,7 @@ function ToolsPage() {
           <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className={th}>Code</th><th className="text-left">Name</th><th className="text-left">Type</th><th className="text-left">Station</th><th className="text-left">Calibration due</th><th className="text-right">Uses</th><th className="text-left">State</th><th /></tr></thead>
           <tbody>{lt.visible.map((t) => (
             <tr key={t.id} className="border-t border-border/40">
-              <td className="py-2 font-mono text-primary">{t.code}</td><td>{t.name}</td><td>{t.kind}</td><td>{t.station || "—"}</td><td>{t.calibration_due ?? "—"}</td>
+              <td className="py-2 font-mono"><RecLink kind="tool" id={t.id}>{t.code}</RecLink></td><td>{t.name}</td><td>{t.kind}</td><td>{t.station || "—"}</td><td>{t.calibration_due ?? "—"}</td>
               <td className="text-right">{t.uses}{t.max_uses ? ` / ${t.max_uses}` : ""}</td><td className={toolState(t).cls}>{t.state}</td>
               <td className="text-right">{canEdit && (<div className="flex justify-end gap-1">
                 {t.status === "active" ? <button className={ghost} onClick={() => setStatus(t.id, "out_of_service")}>Take out of service</button>
