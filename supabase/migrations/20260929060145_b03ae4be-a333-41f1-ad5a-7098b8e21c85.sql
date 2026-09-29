@@ -1,0 +1,3 @@
+REVOKE EXECUTE ON FUNCTION public.move_batch(text,text,text), public.split_batch(text,numeric,text), public.merge_batches(text,text[],text), public.actor_name() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.move_batch(text,text,text), public.split_batch(text,numeric,text), public.merge_batches(text,text[],text), public.actor_name() TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.consume_from_lot(), public.lot_from_receipt(), public.portal_emit() FROM PUBLIC, anon, authenticated;
