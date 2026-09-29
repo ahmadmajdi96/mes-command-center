@@ -18,6 +18,7 @@
 - [x] Security: permission lookups limited to the signed-in person
 - [x] Phase C: work instructions, approval workflows (release/scrap/skip/version), e-signatures (password + reason), tools, shared shift plans
 - [ ] Phase C: live machine connection layer — needs real machine list + safety sign-off
-- [ ] Phase C: request-approval buttons directly on order/step pages (currently via Approvals page)
+- [x] Phase C: request-approval buttons on order and step pages; self-approval blocked; signing QA-tested
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
 - [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
+- [ ] Phase D — scope not defined yet, waiting on user
