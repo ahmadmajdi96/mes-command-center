@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import type { MesUser, UserRole } from "@/lib/mes-data";
 
 export type ShiftDef = { code: string; name: string; start: number; end: number; color: string; breakMin: number; minStaff: Record<UserRole, number> };
@@ -17,18 +19,48 @@ export function inShift(s: ShiftDef, hour: number) {
   return s.start < s.end ? hour >= s.start && hour < s.end : hour >= s.start || hour < s.end;
 }
 
+/** Shift plans are stored centrally (shift_plans) so every device shares them; localStorage is only an offline cache. */
 export function useShifts(users: MesUser[]) {
   const [shifts, setShifts] = useState<ShiftDef[]>(DEFAULT_SHIFTS);
   const [rota, setRota] = useState<Rota>({});
   const [ready, setReady] = useState(false);
+  const org = useRef<string | null>(null);
+  const lastSaved = useRef("");
   useEffect(() => {
+    let cancelled = false;
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) { const p = JSON.parse(raw); if (p.shifts) setShifts(p.shifts); if (p.rota) setRota(p.rota); }
     } catch { /* ignore */ }
-    setReady(true);
+    const load = async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data: orgs } = await supabase.rpc("user_orgs" as never, { _user_id: u.user.id } as never);
+      org.current = ((orgs ?? []) as { organization_id: string }[])[0]?.organization_id ?? null;
+      if (!org.current) return;
+      const { data } = await supabase.from("shift_plans" as never).select("data").eq("organization_id", org.current).eq("key", "plan").maybeSingle();
+      const p = (data as { data?: { shifts?: ShiftDef[]; rota?: Rota } } | null)?.data;
+      if (!cancelled && p) { lastSaved.current = JSON.stringify(p); if (p.shifts) setShifts(p.shifts); if (p.rota) setRota(p.rota); }
+    };
+    load().finally(() => { if (!cancelled) setReady(true); });
+    const ch = supabase.channel("shift_plans").on("postgres_changes", { event: "*", schema: "public", table: "shift_plans" }, (m) => {
+      const p = (m.new as { data?: { shifts?: ShiftDef[]; rota?: Rota } })?.data;
+      if (p && JSON.stringify(p) !== lastSaved.current) { lastSaved.current = JSON.stringify(p); if (p.shifts) setShifts(p.shifts); if (p.rota) setRota(p.rota); }
+    }).subscribe();
+    return () => { cancelled = true; supabase.removeChannel(ch); };
   }, []);
-  useEffect(() => { if (ready) localStorage.setItem(KEY, JSON.stringify({ shifts, rota })); }, [shifts, rota, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    const body = JSON.stringify({ shifts, rota });
+    localStorage.setItem(KEY, body);
+    if (!org.current || body === lastSaved.current) return;
+    const t = setTimeout(async () => {
+      lastSaved.current = body;
+      const { error } = await supabase.from("shift_plans" as never).upsert({ organization_id: org.current, key: "plan", data: { shifts, rota } } as never);
+      if (error) toast.error("Shift plan not shared: " + error.message);
+    }, 600);
+    return () => clearTimeout(t);
+  }, [shifts, rota, ready]);
 
   /** Planned code for a user on a date — explicit roster entry, else default pattern (user's shift, Fri/Sat off). */
   const codeFor = useCallback((u: MesUser, d: Date) => {

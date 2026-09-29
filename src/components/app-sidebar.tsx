@@ -65,6 +65,9 @@ const execution = [
   { title: "Work in Progress", url: "/wip", icon: Boxes },
   { title: "Material Lots", url: "/material-lots", icon: Boxes },
   { title: "Rework Tasks", url: "/rework", icon: GitBranch },
+  { title: "Work Instructions", url: "/work-instructions", icon: ListChecks },
+  { title: "Approvals & Signatures", url: "/approvals", icon: ShieldCheck },
+  { title: "Tools", url: "/tools", icon: Settings },
 ];
 
 const monitoring = [
