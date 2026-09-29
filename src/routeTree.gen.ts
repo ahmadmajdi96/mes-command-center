@@ -24,6 +24,7 @@ import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSchedulingRouteImport } from './routes/_authenticated/scheduling'
 import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -160,6 +161,11 @@ const AuthenticatedSchedulingRoute = AuthenticatedSchedulingRouteImport.update({
 const AuthenticatedReworkRoute = AuthenticatedReworkRouteImport.update({
   id: '/rework',
   path: '/rework',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
@@ -511,6 +517,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
   '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -585,6 +592,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
   '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -662,6 +670,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rework': typeof AuthenticatedReworkRoute
   '/_authenticated/scheduling': typeof AuthenticatedSchedulingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -740,6 +749,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quality'
     | '/recipes'
+    | '/reports'
     | '/rework'
     | '/scheduling'
     | '/settings'
@@ -814,6 +824,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quality'
     | '/recipes'
+    | '/reports'
     | '/rework'
     | '/scheduling'
     | '/settings'
@@ -890,6 +901,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
+    | '/_authenticated/reports'
     | '/_authenticated/rework'
     | '/_authenticated/scheduling'
     | '/_authenticated/settings'
@@ -1066,6 +1078,13 @@ declare module '@tanstack/react-router' {
       path: '/rework'
       fullPath: '/rework'
       preLoaderRoute: typeof AuthenticatedReworkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recipes': {
@@ -1503,6 +1522,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
   AuthenticatedSchedulingRoute: typeof AuthenticatedSchedulingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -1568,6 +1588,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedReworkRoute: AuthenticatedReworkRoute,
   AuthenticatedSchedulingRoute: AuthenticatedSchedulingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,

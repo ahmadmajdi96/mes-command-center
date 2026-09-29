@@ -51,12 +51,15 @@ const planning = [
   { title: "Recipes", url: "/recipes", icon: ClipboardCheck },
   { title: "Production Orders", url: "/production-orders", icon: ClipboardList },
   { title: "Planner", url: "/planner", icon: CalendarDays },
+  { title: "Scheduling & Capacity", url: "/scheduling", icon: CalendarDays },
+  { title: "Reports & Compliance", url: "/reports", icon: ClipboardCheck },
   { title: "Inventory", url: "/inventory", icon: Package },
 ];
 
 const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
+  { title: "Operator App (mobile)", url: "/mobile", icon: PlayCircle },
   { title: "HMI Runtime", url: "/hmi", icon: MonitorCog },
   { title: "Operator Apps", url: "/operator", icon: HardHat },
   { title: "Step Templates", url: "/step-templates", icon: ListChecks },

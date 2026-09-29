@@ -104,7 +104,7 @@ function BatchRecord() {
       const [ops, batches, cons, rec, waste, events, holds] = await Promise.all([
         sel("order_operations", "production_order_id", id, "sequence"), sel("production_batches", "production_order_id", id, "sequence"),
         sel("material_consumptions", "production_order_id", id), sel("goods_receipts", "production_order_id", id),
-        sel("waste_events", "production_order_id", id), sel("operation_events", "production_order_id", id), sel("order_holds", "production_order_id", id),
+        sel("waste_events", "production_order_id", id), sel("operation_events", "production_order_id", id, "at"), sel("order_holds", "production_order_id", id),
       ]);
       const refs = [id, ...ops.map((o) => String(o.id))];
       const { data: sigs } = await supabase.from("e_signatures" as never).select("*").in("ref_id", refs).order("signed_at");
@@ -115,8 +115,8 @@ function BatchRecord() {
         { title: "Materials consumed", rows: cons, cols: ["created_at", "component_sku", "component_name", "planned_qty", "qty", "uom", "input_lot", "actor_name"] },
         { title: "Output received", rows: rec, cols: ["created_at", "receipt_type", "sku", "qty", "uom", "lot_number", "storage_location"] },
         { title: "Waste", rows: waste, cols: ["created_at", "station_name", "reason_label", "notes", "operator_name"] },
-        { title: "Holds", rows: holds, cols: ["created_at", "status", "reason"] },
-        { title: "Step events", rows: events, cols: ["created_at", "event_type", "reason", "actor_name"] },
+        { title: "Holds", rows: holds, cols: ["opened_at", "hold_type", "status", "reason", "opened_by_name", "released_by_name", "released_at"] },
+        { title: "Step events", rows: events, cols: ["at", "event_type", "reason", "actor_name"] },
         { title: "Electronic signatures", rows: (sigs ?? []) as Row[], cols: ["signed_at", "signer_name", "signer_email", "meaning", "reason"] },
         { title: "Change history", rows: (aud ?? []) as Row[], cols: ["at", "actor_name", "action", "summary", "reason"] },
       ];

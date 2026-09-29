@@ -98,7 +98,7 @@ function MobileApp() {
         <h2 className="text-xs uppercase tracking-wider text-muted-foreground">My machines ({myMachines.length})</h2>
         {myMachines.length === 0 && <p className="glass-panel rounded-2xl p-4 text-sm text-muted-foreground">No machines at this station.</p>}
         {myMachines.map((m) => {
-          const signed = m.safety_status === "signed" && (!m.safety_valid_until || new Date(m.safety_valid_until) > new Date());
+          const signed = m.safety_status === "approved" && (!m.safety_valid_until || new Date(m.safety_valid_until) > new Date());
           const last = cmds.filter((c) => c.machine_id === m.id).slice(0, 3);
           return (
             <div key={m.id} className="glass-panel space-y-2 rounded-2xl p-4">

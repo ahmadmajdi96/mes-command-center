@@ -23,6 +23,6 @@
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
 - [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
 - [ ] Phase D1: page-by-page review (all pages load, rows clickable, back arrows)
-- [ ] Phase D2: reports & compliance (batch record, printable signed report, audit export)
-- [ ] Phase D3: scheduling & capacity (finite capacity, drag-drop, conflicts)
-- [ ] Phase D4: mobile operator app
+- [x] Phase D2: reports & compliance (batch record, printable signed report, audit export)
+- [x] Phase D3: scheduling & capacity (finite capacity, drag-drop, conflicts)
+- [x] Phase D4: mobile operator app
