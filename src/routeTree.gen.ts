@@ -78,6 +78,7 @@ import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/tr
 import { Route as ApiMesV1QualityHoldsRouteImport } from './routes/api/mes/v1/quality-holds'
 import { Route as ApiMesV1KpiRouteImport } from './routes/api/mes/v1/kpi'
 import { Route as ApiMesV1DowntimeRouteImport } from './routes/api/mes/v1/downtime'
+import { Route as AuthenticatedRecordKindIdRouteImport } from './routes/_authenticated/record.$kind.$id'
 import { Route as ApiMesV1ErpEntityRouteImport } from './routes/api/mes/v1/erp.$entity'
 import { Route as ApiMesV1EdgeActionRouteImport } from './routes/api/mes/v1/edge.$action'
 
@@ -460,6 +461,12 @@ const ApiMesV1DowntimeRoute = ApiMesV1DowntimeRouteImport.update({
   path: '/api/mes/v1/downtime',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRecordKindIdRoute =
+  AuthenticatedRecordKindIdRouteImport.update({
+    id: '/record/$kind/$id',
+    path: '/record/$kind/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiMesV1ErpEntityRoute = ApiMesV1ErpEntityRouteImport.update({
   id: '/api/mes/v1/erp/$entity',
   path: '/api/mes/v1/erp/$entity',
@@ -532,6 +539,7 @@ export interface FileRoutesByFullPath {
   '/stations/': typeof AuthenticatedStationsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
+  '/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
   '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
   '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
@@ -604,6 +612,7 @@ export interface FileRoutesByTo {
   '/stations': typeof AuthenticatedStationsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/work-orders': typeof AuthenticatedWorkOrdersIndexRoute
+  '/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
   '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
   '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
@@ -678,6 +687,7 @@ export interface FileRoutesById {
   '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
+  '/_authenticated/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
   '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
   '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
@@ -752,6 +762,7 @@ export interface FileRouteTypes {
     | '/stations/'
     | '/users/'
     | '/work-orders/'
+    | '/record/$kind/$id'
     | '/api/mes/v1/downtime'
     | '/api/mes/v1/kpi'
     | '/api/mes/v1/quality-holds'
@@ -824,6 +835,7 @@ export interface FileRouteTypes {
     | '/stations'
     | '/users'
     | '/work-orders'
+    | '/record/$kind/$id'
     | '/api/mes/v1/downtime'
     | '/api/mes/v1/kpi'
     | '/api/mes/v1/quality-holds'
@@ -897,6 +909,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stations/'
     | '/_authenticated/users/'
     | '/_authenticated/work-orders/'
+    | '/_authenticated/record/$kind/$id'
     | '/api/mes/v1/downtime'
     | '/api/mes/v1/kpi'
     | '/api/mes/v1/quality-holds'
@@ -1409,6 +1422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMesV1DowntimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/record/$kind/$id': {
+      id: '/_authenticated/record/$kind/$id'
+      path: '/record/$kind/$id'
+      fullPath: '/record/$kind/$id'
+      preLoaderRoute: typeof AuthenticatedRecordKindIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/mes/v1/erp/$entity': {
       id: '/api/mes/v1/erp/$entity'
       path: '/api/mes/v1/erp/$entity'
@@ -1486,6 +1506,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
+  AuthenticatedRecordKindIdRoute: typeof AuthenticatedRecordKindIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1552,6 +1573,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWorkOrdersIndexRoute: AuthenticatedWorkOrdersIndexRoute,
+  AuthenticatedRecordKindIdRoute: AuthenticatedRecordKindIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
