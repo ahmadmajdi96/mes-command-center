@@ -169,6 +169,11 @@ function IntegrationsPage() {
 function MockReplies({ m, reply }: { m: any; reply: (m: any, t: string, d: Record<string, unknown>) => void }) {
   const p = m.payload ?? {};
   const b = "rounded border border-border/60 px-2 py-0.5 hover:bg-muted/40";
+  if (m.event_type === "inspection_requested" && p.operation_id) return <span className="flex gap-1">
+    <button className={b} onClick={() => reply(m, "inspection_result", { operation_id: p.operation_id, plan_id: p.plan_id, result: "pass", values: {}, notes: "Inspection OK", by: "QA inspector (mock)" })}>Pass</button>
+    <button className={b} onClick={() => reply(m, "inspection_result", { operation_id: p.operation_id, plan_id: p.plan_id, result: "fail", failed_checks: ["QA lab: out of spec"], notes: "Out of spec", by: "QA inspector (mock)" })}>Fail</button></span>;
+  if (m.event_type === "nonconformance_raised") return <span className="flex gap-1">
+    {(["use_as_is", "rework", "scrap"] as const).map((dec) => <button key={dec} className={b} onClick={() => reply(m, "nonconformance_decision", { reference: p.id, decision: dec, notes: `QA decided: ${dec.replace(/_/g, " ")}`, by: "QA engineer (mock)" })}>{dec === "use_as_is" ? "Use as is" : dec === "rework" ? "Rework" : "Scrap"}</button>)}</span>;
   if (m.event_type === "inspection_requested") return <span className="flex gap-1">
     <button className={b} onClick={() => reply(m, "inspection_result", { rework_task_id: p.rework_task_id, result: "pass", notes: "Re-inspection OK", by: "QA inspector (mock)" })}>Pass</button>
     <button className={b} onClick={() => reply(m, "inspection_result", { rework_task_id: p.rework_task_id, result: "fail", notes: "Still out of spec", by: "QA inspector (mock)" })}>Fail</button></span>;

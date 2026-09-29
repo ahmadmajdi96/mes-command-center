@@ -1,0 +1,1 @@
+ALTER FUNCTION public.operation_missing_skills(uuid, uuid) SECURITY INVOKER;

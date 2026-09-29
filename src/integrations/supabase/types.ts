@@ -729,6 +729,120 @@ export type Database = {
           },
         ]
       }
+      inspection_plans: {
+        Row: {
+          active: boolean
+          characteristics: Json
+          created_at: string
+          id: string
+          name: string
+          operation_name: string
+          organization_id: string
+          performed_by: string
+          product_id: string | null
+          sample_every: number | null
+          sampling: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          characteristics?: Json
+          created_at?: string
+          id?: string
+          name: string
+          operation_name: string
+          organization_id: string
+          performed_by?: string
+          product_id?: string | null
+          sample_every?: number | null
+          sampling?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          characteristics?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          operation_name?: string
+          organization_id?: string
+          performed_by?: string
+          product_id?: string | null
+          sample_every?: number | null
+          sampling?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inspection_results: {
+        Row: {
+          actor_user_id: string | null
+          batch_id: string | null
+          created_at: string
+          failed_checks: string[]
+          id: string
+          inspector_name: string | null
+          notes: string | null
+          operation_id: string
+          organization_id: string
+          plan_id: string
+          production_order_id: string
+          result: string
+          sample_no: number
+          source: string
+          values: Json
+        }
+        Insert: {
+          actor_user_id?: string | null
+          batch_id?: string | null
+          created_at?: string
+          failed_checks?: string[]
+          id?: string
+          inspector_name?: string | null
+          notes?: string | null
+          operation_id: string
+          organization_id: string
+          plan_id: string
+          production_order_id: string
+          result: string
+          sample_no?: number
+          source?: string
+          values?: Json
+        }
+        Update: {
+          actor_user_id?: string | null
+          batch_id?: string | null
+          created_at?: string
+          failed_checks?: string[]
+          id?: string
+          inspector_name?: string | null
+          notes?: string | null
+          operation_id?: string
+          organization_id?: string
+          plan_id?: string
+          production_order_id?: string
+          result?: string
+          sample_no?: number
+          source?: string
+          values?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_results_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_results_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lines: {
         Row: {
           area_id: string | null
@@ -1311,6 +1425,93 @@ export type Database = {
           },
         ]
       }
+      nonconformances: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by_name: string | null
+          decision: string | null
+          decision_notes: string | null
+          decision_source: string | null
+          description: string
+          id: string
+          inspection_result_id: string | null
+          operation_id: string | null
+          organization_id: string
+          production_order_id: string
+          qty: number
+          raised_by_name: string | null
+          raised_by_user_id: string | null
+          rework_task_id: string | null
+          severity: string
+          status: string
+          uom: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by_name?: string | null
+          decision?: string | null
+          decision_notes?: string | null
+          decision_source?: string | null
+          description: string
+          id?: string
+          inspection_result_id?: string | null
+          operation_id?: string | null
+          organization_id: string
+          production_order_id: string
+          qty?: number
+          raised_by_name?: string | null
+          raised_by_user_id?: string | null
+          rework_task_id?: string | null
+          severity?: string
+          status?: string
+          uom?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by_name?: string | null
+          decision?: string | null
+          decision_notes?: string | null
+          decision_source?: string | null
+          description?: string
+          id?: string
+          inspection_result_id?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          production_order_id?: string
+          qty?: number
+          raised_by_name?: string | null
+          raised_by_user_id?: string | null
+          rework_task_id?: string | null
+          severity?: string
+          status?: string
+          uom?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nonconformances_inspection_result_id_fkey"
+            columns: ["inspection_result_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_results"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonconformances_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "order_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operation_events: {
         Row: {
           actor_name: string | null
@@ -1368,6 +1569,63 @@ export type Database = {
             columns: ["production_order_id"]
             isOneToOne: false
             referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operator_skills: {
+        Row: {
+          certificate_ref: string | null
+          certified_at: string
+          certified_by_name: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          level: string
+          mes_user_id: string
+          organization_id: string
+          skill_id: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_ref?: string | null
+          certified_at?: string
+          certified_by_name?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          level?: string
+          mes_user_id: string
+          organization_id: string
+          skill_id: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_ref?: string | null
+          certified_at?: string
+          certified_by_name?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          level?: string
+          mes_user_id?: string
+          organization_id?: string
+          skill_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operator_skills_mes_user_id_fkey"
+            columns: ["mes_user_id"]
+            isOneToOne: false
+            referencedRelation: "mes_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operator_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
             referencedColumns: ["id"]
           },
         ]
@@ -2897,6 +3155,104 @@ export type Database = {
           },
         ]
       }
+      routing_rule_hits: {
+        Row: {
+          action: string
+          created_at: string
+          detail: string | null
+          id: string
+          operation_id: string | null
+          organization_id: string
+          production_order_id: string
+          rule_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          operation_id?: string | null
+          organization_id: string
+          production_order_id: string
+          rule_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          operation_id?: string | null
+          organization_id?: string
+          production_order_id?: string
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routing_rule_hits_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "routing_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routing_rules: {
+        Row: {
+          action: string
+          active: boolean
+          created_at: string
+          id: string
+          max_value: number | null
+          min_value: number | null
+          name: string
+          notes: string | null
+          operation_name: string | null
+          organization_id: string
+          parameter: string | null
+          priority: number
+          product_id: string | null
+          target_operation_name: string | null
+          trigger_kind: string
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          active?: boolean
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          name: string
+          notes?: string | null
+          operation_name?: string | null
+          organization_id: string
+          parameter?: string | null
+          priority?: number
+          product_id?: string | null
+          target_operation_name?: string | null
+          trigger_kind: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          active?: boolean
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          name?: string
+          notes?: string | null
+          operation_name?: string | null
+          organization_id?: string
+          parameter?: string | null
+          priority?: number
+          product_id?: string | null
+          target_operation_name?: string | null
+          trigger_kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       routings: {
         Row: {
           created_at: string
@@ -2988,6 +3344,74 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      skill_requirements: {
+        Row: {
+          created_at: string
+          id: string
+          operation_name: string
+          organization_id: string
+          product_id: string | null
+          skill_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          operation_name: string
+          organization_id: string
+          product_id?: string | null
+          skill_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          operation_name?: string
+          organization_id?: string
+          product_id?: string | null
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_requirements_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skills: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          updated_at: string
+          validity_months: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          updated_at?: string
+          validity_months?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          updated_at?: string
+          validity_months?: number | null
+        }
+        Relationships: []
       }
       station_holds: {
         Row: {
@@ -3889,6 +4313,10 @@ export type Database = {
       operation_hold_minutes: {
         Args: { _op_id: string; _until: string }
         Returns: Record<string, unknown>
+      }
+      operation_missing_skills: {
+        Args: { _op_id: string; _user_id: string }
+        Returns: string[]
       }
       order_release_check: { Args: { _po_id: string }; Returns: Json }
       scope_ancestors: {

@@ -40,23 +40,31 @@ import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedWorkOrdersIndexRouteImport } from './routes/_authenticated/work-orders.index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users.index'
 import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
+import { Route as AuthenticatedSkillsIndexRouteImport } from './routes/_authenticated/skills.index'
+import { Route as AuthenticatedRoutingRulesIndexRouteImport } from './routes/_authenticated/routing-rules.index'
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products.index'
 import { Route as AuthenticatedProductionOrdersIndexRouteImport } from './routes/_authenticated/production-orders.index'
 import { Route as AuthenticatedOperatorIndexRouteImport } from './routes/_authenticated/operator.index'
+import { Route as AuthenticatedNonconformanceIndexRouteImport } from './routes/_authenticated/nonconformance.index'
 import { Route as AuthenticatedMaterialLotsIndexRouteImport } from './routes/_authenticated/material-lots.index'
 import { Route as AuthenticatedMachinesIndexRouteImport } from './routes/_authenticated/machines.index'
 import { Route as AuthenticatedLinesIndexRouteImport } from './routes/_authenticated/lines.index'
+import { Route as AuthenticatedInspectionPlansIndexRouteImport } from './routes/_authenticated/inspection-plans.index'
 import { Route as AuthenticatedHmiIndexRouteImport } from './routes/_authenticated/hmi.index'
 import { Route as AuthenticatedWorkOrdersWoIdRouteImport } from './routes/_authenticated/work-orders.$woId'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users.$userId'
 import { Route as AuthenticatedUnitsUidRouteImport } from './routes/_authenticated/units.$uid'
 import { Route as AuthenticatedStationsStationIdRouteImport } from './routes/_authenticated/stations.$stationId'
+import { Route as AuthenticatedSkillsSkillIdRouteImport } from './routes/_authenticated/skills.$skillId'
+import { Route as AuthenticatedRoutingRulesRuleIdRouteImport } from './routes/_authenticated/routing-rules.$ruleId'
 import { Route as AuthenticatedProductsProductIdRouteImport } from './routes/_authenticated/products.$productId'
 import { Route as AuthenticatedProductionOrdersPoIdRouteImport } from './routes/_authenticated/production-orders.$poId'
 import { Route as AuthenticatedOperatorStationIdRouteImport } from './routes/_authenticated/operator.$stationId'
+import { Route as AuthenticatedNonconformanceNcIdRouteImport } from './routes/_authenticated/nonconformance.$ncId'
 import { Route as AuthenticatedMaterialLotsLotIdRouteImport } from './routes/_authenticated/material-lots.$lotId'
 import { Route as AuthenticatedMachinesMachineIdRouteImport } from './routes/_authenticated/machines.$machineId'
 import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenticated/lines.$lineId'
+import { Route as AuthenticatedInspectionPlansPlanIdRouteImport } from './routes/_authenticated/inspection-plans.$planId'
 import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
 import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
 import { Route as ApiPublicPortalsConnectionIdRouteImport } from './routes/api/public/portals.$connectionId'
@@ -232,6 +240,18 @@ const AuthenticatedStationsIndexRoute =
     path: '/stations/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSkillsIndexRoute =
+  AuthenticatedSkillsIndexRouteImport.update({
+    id: '/skills/',
+    path: '/skills/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRoutingRulesIndexRoute =
+  AuthenticatedRoutingRulesIndexRouteImport.update({
+    id: '/routing-rules/',
+    path: '/routing-rules/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProductsIndexRoute =
   AuthenticatedProductsIndexRouteImport.update({
     id: '/products/',
@@ -248,6 +268,12 @@ const AuthenticatedOperatorIndexRoute =
   AuthenticatedOperatorIndexRouteImport.update({
     id: '/operator/',
     path: '/operator/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedNonconformanceIndexRoute =
+  AuthenticatedNonconformanceIndexRouteImport.update({
+    id: '/nonconformance/',
+    path: '/nonconformance/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMaterialLotsIndexRoute =
@@ -267,6 +293,12 @@ const AuthenticatedLinesIndexRoute = AuthenticatedLinesIndexRouteImport.update({
   path: '/lines/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInspectionPlansIndexRoute =
+  AuthenticatedInspectionPlansIndexRouteImport.update({
+    id: '/inspection-plans/',
+    path: '/inspection-plans/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHmiIndexRoute = AuthenticatedHmiIndexRouteImport.update({
   id: '/hmi/',
   path: '/hmi/',
@@ -295,6 +327,18 @@ const AuthenticatedStationsStationIdRoute =
     path: '/stations/$stationId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSkillsSkillIdRoute =
+  AuthenticatedSkillsSkillIdRouteImport.update({
+    id: '/skills/$skillId',
+    path: '/skills/$skillId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRoutingRulesRuleIdRoute =
+  AuthenticatedRoutingRulesRuleIdRouteImport.update({
+    id: '/routing-rules/$ruleId',
+    path: '/routing-rules/$ruleId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProductsProductIdRoute =
   AuthenticatedProductsProductIdRouteImport.update({
     id: '/products/$productId',
@@ -313,6 +357,12 @@ const AuthenticatedOperatorStationIdRoute =
     path: '/operator/$stationId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedNonconformanceNcIdRoute =
+  AuthenticatedNonconformanceNcIdRouteImport.update({
+    id: '/nonconformance/$ncId',
+    path: '/nonconformance/$ncId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMaterialLotsLotIdRoute =
   AuthenticatedMaterialLotsLotIdRouteImport.update({
     id: '/material-lots/$lotId',
@@ -329,6 +379,12 @@ const AuthenticatedLinesLineIdRoute =
   AuthenticatedLinesLineIdRouteImport.update({
     id: '/lines/$lineId',
     path: '/lines/$lineId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInspectionPlansPlanIdRoute =
+  AuthenticatedInspectionPlansPlanIdRouteImport.update({
+    id: '/inspection-plans/$planId',
+    path: '/inspection-plans/$planId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedHmiStationIdRoute =
@@ -426,23 +482,31 @@ export interface FileRoutesByFullPath {
   '/wip': typeof AuthenticatedWipRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
+  '/inspection-plans/$planId': typeof AuthenticatedInspectionPlansPlanIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
   '/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
   '/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
+  '/nonconformance/$ncId': typeof AuthenticatedNonconformanceNcIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRoute
+  '/routing-rules/$ruleId': typeof AuthenticatedRoutingRulesRuleIdRoute
+  '/skills/$skillId': typeof AuthenticatedSkillsSkillIdRoute
   '/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
   '/units/$uid': typeof AuthenticatedUnitsUidRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/hmi/': typeof AuthenticatedHmiIndexRoute
+  '/inspection-plans/': typeof AuthenticatedInspectionPlansIndexRoute
   '/lines/': typeof AuthenticatedLinesIndexRoute
   '/machines/': typeof AuthenticatedMachinesIndexRoute
   '/material-lots/': typeof AuthenticatedMaterialLotsIndexRoute
+  '/nonconformance/': typeof AuthenticatedNonconformanceIndexRoute
   '/operator/': typeof AuthenticatedOperatorIndexRoute
   '/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
   '/products/': typeof AuthenticatedProductsIndexRoute
+  '/routing-rules/': typeof AuthenticatedRoutingRulesIndexRoute
+  '/skills/': typeof AuthenticatedSkillsIndexRoute
   '/stations/': typeof AuthenticatedStationsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
@@ -487,23 +551,31 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
+  '/inspection-plans/$planId': typeof AuthenticatedInspectionPlansPlanIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
   '/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
   '/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
+  '/nonconformance/$ncId': typeof AuthenticatedNonconformanceNcIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRoute
+  '/routing-rules/$ruleId': typeof AuthenticatedRoutingRulesRuleIdRoute
+  '/skills/$skillId': typeof AuthenticatedSkillsSkillIdRoute
   '/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
   '/units/$uid': typeof AuthenticatedUnitsUidRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/hmi': typeof AuthenticatedHmiIndexRoute
+  '/inspection-plans': typeof AuthenticatedInspectionPlansIndexRoute
   '/lines': typeof AuthenticatedLinesIndexRoute
   '/machines': typeof AuthenticatedMachinesIndexRoute
   '/material-lots': typeof AuthenticatedMaterialLotsIndexRoute
+  '/nonconformance': typeof AuthenticatedNonconformanceIndexRoute
   '/operator': typeof AuthenticatedOperatorIndexRoute
   '/production-orders': typeof AuthenticatedProductionOrdersIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
+  '/routing-rules': typeof AuthenticatedRoutingRulesIndexRoute
+  '/skills': typeof AuthenticatedSkillsIndexRoute
   '/stations': typeof AuthenticatedStationsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/work-orders': typeof AuthenticatedWorkOrdersIndexRoute
@@ -550,23 +622,31 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/_authenticated/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
+  '/_authenticated/inspection-plans/$planId': typeof AuthenticatedInspectionPlansPlanIdRoute
   '/_authenticated/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
   '/_authenticated/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
   '/_authenticated/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
+  '/_authenticated/nonconformance/$ncId': typeof AuthenticatedNonconformanceNcIdRoute
   '/_authenticated/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/_authenticated/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRoute
+  '/_authenticated/routing-rules/$ruleId': typeof AuthenticatedRoutingRulesRuleIdRoute
+  '/_authenticated/skills/$skillId': typeof AuthenticatedSkillsSkillIdRoute
   '/_authenticated/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
   '/_authenticated/units/$uid': typeof AuthenticatedUnitsUidRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/_authenticated/hmi/': typeof AuthenticatedHmiIndexRoute
+  '/_authenticated/inspection-plans/': typeof AuthenticatedInspectionPlansIndexRoute
   '/_authenticated/lines/': typeof AuthenticatedLinesIndexRoute
   '/_authenticated/machines/': typeof AuthenticatedMachinesIndexRoute
   '/_authenticated/material-lots/': typeof AuthenticatedMaterialLotsIndexRoute
+  '/_authenticated/nonconformance/': typeof AuthenticatedNonconformanceIndexRoute
   '/_authenticated/operator/': typeof AuthenticatedOperatorIndexRoute
   '/_authenticated/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
+  '/_authenticated/routing-rules/': typeof AuthenticatedRoutingRulesIndexRoute
+  '/_authenticated/skills/': typeof AuthenticatedSkillsIndexRoute
   '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
@@ -613,23 +693,31 @@ export interface FileRouteTypes {
     | '/wip'
     | '/batches/$batchId'
     | '/hmi/$stationId'
+    | '/inspection-plans/$planId'
     | '/lines/$lineId'
     | '/machines/$machineId'
     | '/material-lots/$lotId'
+    | '/nonconformance/$ncId'
     | '/operator/$stationId'
     | '/production-orders/$poId'
     | '/products/$productId'
+    | '/routing-rules/$ruleId'
+    | '/skills/$skillId'
     | '/stations/$stationId'
     | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
     | '/hmi/'
+    | '/inspection-plans/'
     | '/lines/'
     | '/machines/'
     | '/material-lots/'
+    | '/nonconformance/'
     | '/operator/'
     | '/production-orders/'
     | '/products/'
+    | '/routing-rules/'
+    | '/skills/'
     | '/stations/'
     | '/users/'
     | '/work-orders/'
@@ -674,23 +762,31 @@ export interface FileRouteTypes {
     | '/'
     | '/batches/$batchId'
     | '/hmi/$stationId'
+    | '/inspection-plans/$planId'
     | '/lines/$lineId'
     | '/machines/$machineId'
     | '/material-lots/$lotId'
+    | '/nonconformance/$ncId'
     | '/operator/$stationId'
     | '/production-orders/$poId'
     | '/products/$productId'
+    | '/routing-rules/$ruleId'
+    | '/skills/$skillId'
     | '/stations/$stationId'
     | '/units/$uid'
     | '/users/$userId'
     | '/work-orders/$woId'
     | '/hmi'
+    | '/inspection-plans'
     | '/lines'
     | '/machines'
     | '/material-lots'
+    | '/nonconformance'
     | '/operator'
     | '/production-orders'
     | '/products'
+    | '/routing-rules'
+    | '/skills'
     | '/stations'
     | '/users'
     | '/work-orders'
@@ -736,23 +832,31 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/batches/$batchId'
     | '/_authenticated/hmi/$stationId'
+    | '/_authenticated/inspection-plans/$planId'
     | '/_authenticated/lines/$lineId'
     | '/_authenticated/machines/$machineId'
     | '/_authenticated/material-lots/$lotId'
+    | '/_authenticated/nonconformance/$ncId'
     | '/_authenticated/operator/$stationId'
     | '/_authenticated/production-orders/$poId'
     | '/_authenticated/products/$productId'
+    | '/_authenticated/routing-rules/$ruleId'
+    | '/_authenticated/skills/$skillId'
     | '/_authenticated/stations/$stationId'
     | '/_authenticated/units/$uid'
     | '/_authenticated/users/$userId'
     | '/_authenticated/work-orders/$woId'
     | '/_authenticated/hmi/'
+    | '/_authenticated/inspection-plans/'
     | '/_authenticated/lines/'
     | '/_authenticated/machines/'
     | '/_authenticated/material-lots/'
+    | '/_authenticated/nonconformance/'
     | '/_authenticated/operator/'
     | '/_authenticated/production-orders/'
     | '/_authenticated/products/'
+    | '/_authenticated/routing-rules/'
+    | '/_authenticated/skills/'
     | '/_authenticated/stations/'
     | '/_authenticated/users/'
     | '/_authenticated/work-orders/'
@@ -1002,6 +1106,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/skills/': {
+      id: '/_authenticated/skills/'
+      path: '/skills'
+      fullPath: '/skills/'
+      preLoaderRoute: typeof AuthenticatedSkillsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/routing-rules/': {
+      id: '/_authenticated/routing-rules/'
+      path: '/routing-rules'
+      fullPath: '/routing-rules/'
+      preLoaderRoute: typeof AuthenticatedRoutingRulesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/products/': {
       id: '/_authenticated/products/'
       path: '/products'
@@ -1023,6 +1141,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/nonconformance/': {
+      id: '/_authenticated/nonconformance/'
+      path: '/nonconformance'
+      fullPath: '/nonconformance/'
+      preLoaderRoute: typeof AuthenticatedNonconformanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/material-lots/': {
       id: '/_authenticated/material-lots/'
       path: '/material-lots'
@@ -1042,6 +1167,13 @@ declare module '@tanstack/react-router' {
       path: '/lines'
       fullPath: '/lines/'
       preLoaderRoute: typeof AuthenticatedLinesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inspection-plans/': {
+      id: '/_authenticated/inspection-plans/'
+      path: '/inspection-plans'
+      fullPath: '/inspection-plans/'
+      preLoaderRoute: typeof AuthenticatedInspectionPlansIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hmi/': {
@@ -1079,6 +1211,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStationsStationIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/skills/$skillId': {
+      id: '/_authenticated/skills/$skillId'
+      path: '/skills/$skillId'
+      fullPath: '/skills/$skillId'
+      preLoaderRoute: typeof AuthenticatedSkillsSkillIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/routing-rules/$ruleId': {
+      id: '/_authenticated/routing-rules/$ruleId'
+      path: '/routing-rules/$ruleId'
+      fullPath: '/routing-rules/$ruleId'
+      preLoaderRoute: typeof AuthenticatedRoutingRulesRuleIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/products/$productId': {
       id: '/_authenticated/products/$productId'
       path: '/products/$productId'
@@ -1100,6 +1246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorStationIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/nonconformance/$ncId': {
+      id: '/_authenticated/nonconformance/$ncId'
+      path: '/nonconformance/$ncId'
+      fullPath: '/nonconformance/$ncId'
+      preLoaderRoute: typeof AuthenticatedNonconformanceNcIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/material-lots/$lotId': {
       id: '/_authenticated/material-lots/$lotId'
       path: '/material-lots/$lotId'
@@ -1119,6 +1272,13 @@ declare module '@tanstack/react-router' {
       path: '/lines/$lineId'
       fullPath: '/lines/$lineId'
       preLoaderRoute: typeof AuthenticatedLinesLineIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inspection-plans/$planId': {
+      id: '/_authenticated/inspection-plans/$planId'
+      path: '/inspection-plans/$planId'
+      fullPath: '/inspection-plans/$planId'
+      preLoaderRoute: typeof AuthenticatedInspectionPlansPlanIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hmi/$stationId': {
@@ -1237,23 +1397,31 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
   AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
+  AuthenticatedInspectionPlansPlanIdRoute: typeof AuthenticatedInspectionPlansPlanIdRoute
   AuthenticatedLinesLineIdRoute: typeof AuthenticatedLinesLineIdRoute
   AuthenticatedMachinesMachineIdRoute: typeof AuthenticatedMachinesMachineIdRoute
   AuthenticatedMaterialLotsLotIdRoute: typeof AuthenticatedMaterialLotsLotIdRoute
+  AuthenticatedNonconformanceNcIdRoute: typeof AuthenticatedNonconformanceNcIdRoute
   AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
   AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
   AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
+  AuthenticatedRoutingRulesRuleIdRoute: typeof AuthenticatedRoutingRulesRuleIdRoute
+  AuthenticatedSkillsSkillIdRoute: typeof AuthenticatedSkillsSkillIdRoute
   AuthenticatedStationsStationIdRoute: typeof AuthenticatedStationsStationIdRoute
   AuthenticatedUnitsUidRoute: typeof AuthenticatedUnitsUidRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
   AuthenticatedWorkOrdersWoIdRoute: typeof AuthenticatedWorkOrdersWoIdRoute
   AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
+  AuthenticatedInspectionPlansIndexRoute: typeof AuthenticatedInspectionPlansIndexRoute
   AuthenticatedLinesIndexRoute: typeof AuthenticatedLinesIndexRoute
   AuthenticatedMachinesIndexRoute: typeof AuthenticatedMachinesIndexRoute
   AuthenticatedMaterialLotsIndexRoute: typeof AuthenticatedMaterialLotsIndexRoute
+  AuthenticatedNonconformanceIndexRoute: typeof AuthenticatedNonconformanceIndexRoute
   AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
   AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
+  AuthenticatedRoutingRulesIndexRoute: typeof AuthenticatedRoutingRulesIndexRoute
+  AuthenticatedSkillsIndexRoute: typeof AuthenticatedSkillsIndexRoute
   AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
@@ -1288,25 +1456,35 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedBatchesBatchIdRoute: AuthenticatedBatchesBatchIdRoute,
   AuthenticatedHmiStationIdRoute: AuthenticatedHmiStationIdRoute,
+  AuthenticatedInspectionPlansPlanIdRoute:
+    AuthenticatedInspectionPlansPlanIdRoute,
   AuthenticatedLinesLineIdRoute: AuthenticatedLinesLineIdRoute,
   AuthenticatedMachinesMachineIdRoute: AuthenticatedMachinesMachineIdRoute,
   AuthenticatedMaterialLotsLotIdRoute: AuthenticatedMaterialLotsLotIdRoute,
+  AuthenticatedNonconformanceNcIdRoute: AuthenticatedNonconformanceNcIdRoute,
   AuthenticatedOperatorStationIdRoute: AuthenticatedOperatorStationIdRoute,
   AuthenticatedProductionOrdersPoIdRoute:
     AuthenticatedProductionOrdersPoIdRoute,
   AuthenticatedProductsProductIdRoute: AuthenticatedProductsProductIdRoute,
+  AuthenticatedRoutingRulesRuleIdRoute: AuthenticatedRoutingRulesRuleIdRoute,
+  AuthenticatedSkillsSkillIdRoute: AuthenticatedSkillsSkillIdRoute,
   AuthenticatedStationsStationIdRoute: AuthenticatedStationsStationIdRoute,
   AuthenticatedUnitsUidRoute: AuthenticatedUnitsUidRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
   AuthenticatedWorkOrdersWoIdRoute: AuthenticatedWorkOrdersWoIdRoute,
   AuthenticatedHmiIndexRoute: AuthenticatedHmiIndexRoute,
+  AuthenticatedInspectionPlansIndexRoute:
+    AuthenticatedInspectionPlansIndexRoute,
   AuthenticatedLinesIndexRoute: AuthenticatedLinesIndexRoute,
   AuthenticatedMachinesIndexRoute: AuthenticatedMachinesIndexRoute,
   AuthenticatedMaterialLotsIndexRoute: AuthenticatedMaterialLotsIndexRoute,
+  AuthenticatedNonconformanceIndexRoute: AuthenticatedNonconformanceIndexRoute,
   AuthenticatedOperatorIndexRoute: AuthenticatedOperatorIndexRoute,
   AuthenticatedProductionOrdersIndexRoute:
     AuthenticatedProductionOrdersIndexRoute,
   AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
+  AuthenticatedRoutingRulesIndexRoute: AuthenticatedRoutingRulesIndexRoute,
+  AuthenticatedSkillsIndexRoute: AuthenticatedSkillsIndexRoute,
   AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWorkOrdersIndexRoute: AuthenticatedWorkOrdersIndexRoute,

@@ -28,6 +28,24 @@ export async function applyInbound(admin: any, conn: Conn, msg: Inbound): Promis
   };
 
   try {
+    if (conn.portal === "qa" && msg.event_type === "inspection_result" && d["operation_id"]) {
+      const opId = String(d["operation_id"]), planId = String(d["plan_id"] ?? "");
+      const result = String(d["result"] ?? "");
+      if (!["pass", "fail"].includes(result)) return log("rejected", "result must be pass or fail", "order_operations", opId);
+      const { data: op } = await admin.from("order_operations").select("id, organization_id, production_order_id, batch_id, status").eq("id", opId).maybeSingle();
+      if (!op || op.organization_id !== conn.organization_id) return log("rejected", "Operation not found", "order_operations", opId);
+      const { data: plan } = await admin.from("inspection_plans").select("id, organization_id, performed_by").eq("id", planId).maybeSingle();
+      if (!plan || plan.organization_id !== conn.organization_id || plan.performed_by !== "qa_portal") return log("rejected", "Inspection plan not found or not done by the QA portal", "order_operations", opId);
+      const { count } = await admin.from("inspection_results").select("id", { count: "exact", head: true }).eq("operation_id", opId).eq("plan_id", planId);
+      const failed = Array.isArray(d["failed_checks"]) ? (d["failed_checks"] as unknown[]).map(String) : result === "fail" ? ["QA portal: failed"] : [];
+      const { error } = await admin.from("inspection_results").insert({
+        organization_id: op.organization_id, plan_id: planId, operation_id: opId, production_order_id: op.production_order_id, batch_id: op.batch_id,
+        sample_no: (count ?? 0) + 1, values: (d["values"] as object) ?? {}, failed_checks: failed, result, source: "qa_portal",
+        notes: d["notes"] ? String(d["notes"]) : null, inspector_name: who,
+      });
+      if (error) return log("rejected", error.message, "order_operations", opId);
+      return log("applied", `Inspection ${result} recorded for the step`, "order_operations", opId);
+    }
     if (conn.portal === "qa" && msg.event_type === "inspection_result") {
       const id = String(d["rework_task_id"] ?? "");
       const result = String(d["result"] ?? "");
@@ -60,7 +78,33 @@ export async function applyInbound(admin: any, conn: Conn, msg: Inbound): Promis
       return log("applied", `${mine.length} hold(s) released`, "station_holds", mine[0].id);
     }
     if (conn.portal === "qa" && msg.event_type === "nonconformance_decision") {
-      return log("applied", `Decision recorded: ${String(d["decision"] ?? "unknown")}`, "nonconformance", String(d["reference"] ?? ""));
+      const ref = String(d["reference"] ?? d["nonconformance_id"] ?? "");
+      const decision = String(d["decision"] ?? "");
+      if (!["use_as_is", "rework", "scrap", "return_to_supplier"].includes(decision)) return log("rejected", "decision must be use_as_is, rework, scrap or return_to_supplier", "nonconformances", ref);
+      const { data: nc } = await admin.from("nonconformances").select("*").eq("id", ref).maybeSingle();
+      if (!nc) {
+        // Older quality issues (exceptions) have no NC record — acknowledge only.
+        const { data: ex } = await admin.from("production_exceptions").select("id, organization_id").eq("id", ref).maybeSingle();
+        if (ex && ex.organization_id === conn.organization_id) return log("applied", `Decision recorded: ${decision}`, "production_exceptions", ref);
+        return log("rejected", "Nonconformance not found", "nonconformances", ref);
+      }
+      if (nc.organization_id !== conn.organization_id) return log("rejected", "Nonconformance not found", "nonconformances", ref);
+      if (nc.status !== "open") return log("rejected", `Nonconformance already ${nc.status} (${nc.decision})`, "nonconformances", ref);
+      let reworkId: string | null = null;
+      if (decision === "rework") {
+        const { data: t, error: te } = await admin.from("rework_tasks").insert({
+          organization_id: nc.organization_id, production_order_id: nc.production_order_id, operation_id: nc.operation_id, batch_id: nc.batch_id,
+          qty: Number(nc.qty) || 0, uom: nc.uom, reason: `QA decision on ${nc.id}: ${nc.description}`, created_by_name: who,
+        }).select("id").single();
+        if (te) return log("rejected", te.message, "nonconformances", ref);
+        reworkId = t.id;
+      }
+      const { error } = await admin.from("nonconformances").update({
+        status: decision === "use_as_is" ? "closed" : "decided", decision, decision_notes: d["notes"] ? String(d["notes"]) : null,
+        decided_by_name: who, decided_at: new Date().toISOString(), decision_source: "qa_portal", rework_task_id: reworkId,
+      }).eq("id", ref);
+      if (error) return log("rejected", error.message, "nonconformances", ref);
+      return log("applied", `Decision "${decision.replace(/_/g, " ")}" applied${reworkId ? " — rework task created" : ""}`, "nonconformances", ref);
     }
     return log("rejected", `Unknown event "${msg.event_type}" for the ${conn.portal} portal`);
   } catch (e) {

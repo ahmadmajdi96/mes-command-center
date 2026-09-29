@@ -16,6 +16,7 @@ import {
   getReleaseCheck, startOperation, finishSetup, changeOperationStatus, confirmOperation, approveOperation,
   raiseException, resolveException, placeOrderHold, releaseOrderHold, modifyOrder,
 } from "@/lib/mes/operations.functions";
+import { StepQuality } from "@/components/step-quality";
 
 const inp = "h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-xs focus:border-primary/50 focus:outline-none";
 const btn = "flex h-8 items-center gap-1 rounded-lg bg-primary px-2.5 text-xs font-medium text-primary-foreground disabled:opacity-50";
@@ -214,6 +215,7 @@ export function OperationsBoard({ po, ops, batches, locked }: { po: Po; ops: any
                 </div>
               )}
               <div className="mt-2 whitespace-pre-wrap rounded-lg border border-border/40 bg-background/30 p-2 text-xs"><span className="text-muted-foreground">Work instructions: </span>{o.work_instructions || "—"}</div>
+              <StepQuality op={o} locked={locked} />
               {mine.length > 0 && (
                 <details className="mt-2 text-[11px]">
                   <summary className="cursor-pointer text-muted-foreground">Step history ({mine.length})</summary>
