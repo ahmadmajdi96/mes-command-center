@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.machine_command_safety_check() FROM PUBLIC, anon, authenticated;
