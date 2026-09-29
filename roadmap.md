@@ -6,7 +6,8 @@
 - [x] Machines: 11 protocols, tags/limits/hold-on-breach, commands (simulated/manual/edge), edge box feed
 - [ ] Live pull from custom ERP — on hold per user (standalone)
 - [x] Protocol drivers (11 protocols) with mock devices: test connection, reads with wire frames, commands with device answers; 8 demo machines
-- [ ] Real machine drivers on the edge box — needs real machine list + safety sign-off
+- [x] Machine list import (CSV) + safety sign-off workflow (checklist, password signature, expiry, auto-void on change, commands blocked)
+- [ ] Real machine drivers on the edge box — needs the real machines connected to an edge box
 - [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page
 - [x] Control Center filters, OEE, Plant Analytics
 - [x] Workforce: Shift Management
@@ -17,7 +18,7 @@
 - [x] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
 - [x] Security: permission lookups limited to the signed-in person
 - [x] Phase C: work instructions, approval workflows (release/scrap/skip/version), e-signatures (password + reason), tools, shared shift plans
-- [ ] Phase C: live machine connection layer — needs real machine list + safety sign-off
+- [x] Phase C: machine safety sign-off gating commands
 - [x] Phase C: request-approval buttons on order and step pages; self-approval blocked; signing QA-tested
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
 - [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
