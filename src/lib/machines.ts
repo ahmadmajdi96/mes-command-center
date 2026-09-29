@@ -20,4 +20,11 @@ export type Machine = {
   id: string; organization_id: string; station_id: string | null; name: string; vendor: string | null; model: string | null;
   protocol: string; endpoint: string | null; connection_mode: "simulated" | "manual" | "edge"; tags: MachineTag[]; commands: MachineCommand[];
   status: string; last_seen_at: string | null; notes: string | null; created_at: string;
+  safety_status?: string; safety_valid_until?: string | null; safety_signed_by?: string | null; safety_signed_at?: string | null;
+};
+
+export const safetyLabel = (m: { safety_status?: string; safety_valid_until?: string | null }) => {
+  const s = m.safety_status ?? "not_signed";
+  if (s === "approved" && m.safety_valid_until && m.safety_valid_until < new Date().toISOString().slice(0, 10)) return { text: "Sign-off expired", tone: "text-destructive" };
+  return ({ approved: { text: "Signed off", tone: "text-success" }, needs_resign: { text: "Changed — re-sign needed", tone: "text-warning" }, revoked: { text: "Revoked", tone: "text-destructive" } } as Record<string, { text: string; tone: string }>)[s] ?? { text: "Not signed", tone: "text-muted-foreground" };
 };

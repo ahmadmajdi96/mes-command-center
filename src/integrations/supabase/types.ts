@@ -1267,9 +1267,67 @@ export type Database = {
           },
         ]
       }
+      machine_safety_signoffs: {
+        Row: {
+          checklist: Json
+          config_hash: string | null
+          created_at: string
+          decision: string
+          id: string
+          machine_id: string
+          organization_id: string
+          reason: string
+          signed_by: string
+          signed_by_name: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          checklist?: Json
+          config_hash?: string | null
+          created_at?: string
+          decision: string
+          id?: string
+          machine_id: string
+          organization_id: string
+          reason: string
+          signed_by: string
+          signed_by_name?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          checklist?: Json
+          config_hash?: string | null
+          created_at?: string
+          decision?: string
+          id?: string
+          machine_id?: string
+          organization_id?: string
+          reason?: string
+          signed_by?: string
+          signed_by_name?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_safety_signoffs_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_safety_signoffs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       machines: {
         Row: {
           commands: Json
+          config_hash: string | null
           connection_mode: string
           created_at: string
           endpoint: string | null
@@ -1280,6 +1338,10 @@ export type Database = {
           notes: string | null
           organization_id: string
           protocol: string
+          safety_signed_at: string | null
+          safety_signed_by: string | null
+          safety_status: string
+          safety_valid_until: string | null
           station_id: string | null
           status: string
           tags: Json
@@ -1288,6 +1350,7 @@ export type Database = {
         }
         Insert: {
           commands?: Json
+          config_hash?: string | null
           connection_mode?: string
           created_at?: string
           endpoint?: string | null
@@ -1298,6 +1361,10 @@ export type Database = {
           notes?: string | null
           organization_id?: string
           protocol: string
+          safety_signed_at?: string | null
+          safety_signed_by?: string | null
+          safety_status?: string
+          safety_valid_until?: string | null
           station_id?: string | null
           status?: string
           tags?: Json
@@ -1306,6 +1373,7 @@ export type Database = {
         }
         Update: {
           commands?: Json
+          config_hash?: string | null
           connection_mode?: string
           created_at?: string
           endpoint?: string | null
@@ -1316,6 +1384,10 @@ export type Database = {
           notes?: string | null
           organization_id?: string
           protocol?: string
+          safety_signed_at?: string | null
+          safety_signed_by?: string | null
+          safety_status?: string
+          safety_valid_until?: string | null
           station_id?: string | null
           status?: string
           tags?: Json

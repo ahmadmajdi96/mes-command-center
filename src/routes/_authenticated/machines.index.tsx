@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
-import { PROTOCOLS, protocolName, type Machine } from "@/lib/machines";
+import { PROTOCOLS, protocolName, safetyLabel, type Machine } from "@/lib/machines";
 
 export const Route = createFileRoute("/_authenticated/machines/")({
   head: () => ({
@@ -27,6 +27,27 @@ function Page() {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ id: "", name: "", protocol: "opcua", endpoint: "", station_id: "", vendor: "", connection_mode: "simulated" });
   const [err, setErr] = useState("");
+  const [imp, setImp] = useState(false);
+  const [csv, setCsv] = useState("");
+  const [impMsg, setImpMsg] = useState("");
+  const runImport = async () => {
+    setImpMsg("");
+    const lines = csv.trim().split(/\r?\n/).filter(Boolean);
+    const head = lines.shift()?.split(",").map((h) => h.trim().toLowerCase()) ?? [];
+    if (!head.includes("name") || !head.includes("protocol")) return setImpMsg("First line must be a header with at least: name, protocol");
+    let ok = 0; const bad: string[] = [];
+    for (const [i, line] of lines.entries()) {
+      const c = line.split(",").map((x) => x.trim()); const r: Record<string, string> = {}; head.forEach((h, j) => (r[h] = c[j] ?? ""));
+      const proto = PROTOCOLS.find((p) => p.key === r.protocol || p.name.toLowerCase() === r.protocol.toLowerCase())?.key;
+      if (!r.name || !proto) { bad.push(`line ${i + 2}: ${!r.name ? "no name" : `unknown protocol "${r.protocol}"`}`); continue; }
+      try {
+        await w.insert.mutateAsync({ id: r.id || `MC-${Date.now().toString(36).toUpperCase()}${i}`, name: r.name, vendor: r.vendor || null, model: r.model || null, protocol: proto, endpoint: r.endpoint || null,
+          station_id: r.station_id || null, connection_mode: ["simulated", "manual", "edge"].includes(r.mode) ? r.mode : "simulated", tags: [], commands: [] });
+        ok++;
+      } catch (e) { bad.push(`line ${i + 2}: ${errMsg(e)}`); }
+    }
+    setImpMsg(`${ok} added${bad.length ? ` · ${bad.length} refused — ${bad.join("; ")}` : ""}`);
+  };
   const list = machines.filter((m) => !q || `${m.id} ${m.name} ${m.vendor} ${protocolName(m.protocol)}`.toLowerCase().includes(q.toLowerCase()));
   const create = async () => {
     setErr("");
@@ -40,6 +61,7 @@ function Page() {
       <div className="flex items-center gap-3">
         <Link to="/" className="rounded-lg border border-border/60 p-2" aria-label="Back"><ArrowLeft className="h-4 w-4" /></Link>
         <div className="flex-1"><h1 className="text-2xl font-semibold">Machines</h1><p className="text-sm text-muted-foreground">Read values from and send commands to line machines. Simulated or manual until an edge box is connected.</p></div>
+        <button onClick={() => setImp(!imp)} className="rounded-lg border border-border/60 px-3 py-2 text-sm">Import machine list</button>
         <button onClick={() => setOpen(!open)} className="flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"><Plus className="h-4 w-4" />Add machine</button>
       </div>
       {open && (
@@ -60,10 +82,18 @@ function Page() {
           {err && <div className="text-destructive md:col-span-3">{err}</div>}
         </div>
       )}
+      {imp && (
+        <div className="glass-panel space-y-2 rounded-2xl p-4 text-sm">
+          <p className="text-muted-foreground">Paste your machine list as CSV. Header: <code>id,name,vendor,model,protocol,endpoint,station_id,mode</code> (protocol = key or name, e.g. opcua / Modbus TCP; mode = simulated, manual or edge). New machines start as "Not signed" — commands stay blocked until a safety sign-off.</p>
+          <textarea aria-label="Machine list CSV" rows={6} value={csv} onChange={(e) => setCsv(e.target.value)} className="w-full rounded-lg border border-border/60 bg-background p-2 font-mono text-xs" placeholder={"id,name,vendor,model,protocol,endpoint,station_id,mode\nMC-MIX-01,Mixer 1,Bühler,MX2,opcua,opc.tcp://10.0.0.11:4840,,edge"} />
+          <button disabled={!csv.trim()} onClick={runImport} className="rounded-lg bg-primary px-3 py-1 text-primary-foreground disabled:opacity-50">Import</button>
+          {impMsg && <p>{impMsg}</p>}
+        </div>
+      )}
       <input aria-label="Search" placeholder="Search machines…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full max-w-sm rounded-lg border border-border/60 bg-background px-3 py-2 text-sm" />
       <div className="glass-panel overflow-x-auto rounded-2xl">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-muted-foreground"><th className="p-3">Machine</th><th>Protocol</th><th>Station</th><th>Mode</th><th>Status</th><th>Last seen</th></tr></thead>
+          <thead><tr className="text-left text-muted-foreground"><th className="p-3">Machine</th><th>Protocol</th><th>Station</th><th>Mode</th><th>Status</th><th>Safety</th><th>Last seen</th></tr></thead>
           <tbody>
             {list.map((m) => (
               <tr key={m.id} onClick={() => nav({ to: "/machines/$machineId", params: { machineId: m.id } })} className="cursor-pointer border-t border-border/40 hover:bg-muted/40">
@@ -72,10 +102,11 @@ function Page() {
                 <td>{stations.find((s) => s.id === m.station_id)?.name ?? "—"}</td>
                 <td className="capitalize">{m.connection_mode}</td>
                 <td className={m.status === "online" ? "text-success" : "text-muted-foreground"}>{m.status}</td>
+                <td className={safetyLabel(m).tone}>{safetyLabel(m).text}</td>
                 <td>{m.last_seen_at ? new Date(m.last_seen_at).toLocaleString() : "—"}</td>
               </tr>
             ))}
-            {!list.length && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No machines yet.</td></tr>}
+            {!list.length && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No machines yet.</td></tr>}
           </tbody>
         </table>
       </div>

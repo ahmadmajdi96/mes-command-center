@@ -2,11 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
-import { PROTOCOLS, protocolName, type Machine, type MachineTag, type MachineCommand } from "@/lib/machines";
+import { PROTOCOLS, protocolName, safetyLabel, type Machine, type MachineTag, type MachineCommand } from "@/lib/machines";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { DRIVERS } from "@/lib/mes/machine-drivers";
-import { testMachineConnection, pollMachine, sendMachineCommand } from "@/lib/mes/machines.functions";
+import { testMachineConnection, pollMachine, sendMachineCommand, signMachineSafety, SAFETY_CHECKS } from "@/lib/mes/machines.functions";
 
 export const Route = createFileRoute("/_authenticated/machines/$machineId")({
   head: ({ params }) => ({
@@ -34,6 +34,7 @@ function Page() {
     <div className="space-y-4 p-6">
       <div className="flex items-center gap-3"><Back /><div><h1 className="text-2xl font-semibold">{m.name}</h1>
         <p className="text-sm text-muted-foreground">{m.id} · {protocolName(m.protocol)} · {m.endpoint || "no address"} · <span className="capitalize">{m.connection_mode}</span> · {m.status}</p></div></div>
+      <SafetyPanel m={m} />
       <Settings m={m} />
       <DriverPanel m={m} />
       <div className="grid gap-4 lg:grid-cols-2"><Readings m={m} /><Commands m={m} /></div>
@@ -207,6 +208,50 @@ function DriverPanel({ m }: { m: Machine }) {
         <p className={r.ok ? "text-success" : "text-destructive"}>{r.ok ? "Connection settings valid" : "Connection settings have problems"} · {r.driver} via {r.transport}{r.handshake ? ` · ${r.handshake}` : ""}</p>
         <ul>{r.checks.map((c, i) => <li key={i} className={c.ok ? "text-muted-foreground" : "text-destructive"}>{c.ok ? "✓" : "✗"} {c.item}{c.error ? ` — ${c.error}` : ""}</li>)}</ul>
       </div>}
+    </section>
+  );
+}
+
+function SafetyPanel({ m }: { m: Machine }) {
+  const { data: hist = [] } = useRows<any>("machine_safety_signoffs", { eq: { machine_id: m.id } });
+  const sign = useServerFn(signMachineSafety);
+  const qc = useQueryClient();
+  const [open, setOpen] = useState<"approved" | "revoked" | null>(null);
+  const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [reason, setReason] = useState("");
+  const [until, setUntil] = useState(new Date(Date.now() + 180 * 864e5).toISOString().slice(0, 10));
+  const [pw, setPw] = useState("");
+  const [msg, setMsg] = useState("");
+  const l = safetyLabel(m);
+  const submit = async () => {
+    setMsg("");
+    try {
+      await sign({ data: { machineId: m.id, decision: open!, checklist: checks, reason, validUntil: open === "approved" ? until : undefined, password: pw } });
+      setOpen(null); setPw(""); setReason(""); setChecks({}); qc.invalidateQueries(); setMsg("Signed");
+    } catch (e) { setMsg(errMsg(e)); }
+  };
+  return (
+    <section className="glass-panel space-y-3 rounded-2xl p-4 text-sm" data-testid="safety-panel">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div><h2 className="font-semibold">Safety sign-off</h2>
+          <p><span className={l.tone}>{l.text}</span>{m.safety_signed_by ? ` · ${m.safety_signed_by}` : ""}{m.safety_valid_until ? ` · valid until ${m.safety_valid_until}` : ""}</p>
+          <p className="text-xs text-muted-foreground">Commands to an edge-box machine and any safety-relevant command are blocked until signed off. Changing the address, protocol, data points or commands voids the sign-off.</p></div>
+        <div className="flex gap-2">
+          <button onClick={() => setOpen(open === "approved" ? null : "approved")} className="rounded-lg bg-primary px-3 py-1 text-primary-foreground">Sign off</button>
+          {m.safety_status === "approved" && <button onClick={() => setOpen(open === "revoked" ? null : "revoked")} className="rounded-lg border border-destructive px-3 py-1 text-destructive">Revoke</button>}
+        </div>
+      </div>
+      {open && <div className="space-y-2 rounded-xl border border-border/60 p-3">
+        {open === "approved" && <>{SAFETY_CHECKS.map((c) => (
+          <label key={c.key} className="flex items-center gap-2"><input type="checkbox" checked={!!checks[c.key]} onChange={(e) => setChecks({ ...checks, [c.key]: e.target.checked })} />{c.label}</label>))}
+          <label className="flex items-center gap-2">Valid until <input type="date" aria-label="Valid until" value={until} onChange={(e) => setUntil(e.target.value)} className={inp} /></label></>}
+        <input aria-label="Sign-off reason" placeholder="Reason / reference (e.g. commissioning report no.)" value={reason} onChange={(e) => setReason(e.target.value)} className={`${inp} w-full`} />
+        <input aria-label="Password" type="password" placeholder="Your password (electronic signature)" value={pw} onChange={(e) => setPw(e.target.value)} className={`${inp} w-full`} />
+        <button disabled={!pw || reason.trim().length < 3} onClick={submit} className="rounded-lg bg-primary px-3 py-1 text-primary-foreground disabled:opacity-50">{open === "approved" ? "Sign safety approval" : "Sign revocation"}</button>
+      </div>}
+      {msg && <p className={msg === "Signed" ? "text-success" : "text-destructive"}>{msg}</p>}
+      {!!hist.length && <table className="w-full text-xs"><thead><tr className="text-left text-muted-foreground"><th>Time</th><th>Decision</th><th>By</th><th>Reason</th><th>Valid until</th></tr></thead>
+        <tbody>{hist.map((h) => <tr key={h.id} className="border-t border-border/40"><td>{new Date(h.created_at).toLocaleString()}</td><td className={h.decision === "approved" ? "text-success" : "text-destructive"}>{h.decision}</td><td>{h.signed_by_name}</td><td>{h.reason}</td><td>{h.valid_until ?? "—"}</td></tr>)}</tbody></table>}
     </section>
   );
 }
