@@ -72,12 +72,16 @@ const monitoring = [
   { title: "Plant Analytics", url: "/analytics", icon: Activity },
   { title: "Telemetry", url: "/telemetry", icon: Activity },
   { title: "Quality Holds", url: "/quality", icon: ShieldCheck },
+  { title: "Inspection Plans", url: "/inspection-plans", icon: ListChecks },
+  { title: "Nonconformance", url: "/nonconformance", icon: AlertOctagon },
+  { title: "Routing Rules", url: "/routing-rules", icon: GitBranch },
   { title: "Waste Reasons", url: "/waste-reasons", icon: Trash2 },
 ];
 
 const workforce = [
   { title: "Users", url: "/users", icon: Users },
   { title: "Assignments", url: "/assignments", icon: UserCog },
+  { title: "Skills & Certifications", url: "/skills", icon: ListChecks },
   { title: "Shifts", url: "/shifts", icon: CalendarDays },
 ];
 
