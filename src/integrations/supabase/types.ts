@@ -1255,6 +1255,62 @@ export type Database = {
           },
         ]
       }
+      mock_portal_inbox: {
+        Row: {
+          connection_id: string
+          created_at: string
+          event_id: string | null
+          event_type: string
+          id: string
+          organization_id: string
+          payload: Json
+          portal: string
+          replied_at: string | null
+          reply_event: string | null
+          reply_outcome: string | null
+          signature_ok: boolean
+          status: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          event_id?: string | null
+          event_type: string
+          id?: string
+          organization_id: string
+          payload?: Json
+          portal: string
+          replied_at?: string | null
+          reply_event?: string | null
+          reply_outcome?: string | null
+          signature_ok?: boolean
+          status?: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          event_id?: string | null
+          event_type?: string
+          id?: string
+          organization_id?: string
+          payload?: Json
+          portal?: string
+          replied_at?: string | null
+          reply_event?: string | null
+          reply_outcome?: string | null
+          signature_ok?: boolean
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mock_portal_inbox_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "portal_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operation_events: {
         Row: {
           actor_name: string | null

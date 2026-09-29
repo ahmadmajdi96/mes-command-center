@@ -3,6 +3,10 @@ import { useState } from "react";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { PROTOCOLS, protocolName, type Machine, type MachineTag, type MachineCommand } from "@/lib/machines";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { DRIVERS } from "@/lib/mes/machine-drivers";
+import { testMachineConnection, pollMachine, sendMachineCommand } from "@/lib/mes/machines.functions";
 
 export const Route = createFileRoute("/_authenticated/machines/$machineId")({
   head: ({ params }) => ({
@@ -31,6 +35,7 @@ function Page() {
       <div className="flex items-center gap-3"><Back /><div><h1 className="text-2xl font-semibold">{m.name}</h1>
         <p className="text-sm text-muted-foreground">{m.id} · {protocolName(m.protocol)} · {m.endpoint || "no address"} · <span className="capitalize">{m.connection_mode}</span> · {m.status}</p></div></div>
       <Settings m={m} />
+      <DriverPanel m={m} />
       <div className="grid gap-4 lg:grid-cols-2"><Readings m={m} /><Commands m={m} /></div>
     </div>
   );
@@ -106,11 +111,14 @@ function Readings({ m }: { m: Machine }) {
     try { for (const p of payload) await w.record.mutateAsync({ machine_id: m.id, organization_id: m.organization_id, ...p }); }
     catch (e) { setErr(errMsg(e)); }
   };
-  const simulate = () => send(m.tags.filter((t) => t.name).map((t) => {
-    const lo = t.min ?? 0, hi = t.max ?? 100, span = hi - lo || 1;
-    const v = lo - span * 0.05 + Math.random() * span * 1.1; // ~10% chance outside limits
-    return { tag: t.name, value: Math.round(v * 100) / 100, source: "simulated" };
-  }));
+  const poll = useServerFn(pollMachine);
+  const qc = useQueryClient();
+  const [frames, setFrames] = useState<{ tag: string; raw: string; quality: string }[]>([]);
+  const simulate = async (force = false) => {
+    setErr("");
+    try { const r = await poll({ data: { machineId: m.id, forceOutOfLimits: force } }); setFrames(r.frames); qc.invalidateQueries(); }
+    catch (e) { setErr(errMsg(e)); }
+  };
   return (
     <section className="glass-panel space-y-3 rounded-2xl p-4 text-sm">
       <h2 className="font-semibold">Readings</h2>
@@ -118,8 +126,11 @@ function Readings({ m }: { m: Machine }) {
         <select aria-label="Tag" value={tag} onChange={(e) => setTag(e.target.value)} className={inp}>{m.tags.map((t) => <option key={t.name} value={t.name}>{t.name}</option>)}</select>
         <input aria-label="Value" placeholder="Value" value={val} onChange={(e) => setVal(e.target.value)} className={`${inp} w-28`} />
         <button disabled={!tag || val === ""} onClick={() => send([{ tag, ...(isNaN(Number(val)) ? { text_value: val } : { value: Number(val) }), source: "manual" }]).then(() => setVal(""))} className="rounded-lg border border-border/60 px-3 py-1 disabled:opacity-50">Record</button>
-        <button disabled={!m.tags.length} onClick={simulate} className="rounded-lg border border-border/60 px-3 py-1 disabled:opacity-50">Simulate read</button>
+        {m.connection_mode === "simulated" && <>
+          <button disabled={!m.tags.length} onClick={() => simulate()} className="rounded-lg border border-border/60 px-3 py-1 disabled:opacity-50">Read via {protocolName(m.protocol)}</button>
+          <button disabled={!m.tags.length} onClick={() => simulate(true)} className="rounded-lg border border-border/60 px-3 py-1 disabled:opacity-50" title="Mock device returns values above the max limit">Read out-of-limit test</button></>}
       </div>
+      {frames.length > 0 && <div className="space-y-1 rounded-lg bg-muted/30 p-2 font-mono text-[10px]" aria-label="Wire frames">{frames.map((f, i) => <div key={i}><b>{f.tag}</b> [{f.quality}] {f.raw}</div>)}</div>}
       {!m.tags.length && <p className="text-muted-foreground">Add tags under Connection first.</p>}
       {err && <p className="text-destructive">{err}</p>}
       <div className="max-h-96 overflow-y-auto">
@@ -141,15 +152,15 @@ function Commands({ m }: { m: Machine }) {
   const [reason, setReason] = useState("");
   const [err, setErr] = useState("");
   const def = m.commands.find((c) => c.name === cmd);
+  const sendCmd = useServerFn(sendMachineCommand);
+  const qc = useQueryClient();
   const send = async () => {
     setErr("");
     if (def?.safety && !reason.trim()) return setErr("This command is safety-relevant: give a reason.");
     if (!confirm(`Send "${cmd}" to ${m.name}?`)) return;
     try {
-      const [row] = (await w.record.mutateAsync({ machine_id: m.id, organization_id: m.organization_id, command: cmd, params: params ? { value: params } : {}, reason: reason || null })) as any[];
-      if (m.connection_mode === "simulated" && row) {
-        await w.update.mutateAsync({ id: row.id, patch: { status: "acknowledged", result: "Simulated machine accepted the command", completed_at: new Date().toISOString() } });
-      }
+      await sendCmd({ data: { machineId: m.id, command: cmd, value: params || undefined, reason: reason || undefined } });
+      qc.invalidateQueries();
       setParams(""); setReason("");
     } catch (e) { setErr(errMsg(e)); }
   };
@@ -167,14 +178,35 @@ function Commands({ m }: { m: Machine }) {
       {m.connection_mode === "edge" && <p className="text-muted-foreground">Commands wait as "queued" until the edge box picks them up.</p>}
       {err && <p className="text-destructive">{err}</p>}
       <div className="max-h-96 overflow-y-auto">
-        <table className="w-full text-xs"><thead><tr className="text-left text-muted-foreground"><th>Time</th><th>Command</th><th>Reason</th><th>Status</th><th>By</th><th /></tr></thead>
+        <table className="w-full text-xs"><thead><tr className="text-left text-muted-foreground"><th>Time</th><th>Command</th><th>Reason</th><th>Status</th><th>Device answer</th><th>By</th><th /></tr></thead>
           <tbody>{rows.slice(0, 200).map((r) => (
             <tr key={r.id} className="border-t border-border/40"><td>{new Date(r.created_at).toLocaleString()}</td><td>{r.command}{r.params?.value ? ` = ${r.params.value}` : ""}</td><td>{r.reason}</td>
-              <td className={r.status === "acknowledged" ? "text-success" : ["rejected", "failed"].includes(r.status) ? "text-destructive" : "text-warning"}>{r.status}</td><td>{r.actor_name}</td>
+              <td className={r.status === "acknowledged" ? "text-success" : ["rejected", "failed"].includes(r.status) ? "text-destructive" : "text-warning"}>{r.status}</td><td className="max-w-xs truncate font-mono text-[10px]" title={r.result ?? ""}>{r.result}</td><td>{r.actor_name}</td>
               <td>{m.connection_mode === "manual" && ["queued", "sent"].includes(r.status) && (
                 <span className="flex gap-1"><button onClick={() => mark(r.id, "acknowledged")} className="underline">Done</button><button onClick={() => mark(r.id, "failed")} className="underline">Failed</button></span>)}</td></tr>
           ))}</tbody></table>
       </div>
+    </section>
+  );
+}
+
+function DriverPanel({ m }: { m: Machine }) {
+  const test = useServerFn(testMachineConnection);
+  const [r, setR] = useState<Awaited<ReturnType<typeof testMachineConnection>> | null>(null);
+  const [err, setErr] = useState("");
+  const d = DRIVERS[m.protocol];
+  return (
+    <section className="glass-panel space-y-2 rounded-2xl p-4 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-semibold">Protocol driver · {protocolName(m.protocol)}</h2>
+        <button onClick={async () => { setErr(""); try { setR(await test({ data: { machineId: m.id } })); } catch (e) { setErr(errMsg(e)); } }} className="rounded-lg border border-border/60 px-3 py-1">Test connection</button>
+      </div>
+      {d && <p className="text-xs text-muted-foreground">Type: {d.family} · address format <code>{d.endpointHelp}</code> · data point format <code>{d.addressHelp}</code>. {m.connection_mode === "simulated" ? "Talking to a mock device that answers like a real one." : m.connection_mode === "edge" ? "The edge box does the real I/O using the same driver settings." : "Values and command results are entered by hand."}</p>}
+      {err && <p className="text-destructive">{err}</p>}
+      {r && <div className="space-y-1 text-xs">
+        <p className={r.ok ? "text-success" : "text-destructive"}>{r.ok ? "Connection settings valid" : "Connection settings have problems"} · {r.driver} via {r.transport}{r.handshake ? ` · ${r.handshake}` : ""}</p>
+        <ul>{r.checks.map((c, i) => <li key={i} className={c.ok ? "text-muted-foreground" : "text-destructive"}>{c.ok ? "✓" : "✗"} {c.item}{c.error ? ` — ${c.error}` : ""}</li>)}</ul>
+      </div>}
     </section>
   );
 }

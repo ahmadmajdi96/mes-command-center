@@ -8,7 +8,8 @@ import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { useListControls } from "@/components/list-controls";
 import { useMyOrg } from "@/lib/wip-db";
 import { useCanAny } from "@/lib/access";
-import { dispatchPortalEvents, simulatePortalReply } from "@/lib/mes/portals.functions";
+import { dispatchPortalEvents, simulatePortalReply, connectMockPortal, mockPortalRespond } from "@/lib/mes/portals.functions";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/integrations")({
   head: () => ({ meta: [
@@ -42,6 +43,18 @@ function IntegrationsPage() {
   const [nc, setNc] = useState({ portal: "maintenance", name: "", url: "" });
   const [sim, setSim] = useState({ conn: "", type: "", body: "" });
   const [dir, setDir] = useState(""); const [st, setSt] = useState("");
+  const mockConnect = useServerFn(connectMockPortal);
+  const respond = useServerFn(mockPortalRespond);
+  const { data: inbox = [] } = useRows<any>("mock_portal_inbox", { enabled: isAdmin });
+  const [auto, setAuto] = useState(true);
+  useEffect(() => {
+    if (!isAdmin || !auto) return;
+    const t = setInterval(async () => { try { const r = await dispatch(); if (r.total) qc.invalidateQueries({ queryKey: ["exec"] }); } catch { /* shown on manual send */ } }, 20_000);
+    return () => clearInterval(t);
+  }, [isAdmin, auto, dispatch, qc]);
+  const reply = async (m: any, event_type: string, data: Record<string, unknown>) => {
+    try { const r = await respond({ data: { inboxId: m.id, event_type, data } }); (r.ok ? toast.success : toast.error)(r.outcome); qc.invalidateQueries({ queryKey: ["exec"] }); } catch (e) { toast.error(errMsg(e)); }
+  };
 
   const rows = useMemo(() => events.filter((e) => (!dir || e.direction === dir) && (!st || e.status === st)), [events, dir, st]);
   const lc = useListControls(rows, { searchKeys: ["event_type", "portal", "status", "ref_id", "last_error"], dateKey: "created_at", exportName: "portal-events" });
@@ -66,12 +79,13 @@ function IntegrationsPage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div><b>{c.name}</b> <span className="uppercase text-muted-foreground">· {c.portal}</span> {!c.active && <span className="text-warning">· paused</span>}</div>
                   <div className="flex gap-2">
+                    {!String(c.outbound_url ?? "").includes("/api/public/mock-portal/") && <button className="text-primary" onClick={async () => { try { await mockConnect({ data: { connectionId: c.id } }); toast.success("Now sending to the built-in mock portal"); qc.invalidateQueries({ queryKey: ["exec"] }); } catch (e) { toast.error(errMsg(e)); } }}>Use mock portal</button>}
                     <button className="text-muted-foreground hover:text-foreground" onClick={() => w.update.mutate({ id: c.id, patch: { active: !c.active } })}>{c.active ? "Pause" : "Resume"}</button>
                     <button className="text-destructive" onClick={() => { if (confirm("Remove connection?")) w.remove.mutate(c.id); }}>Remove</button>
                   </div>
                 </div>
                 <div className="mt-2 grid gap-1 font-mono text-[11px] text-muted-foreground">
-                  <span>Sends to: {c.outbound_url || "— not set"}</span>
+                  <span>Sends to: {c.outbound_url || "— not set"} {String(c.outbound_url ?? "").includes("/api/public/mock-portal/") && <b className="text-warning">(mock portal — replace with the real portal address when it is live)</b>}</span>
                   <span className="flex items-center gap-1">Portal replies to: {origin}/api/public/portals/{c.id}<button onClick={() => { navigator.clipboard.writeText(`${origin}/api/public/portals/${c.id}`); toast.success("Copied"); }}><Copy className="h-3 w-3" /></button></span>
                   <span className="flex items-center gap-1">Shared secret (HMAC-SHA256, header x-mes-signature): ••••{String(c.shared_secret).slice(-6)}<button onClick={() => { navigator.clipboard.writeText(c.shared_secret); toast.success("Secret copied"); }}><Copy className="h-3 w-3" /></button></span>
                   <span>Last sent {c.last_sent_at ? new Date(c.last_sent_at).toLocaleString() : "never"} · last received {c.last_received_at ? new Date(c.last_received_at).toLocaleString() : "never"}</span>
@@ -106,9 +120,28 @@ function IntegrationsPage() {
         </div>
       )}
 
+      {isAdmin && conns.some((c) => String(c.outbound_url ?? "").includes("/api/public/mock-portal/")) && (
+        <div className="glass-panel rounded-2xl p-5">
+          <h2 className="text-sm font-semibold">Mock portal inbox</h2>
+          <p className="text-xs text-muted-foreground">What the stand-in portal received over HTTP (signature checked). Answer like a technician or inspector would — the reply is signed and sent back to this system's public portal address, exactly as the real portal will do.</p>
+          <div className="mt-3 overflow-x-auto"><table className="w-full text-xs">
+            <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-2 text-left">Received</th><th className="text-left">Portal</th><th className="text-left">Event</th><th className="text-left">Details</th><th className="text-left">Status</th><th className="text-left">Answer</th></tr></thead>
+            <tbody>{inbox.slice(0, 50).map((m) => (
+              <tr key={m.id} className="border-t border-border/40 align-top">
+                <td className="py-2">{new Date(m.created_at).toLocaleString()}</td><td className="uppercase">{m.portal}</td><td>{m.event_type}</td>
+                <td className="max-w-xs truncate font-mono text-[10px]" title={JSON.stringify(m.payload)}>{JSON.stringify(m.payload)}</td>
+                <td>{m.status}{m.reply_outcome ? <div className="text-muted-foreground">{m.reply_event}: {m.reply_outcome}</div> : null}</td>
+                <td>{m.status !== "replied" && <MockReplies m={m} reply={reply} />}</td>
+              </tr>))}
+              {inbox.length === 0 && <tr><td colSpan={6} className="py-6 text-center text-muted-foreground">Nothing received yet. Waiting events are sent every 20 seconds while this page is open, or press "Send waiting events".</td></tr>}
+            </tbody></table></div>
+        </div>
+      )}
+
       <div className="glass-panel rounded-2xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-semibold">Message log <span className="text-xs font-normal text-muted-foreground">{pending} waiting to send</span></h2>
+          {isAdmin && <label className="flex items-center gap-1 text-xs text-muted-foreground"><input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />Send automatically</label>}
           {isAdmin && <button className={btn} onClick={async () => { try { const r = await dispatch(); toast.success(`Sent ${r.sent}, failed ${r.failed}`); qc.invalidateQueries({ queryKey: ["exec"] }); } catch (e) { toast.error(errMsg(e)); } }}><Send className="h-3 w-3" />Send waiting events</button>}
         </div>
         <div className="mt-3 flex gap-2">
@@ -131,4 +164,20 @@ function IntegrationsPage() {
       </div>
     </div>
   );
+}
+
+function MockReplies({ m, reply }: { m: any; reply: (m: any, t: string, d: Record<string, unknown>) => void }) {
+  const p = m.payload ?? {};
+  const b = "rounded border border-border/60 px-2 py-0.5 hover:bg-muted/40";
+  if (m.event_type === "inspection_requested") return <span className="flex gap-1">
+    <button className={b} onClick={() => reply(m, "inspection_result", { rework_task_id: p.rework_task_id, result: "pass", notes: "Re-inspection OK", by: "QA inspector (mock)" })}>Pass</button>
+    <button className={b} onClick={() => reply(m, "inspection_result", { rework_task_id: p.rework_task_id, result: "fail", notes: "Still out of spec", by: "QA inspector (mock)" })}>Fail</button></span>;
+  if (m.event_type === "hold_placed") return m.portal === "qa"
+    ? <button className={b} onClick={() => reply(m, "hold_released", { station_hold_id: p.station_hold_id, notes: "Sample checked, OK", by: "QA inspector (mock)" })}>Release hold</button>
+    : <button className={b} onClick={() => reply(m, "work_order_closed", { station_hold_id: p.station_hold_id, notes: "Repaired and tested", by: "Technician (mock)" })}>Close work order</button>;
+  if (m.event_type === "equipment_fault") return <button className={b} onClick={() => reply(m, "work_order_closed", { station_id: p.station_id, machine_id: p.machine_id, notes: "Fault fixed", by: "Technician (mock)" })}>Close work order</button>;
+  if (m.event_type === "quality_issue") return <span className="flex gap-1">
+    <button className={b} onClick={() => reply(m, "nonconformance_decision", { reference: p.id, decision: "use_as_is", by: "QA engineer (mock)" })}>Use as is</button>
+    <button className={b} onClick={() => reply(m, "nonconformance_decision", { reference: p.id, decision: "scrap", by: "QA engineer (mock)" })}>Scrap</button></span>;
+  return <span className="text-muted-foreground">No standard answer</span>;
 }
