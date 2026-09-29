@@ -22,7 +22,7 @@
 - [x] Phase C: request-approval buttons on order and step pages; self-approval blocked; signing QA-tested
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
 - [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
-- [ ] Phase D1: page-by-page review (all pages load, rows clickable, back arrows)
+- [x] Phase D1: detail pages with back arrows for Access, Approvals, Assignments, Downtime, Integrations, Inventory, Master Data, Tools, Traceability, Waste Reasons, Work Instructions
 - [x] Phase D2: reports & compliance (batch record, printable signed report, audit export)
 - [x] Phase D3: scheduling & capacity (finite capacity, drag-drop, conflicts)
 - [x] Phase D4: mobile operator app

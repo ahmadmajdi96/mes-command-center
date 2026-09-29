@@ -14,3 +14,4 @@
 - Maintenance and QA live in external portals; this app only exchanges events via portal_events (outbox, DB triggers) and the HMAC-signed /api/public/portals/$connectionId endpoint — never build maintenance/QA workflows here.
 - WIP split/merge/move are SECURITY DEFINER RPCs with in-function permission checks; material lot deduction happens in the consume_from_lot trigger so every consumption path enforces lot limits.
 - Phase B quality rules live in the database: skill blocking (guard_operator_skills trigger), NC creation + routing-rule effects (inspection_after_insert trigger), product skip rules on release; step requirements match by step name (+ optional product) so no copying into order steps is needed.
+- Detail pages for simple lists use one config-driven route (/record/$kind/$id, config in src/lib/record-kinds.ts) — why: one consistent detail view with back arrow, related records and history instead of 15 near-identical pages.
