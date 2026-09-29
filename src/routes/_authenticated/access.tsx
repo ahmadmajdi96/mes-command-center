@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -201,7 +202,7 @@ function AccessPage() {
             {(people.data ?? []).map((p) => (
               <tr key={p.user_id} className="border-t border-border/40 align-top">
                 <td className="px-4 py-3">
-                  <div className="font-medium">{p.full_name || "—"}</div>
+                  <div className="font-medium"><RecLink kind="person" id={p.user_id}>{p.full_name || "—"}</RecLink></div>
                   <div className="text-[11px] text-muted-foreground">{p.email}</div>
                 </td>
                 <td className="px-4 py-3">

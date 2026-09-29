@@ -95,7 +95,7 @@ function WorkCenters() {
       </div>
       {lc.toolbar}
       <Table cols={["ID", "Name", "Kind", "Line", "ERP", ""]} rows={lc.visible} render={(r) => [
-        <span className="font-mono">{r.id}</span>, r.name, r.kind, r.line_id ?? "—", r.erp_id ?? "—",
+        <RecLink kind="work_center" id={r.id}>{r.id}</RecLink>, r.name, r.kind, r.line_id ?? "—", r.erp_id ?? "—",
         <div className="flex gap-1"><OverrideToggle table="work_centers" row={r} /><Del table="work_centers" id={r.id} /></div>,
       ]} />
       {lc.pager}
@@ -250,7 +250,7 @@ function Versions() {
       </div>
       {lc.toolbar}
       <Table cols={["ID", "Material", "Scenario", "BOM", "Routing", "Valid", "Default", ""]} rows={lc.visible} render={(r) => [
-        <span className="font-mono">{r.id}</span>, r.sku, r.description ?? "—", r.bom_id ?? "—", r.routing_id ?? "—",
+        <RecLink kind="version" id={r.id}>{r.id}</RecLink>, r.sku, r.description ?? "—", r.bom_id ?? "—", r.routing_id ?? "—",
         `${r.valid_from ?? "…"} → ${r.valid_to ?? "…"}`, r.is_default ? "yes" : "—",
         <div className="flex gap-1"><OverrideToggle table="production_versions" row={r} /><Del table="production_versions" id={r.id} /></div>,
       ]} />

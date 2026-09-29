@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useMes } from "@/lib/mes-store";
 import type { DowntimeEvent } from "@/lib/mes-data";
 import { downtimeReasons } from "@/lib/mes-data";
@@ -144,7 +145,7 @@ function DowntimePage() {
             <tbody>
               {store.downtime.map((d) => (
                 <tr key={d.id} className="border-t border-border/40 hover:bg-card/40">
-                  <td className="px-4 py-3 font-mono text-xs">{d.id}</td>
+                  <td className="px-4 py-3 font-mono text-xs"><RecLink kind="downtime" id={d.id}>{d.id}</RecLink></td>
                   <td className="px-4 py-3">
                     <div className="font-mono text-xs">{d.lineId}</div>
                     <div className="text-[10px] text-muted-foreground">{d.lineName}</div>

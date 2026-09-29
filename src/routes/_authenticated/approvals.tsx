@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -128,7 +129,7 @@ function ApprovalsPage() {
           <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className={th}>Requested</th><th className="text-left">Type</th><th className="text-left">What</th><th className="text-left">By</th><th className="text-left">Status</th><th className="text-left">Decision</th><th /></tr></thead>
           <tbody>{lr.visible.map((r) => (
             <tr key={r.id} className="border-t border-border/40" data-testid={`approval-${r.id}`}>
-              <td className="py-2">{fmt(r.created_at)}</td><td>{r.kindLabel}</td><td>{r.summary}</td><td>{r.requested_by_name ?? "—"}</td>
+              <td className="py-2">{fmt(r.created_at)}</td><td>{r.kindLabel}</td><td><RecLink kind="approval" id={r.id}>{r.summary}</RecLink></td><td>{r.requested_by_name ?? "—"}</td>
               <td className={STATUS_CLS[r.status]}>{r.status}</td>
               <td>{r.decided_by_name ? `${r.decided_by_name} · ${fmt(r.decided_at)} · ${r.decision_reason}` : "—"}</td>
               <td className="text-right">{r.status === "pending" && canDecide && (<div className="flex justify-end gap-1">
