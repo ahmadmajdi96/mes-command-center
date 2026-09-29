@@ -134,7 +134,7 @@ function Boms() {
         return (
           <div key={b.id} className="glass-panel space-y-2 rounded-2xl p-3">
             <div className="flex items-center justify-between">
-              <div><span className="font-mono text-sm text-primary">{b.id}</span> <span className="text-xs text-muted-foreground">{b.sku} · v{b.version} · per {b.base_qty} {b.uom}</span></div>
+              <div><RecLink kind="bom" id={b.id} className="font-mono text-sm text-primary hover:underline">{b.id}</RecLink> <span className="text-xs text-muted-foreground">{b.sku} · v{b.version} · per {b.base_qty} {b.uom}</span></div>
               <div className="flex gap-1"><OverrideToggle table="boms" row={b} /><Del table="boms" id={b.id} /></div>
             </div>
             <Table cols={["Type", "Component", "Qty", "Backflush", "Auto-confirm", ""]} rows={mine} render={(i) => [
