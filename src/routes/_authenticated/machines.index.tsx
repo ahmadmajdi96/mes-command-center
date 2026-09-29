@@ -27,6 +27,27 @@ function Page() {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ id: "", name: "", protocol: "opcua", endpoint: "", station_id: "", vendor: "", connection_mode: "simulated" });
   const [err, setErr] = useState("");
+  const [imp, setImp] = useState(false);
+  const [csv, setCsv] = useState("");
+  const [impMsg, setImpMsg] = useState("");
+  const runImport = async () => {
+    setImpMsg("");
+    const lines = csv.trim().split(/\r?\n/).filter(Boolean);
+    const head = lines.shift()?.split(",").map((h) => h.trim().toLowerCase()) ?? [];
+    if (!head.includes("name") || !head.includes("protocol")) return setImpMsg("First line must be a header with at least: name, protocol");
+    let ok = 0; const bad: string[] = [];
+    for (const [i, line] of lines.entries()) {
+      const c = line.split(",").map((x) => x.trim()); const r: Record<string, string> = {}; head.forEach((h, j) => (r[h] = c[j] ?? ""));
+      const proto = PROTOCOLS.find((p) => p.key === r.protocol || p.name.toLowerCase() === r.protocol.toLowerCase())?.key;
+      if (!r.name || !proto) { bad.push(`line ${i + 2}: ${!r.name ? "no name" : `unknown protocol "${r.protocol}"`}`); continue; }
+      try {
+        await w.insert.mutateAsync({ id: r.id || `MC-${Date.now().toString(36).toUpperCase()}${i}`, name: r.name, vendor: r.vendor || null, model: r.model || null, protocol: proto, endpoint: r.endpoint || null,
+          station_id: r.station_id || null, connection_mode: ["simulated", "manual", "edge"].includes(r.mode) ? r.mode : "simulated", tags: [], commands: [] });
+        ok++;
+      } catch (e) { bad.push(`line ${i + 2}: ${errMsg(e)}`); }
+    }
+    setImpMsg(`${ok} added${bad.length ? ` · ${bad.length} refused — ${bad.join("; ")}` : ""}`);
+  };
   const list = machines.filter((m) => !q || `${m.id} ${m.name} ${m.vendor} ${protocolName(m.protocol)}`.toLowerCase().includes(q.toLowerCase()));
   const create = async () => {
     setErr("");
@@ -40,6 +61,7 @@ function Page() {
       <div className="flex items-center gap-3">
         <Link to="/" className="rounded-lg border border-border/60 p-2" aria-label="Back"><ArrowLeft className="h-4 w-4" /></Link>
         <div className="flex-1"><h1 className="text-2xl font-semibold">Machines</h1><p className="text-sm text-muted-foreground">Read values from and send commands to line machines. Simulated or manual until an edge box is connected.</p></div>
+        <button onClick={() => setImp(!imp)} className="rounded-lg border border-border/60 px-3 py-2 text-sm">Import machine list</button>
         <button onClick={() => setOpen(!open)} className="flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"><Plus className="h-4 w-4" />Add machine</button>
       </div>
       {open && (
@@ -58,6 +80,14 @@ function Page() {
           </select>
           <button disabled={!f.name} onClick={create} className="rounded-lg bg-primary px-3 py-1 text-primary-foreground disabled:opacity-50">Create</button>
           {err && <div className="text-destructive md:col-span-3">{err}</div>}
+        </div>
+      )}
+      {imp && (
+        <div className="glass-panel space-y-2 rounded-2xl p-4 text-sm">
+          <p className="text-muted-foreground">Paste your machine list as CSV. Header: <code>id,name,vendor,model,protocol,endpoint,station_id,mode</code> (protocol = key or name, e.g. opcua / Modbus TCP; mode = simulated, manual or edge). New machines start as "Not signed" — commands stay blocked until a safety sign-off.</p>
+          <textarea aria-label="Machine list CSV" rows={6} value={csv} onChange={(e) => setCsv(e.target.value)} className="w-full rounded-lg border border-border/60 bg-background p-2 font-mono text-xs" placeholder={"id,name,vendor,model,protocol,endpoint,station_id,mode\nMC-MIX-01,Mixer 1,Bühler,MX2,opcua,opc.tcp://10.0.0.11:4840,,edge"} />
+          <button disabled={!csv.trim()} onClick={runImport} className="rounded-lg bg-primary px-3 py-1 text-primary-foreground disabled:opacity-50">Import</button>
+          {impMsg && <p>{impMsg}</p>}
         </div>
       )}
       <input aria-label="Search" placeholder="Search machines…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full max-w-sm rounded-lg border border-border/60 bg-background px-3 py-2 text-sm" />
