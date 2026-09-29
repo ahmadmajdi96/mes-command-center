@@ -62,6 +62,9 @@ const execution = [
   { title: "Step Templates", url: "/step-templates", icon: ListChecks },
   { title: "Product Tracking", url: "/tracking", icon: ScanLine },
   { title: "Genealogy", url: "/genealogy", icon: GitBranch },
+  { title: "Work in Progress", url: "/wip", icon: Boxes },
+  { title: "Material Lots", url: "/material-lots", icon: Boxes },
+  { title: "Rework Tasks", url: "/rework", icon: GitBranch },
 ];
 
 const monitoring = [
@@ -82,6 +85,7 @@ const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
   { title: "ERP Contract", url: "/erp-contract", icon: Boxes },
   { title: "Machines", url: "/machines", icon: Activity },
+  { title: "Maintenance & QA Portals", url: "/integrations", icon: Radio },
   { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "People & Access", url: "/access", icon: ShieldCheck },

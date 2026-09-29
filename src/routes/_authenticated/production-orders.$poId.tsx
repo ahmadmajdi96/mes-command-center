@@ -1,4 +1,5 @@
 import { OrderExecution } from "@/components/order-execution";
+import { OrderMaterials } from "@/components/order-materials";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ClipboardList, Layers, Plus, ExternalLink, Trash2 } from "lucide-react";
@@ -220,6 +221,7 @@ function PoDetail() {
         </div>
       </div>
       <OrderExecution po={po as never} />
+      <OrderMaterials po={po} />
     </div>
   );
 }

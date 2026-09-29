@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { useCanAny } from "@/lib/access";
 import { REWORK_STATUS } from "@/lib/wip-db";
-import { ReworkActions } from "@/routes/_authenticated/rework";
+import { ReworkActions } from "@/components/rework-actions";
 
 const inp = "h-8 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-xs";
 const btn = "inline-flex items-center gap-1 rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1.5 text-xs text-primary hover:bg-primary/20 disabled:opacity-50";
