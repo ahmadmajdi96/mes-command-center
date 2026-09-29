@@ -25,7 +25,14 @@ function LotsPage() {
   const { data: org } = useMyOrg();
   const { data: lots = [] } = useRows<any>("material_lots");
   const { data: products = [] } = useRows<any>("products", { order: "name", asc: true });
+  const { data: comps = [] } = useRows<any>("order_components");
   const w = useWrite("material_lots");
+  const materials = useMemo(() => {
+    const m = new Map<string, { sku: string; name: string; uom: string }>();
+    for (const p of products) m.set(p.sku, { sku: p.sku, name: p.name, uom: p.uom ?? "kg" });
+    for (const c of comps) if (!m.has(c.component_sku)) m.set(c.component_sku, { sku: c.component_sku, name: c.component_name ?? c.component_sku, uom: c.uom ?? "kg" });
+    return Array.from(m.values()).sort((a, b) => a.sku.localeCompare(b.sku));
+  }, [products, comps]);
   const can = useCanAny("material.handle", "execution.record");
   const [kind, setKind] = useState(""); const [status, setStatus] = useState("");
   const [f, setF] = useState({ sku: "", lot: "", qty: 0, uom: "kg", supplier: "", expiry: "" });
@@ -34,7 +41,7 @@ function LotsPage() {
     .map((l) => ({ ...l, kind_label: LOT_KINDS[l.kind], used_pct: Number(l.qty_received) ? Math.round((1 - Number(l.qty_remaining) / Number(l.qty_received)) * 100) : 0,
       expired: l.expiry_date && new Date(l.expiry_date) < new Date(new Date().toDateString()) })), [lots, kind, status]);
   const lc = useListControls(rows, { searchKeys: ["sku", "name", "lot_number", "supplier", "kind_label", "status", "source_order_id"], dateKey: "created_at", exportName: "material-lots" });
-  const prod = products.find((p) => p.sku === f.sku);
+  const prod = materials.find((p) => p.sku === f.sku);
 
   return (
     <div className="space-y-6">
@@ -48,7 +55,7 @@ function LotsPage() {
         <div className="glass-panel rounded-2xl p-5">
           <h2 className="text-sm font-semibold">Receive a lot</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-7 lg:items-end">
-            <label className="text-[11px] text-muted-foreground lg:col-span-2">Material *<select className={inp} aria-label="Material" value={f.sku} onChange={(e) => setF({ ...f, sku: e.target.value, uom: products.find((p) => p.sku === e.target.value)?.uom ?? f.uom })}><option value="">Choose…</option>{products.map((p) => <option key={p.id} value={p.sku}>{p.sku} · {p.name}</option>)}</select><span>From Master Data</span></label>
+            <label className="text-[11px] text-muted-foreground lg:col-span-2">Material *<select className={inp} aria-label="Material" value={f.sku} onChange={(e) => setF({ ...f, sku: e.target.value, uom: materials.find((p) => p.sku === e.target.value)?.uom ?? f.uom })}><option value="">Choose…</option>{materials.map((p) => <option key={p.sku} value={p.sku}>{p.sku} · {p.name}</option>)}</select><span>From Master Data and order materials</span></label>
             <label className="text-[11px] text-muted-foreground">Lot number *<input className={inp} aria-label="Lot number" value={f.lot} onChange={(e) => setF({ ...f, lot: e.target.value })} /><span>Supplier or your own</span></label>
             <label className="text-[11px] text-muted-foreground">Quantity *<input className={inp} aria-label="Lot quantity" type="number" min={0} value={f.qty} onChange={(e) => setF({ ...f, qty: Number(e.target.value) })} /><span>In {f.uom}</span></label>
             <label className="text-[11px] text-muted-foreground">Supplier<input className={inp} value={f.supplier} onChange={(e) => setF({ ...f, supplier: e.target.value })} /><span>Optional</span></label>
