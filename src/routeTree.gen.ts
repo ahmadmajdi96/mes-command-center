@@ -22,11 +22,14 @@ import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authentica
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSchedulingRouteImport } from './routes/_authenticated/scheduling'
 import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
+import { Route as AuthenticatedMobileRouteImport } from './routes/_authenticated/mobile'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
@@ -78,6 +81,7 @@ import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/tr
 import { Route as ApiMesV1QualityHoldsRouteImport } from './routes/api/mes/v1/quality-holds'
 import { Route as ApiMesV1KpiRouteImport } from './routes/api/mes/v1/kpi'
 import { Route as ApiMesV1DowntimeRouteImport } from './routes/api/mes/v1/downtime'
+import { Route as AuthenticatedRecordKindIdRouteImport } from './routes/_authenticated/record.$kind.$id'
 import { Route as ApiMesV1ErpEntityRouteImport } from './routes/api/mes/v1/erp.$entity'
 import { Route as ApiMesV1EdgeActionRouteImport } from './routes/api/mes/v1/edge.$action'
 
@@ -149,9 +153,19 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSchedulingRoute = AuthenticatedSchedulingRouteImport.update({
+  id: '/scheduling',
+  path: '/scheduling',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReworkRoute = AuthenticatedReworkRouteImport.update({
   id: '/rework',
   path: '/rework',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
@@ -172,6 +186,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMobileRoute = AuthenticatedMobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
@@ -460,6 +479,12 @@ const ApiMesV1DowntimeRoute = ApiMesV1DowntimeRouteImport.update({
   path: '/api/mes/v1/downtime',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRecordKindIdRoute =
+  AuthenticatedRecordKindIdRouteImport.update({
+    id: '/record/$kind/$id',
+    path: '/record/$kind/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiMesV1ErpEntityRoute = ApiMesV1ErpEntityRouteImport.update({
   id: '/api/mes/v1/erp/$entity',
   path: '/api/mes/v1/erp/$entity',
@@ -487,11 +512,14 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
+  '/mobile': typeof AuthenticatedMobileRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
+  '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -532,6 +560,7 @@ export interface FileRoutesByFullPath {
   '/stations/': typeof AuthenticatedStationsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
+  '/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
   '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
   '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
@@ -558,11 +587,14 @@ export interface FileRoutesByTo {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
+  '/mobile': typeof AuthenticatedMobileRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
+  '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -604,6 +636,7 @@ export interface FileRoutesByTo {
   '/stations': typeof AuthenticatedStationsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/work-orders': typeof AuthenticatedWorkOrdersIndexRoute
+  '/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
   '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
   '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
@@ -632,11 +665,14 @@ export interface FileRoutesById {
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
+  '/_authenticated/mobile': typeof AuthenticatedMobileRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rework': typeof AuthenticatedReworkRoute
+  '/_authenticated/scheduling': typeof AuthenticatedSchedulingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -678,6 +714,7 @@ export interface FileRoutesById {
   '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
+  '/_authenticated/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
   '/api/mes/v1/kpi': typeof ApiMesV1KpiRoute
   '/api/mes/v1/quality-holds': typeof ApiMesV1QualityHoldsRoute
@@ -707,11 +744,14 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/live'
     | '/master-data'
+    | '/mobile'
     | '/planner'
     | '/profile'
     | '/quality'
     | '/recipes'
+    | '/reports'
     | '/rework'
+    | '/scheduling'
     | '/settings'
     | '/shifts'
     | '/step-templates'
@@ -752,6 +792,7 @@ export interface FileRouteTypes {
     | '/stations/'
     | '/users/'
     | '/work-orders/'
+    | '/record/$kind/$id'
     | '/api/mes/v1/downtime'
     | '/api/mes/v1/kpi'
     | '/api/mes/v1/quality-holds'
@@ -778,11 +819,14 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/live'
     | '/master-data'
+    | '/mobile'
     | '/planner'
     | '/profile'
     | '/quality'
     | '/recipes'
+    | '/reports'
     | '/rework'
+    | '/scheduling'
     | '/settings'
     | '/shifts'
     | '/step-templates'
@@ -824,6 +868,7 @@ export interface FileRouteTypes {
     | '/stations'
     | '/users'
     | '/work-orders'
+    | '/record/$kind/$id'
     | '/api/mes/v1/downtime'
     | '/api/mes/v1/kpi'
     | '/api/mes/v1/quality-holds'
@@ -851,11 +896,14 @@ export interface FileRouteTypes {
     | '/_authenticated/inventory'
     | '/_authenticated/live'
     | '/_authenticated/master-data'
+    | '/_authenticated/mobile'
     | '/_authenticated/planner'
     | '/_authenticated/profile'
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
+    | '/_authenticated/reports'
     | '/_authenticated/rework'
+    | '/_authenticated/scheduling'
     | '/_authenticated/settings'
     | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
@@ -897,6 +945,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stations/'
     | '/_authenticated/users/'
     | '/_authenticated/work-orders/'
+    | '/_authenticated/record/$kind/$id'
     | '/api/mes/v1/downtime'
     | '/api/mes/v1/kpi'
     | '/api/mes/v1/quality-holds'
@@ -1017,11 +1066,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/scheduling': {
+      id: '/_authenticated/scheduling'
+      path: '/scheduling'
+      fullPath: '/scheduling'
+      preLoaderRoute: typeof AuthenticatedSchedulingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/rework': {
       id: '/_authenticated/rework'
       path: '/rework'
       fullPath: '/rework'
       preLoaderRoute: typeof AuthenticatedReworkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recipes': {
@@ -1050,6 +1113,13 @@ declare module '@tanstack/react-router' {
       path: '/planner'
       fullPath: '/planner'
       preLoaderRoute: typeof AuthenticatedPlannerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mobile': {
+      id: '/_authenticated/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof AuthenticatedMobileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/master-data': {
@@ -1409,6 +1479,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMesV1DowntimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/record/$kind/$id': {
+      id: '/_authenticated/record/$kind/$id'
+      path: '/record/$kind/$id'
+      fullPath: '/record/$kind/$id'
+      preLoaderRoute: typeof AuthenticatedRecordKindIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/mes/v1/erp/$entity': {
       id: '/api/mes/v1/erp/$entity'
       path: '/api/mes/v1/erp/$entity'
@@ -1440,11 +1517,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
+  AuthenticatedMobileRoute: typeof AuthenticatedMobileRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
+  AuthenticatedSchedulingRoute: typeof AuthenticatedSchedulingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
@@ -1486,6 +1566,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
+  AuthenticatedRecordKindIdRoute: typeof AuthenticatedRecordKindIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1502,11 +1583,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
+  AuthenticatedMobileRoute: AuthenticatedMobileRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedReworkRoute: AuthenticatedReworkRoute,
+  AuthenticatedSchedulingRoute: AuthenticatedSchedulingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
@@ -1552,6 +1636,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWorkOrdersIndexRoute: AuthenticatedWorkOrdersIndexRoute,
+  AuthenticatedRecordKindIdRoute: AuthenticatedRecordKindIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

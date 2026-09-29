@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useMemo, useState } from "react";
 import { useMes } from "@/lib/mes-store";
 import type { Assignment, AssignmentTarget, Team } from "@/lib/mes-data";
@@ -195,7 +196,7 @@ function AssignmentsPage() {
                   const u = store.users.find((x) => x.id === a.userId);
                   return (
                     <tr key={a.id} className="border-b border-border/30">
-                      <td className="px-3 py-2 font-mono text-xs">{a.id}</td>
+                      <td className="px-3 py-2 font-mono text-xs"><RecLink kind="assignment" id={a.id}>{a.id}</RecLink></td>
                       <td className="px-3 py-2">
                         <div className="font-medium">{u?.name ?? "—"}</div>
                         <div className="text-[11px] text-muted-foreground">{u?.role}</div>

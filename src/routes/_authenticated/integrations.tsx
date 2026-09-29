@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Cable, Plus, Send, FlaskConical, Copy } from "lucide-react";
 import { toast } from "sonner";
@@ -77,7 +78,7 @@ function IntegrationsPage() {
             {conns.map((c) => (
               <div key={c.id} className="rounded-xl border border-border/40 p-3 text-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div><b>{c.name}</b> <span className="uppercase text-muted-foreground">· {c.portal}</span> {!c.active && <span className="text-warning">· paused</span>}</div>
+                  <div><b><RecLink kind="portal" id={c.id}>{c.name}</RecLink></b> <span className="uppercase text-muted-foreground">· {c.portal}</span> {!c.active && <span className="text-warning">· paused</span>}</div>
                   <div className="flex gap-2">
                     {!String(c.outbound_url ?? "").includes("/api/public/mock-portal/") && <button className="text-primary" onClick={async () => { try { await mockConnect({ data: { connectionId: c.id } }); toast.success("Now sending to the built-in mock portal"); qc.invalidateQueries({ queryKey: ["exec"] }); } catch (e) { toast.error(errMsg(e)); } }}>Use mock portal</button>}
                     <button className="text-muted-foreground hover:text-foreground" onClick={() => w.update.mutate({ id: c.id, patch: { active: !c.active } })}>{c.active ? "Pause" : "Resume"}</button>
@@ -153,7 +154,7 @@ function IntegrationsPage() {
           <thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-2 text-left">When</th><th className="text-left">Direction</th><th className="text-left">Portal</th><th className="text-left">Event</th><th className="text-left">Reference</th><th className="text-left">Status</th><th className="text-right">Tries</th><th className="text-left">Note</th></tr></thead>
           <tbody>{lc.visible.map((e) => (
             <tr key={e.id} className="border-t border-border/40" title={JSON.stringify(e.payload)}>
-              <td className="py-2">{new Date(e.created_at).toLocaleString()}</td><td>{e.direction === "out" ? "→ out" : "← in"}</td><td className="uppercase">{e.portal}</td><td>{e.event_type}</td>
+              <td className="py-2"><RecLink kind="portal_event" id={e.id}>{new Date(e.created_at).toLocaleString()}</RecLink></td><td>{e.direction === "out" ? "→ out" : "← in"}</td><td className="uppercase">{e.portal}</td><td>{e.event_type}</td>
               <td className="font-mono text-[10px]">{e.ref_table ? `${e.ref_table}:${String(e.ref_id ?? "").slice(0, 12)}` : "—"}</td>
               <td><span className={`rounded-full border px-2 py-0.5 text-[10px] uppercase ${["failed", "rejected"].includes(e.status) ? "border-destructive/50 text-destructive" : "border-border/60"}`}>{e.status}</span></td>
               <td className="text-right font-mono">{e.attempts}</td><td className="text-muted-foreground">{e.last_error ?? ""}</td>

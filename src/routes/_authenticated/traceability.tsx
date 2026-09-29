@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { OrderTraceJump } from "@/components/order-trace-jump";
 import { useEffect, useMemo, useState } from "react";
 import { PAGE_SIZES } from "@/components/list-controls";
 import { useMes } from "@/lib/mes-store";
@@ -354,6 +355,7 @@ function TraceabilityPage() {
             Full chronological record of every action across all production lines and stations —
             exact date &amp; time, entity involved, and the operator or engineer responsible.
           </p>
+          <OrderTraceJump />
         </div>
         <div className="flex flex-wrap gap-2">
           <button

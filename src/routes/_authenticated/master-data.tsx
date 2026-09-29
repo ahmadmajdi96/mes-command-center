@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RecLink } from "@/components/rec-link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Lock, Unlock } from "lucide-react";
@@ -95,7 +96,7 @@ function WorkCenters() {
       </div>
       {lc.toolbar}
       <Table cols={["ID", "Name", "Kind", "Line", "ERP", ""]} rows={lc.visible} render={(r) => [
-        <span className="font-mono">{r.id}</span>, r.name, r.kind, r.line_id ?? "—", r.erp_id ?? "—",
+        <RecLink kind="work_center" id={r.id}>{r.id}</RecLink>, r.name, r.kind, r.line_id ?? "—", r.erp_id ?? "—",
         <div className="flex gap-1"><OverrideToggle table="work_centers" row={r} /><Del table="work_centers" id={r.id} /></div>,
       ]} />
       {lc.pager}
@@ -133,7 +134,7 @@ function Boms() {
         return (
           <div key={b.id} className="glass-panel space-y-2 rounded-2xl p-3">
             <div className="flex items-center justify-between">
-              <div><span className="font-mono text-sm text-primary">{b.id}</span> <span className="text-xs text-muted-foreground">{b.sku} · v{b.version} · per {b.base_qty} {b.uom}</span></div>
+              <div><RecLink kind="bom" id={b.id} className="font-mono text-sm text-primary hover:underline">{b.id}</RecLink> <span className="text-xs text-muted-foreground">{b.sku} · v{b.version} · per {b.base_qty} {b.uom}</span></div>
               <div className="flex gap-1"><OverrideToggle table="boms" row={b} /><Del table="boms" id={b.id} /></div>
             </div>
             <Table cols={["Type", "Component", "Qty", "Backflush", "Auto-confirm", ""]} rows={mine} render={(i) => [
@@ -189,7 +190,7 @@ function Routings() {
         return (
           <div key={r.id} className="glass-panel space-y-2 rounded-2xl p-3">
             <div className="flex items-center justify-between">
-              <div><span className="font-mono text-sm text-primary">{r.id}</span> <span className="text-xs text-muted-foreground">{r.sku} · v{r.version}</span></div>
+              <div><RecLink kind="routing" id={r.id} className="font-mono text-sm text-primary hover:underline">{r.id}</RecLink> <span className="text-xs text-muted-foreground">{r.sku} · v{r.version}</span></div>
               <div className="flex gap-1"><OverrideToggle table="routings" row={r} /><Del table="routings" id={r.id} /></div>
             </div>
             <Table cols={["Seq", "Operation", "Work center", "Setup / run", "Work instructions", "Rules", ""]} rows={mine} render={(o) => [
@@ -250,7 +251,7 @@ function Versions() {
       </div>
       {lc.toolbar}
       <Table cols={["ID", "Material", "Scenario", "BOM", "Routing", "Valid", "Default", ""]} rows={lc.visible} render={(r) => [
-        <span className="font-mono">{r.id}</span>, r.sku, r.description ?? "—", r.bom_id ?? "—", r.routing_id ?? "—",
+        <RecLink kind="version" id={r.id}>{r.id}</RecLink>, r.sku, r.description ?? "—", r.bom_id ?? "—", r.routing_id ?? "—",
         `${r.valid_from ?? "…"} → ${r.valid_to ?? "…"}`, r.is_default ? "yes" : "—",
         <div className="flex gap-1"><OverrideToggle table="production_versions" row={r} /><Del table="production_versions" id={r.id} /></div>,
       ]} />
