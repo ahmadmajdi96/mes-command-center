@@ -15,6 +15,9 @@
 - [x] Re-validate Most Important end to end (incl. corrected report totals)
 - [x] Phase A: WIP split/merge/aging/reconciliation/locations, material lots + actual consumption, semi-finished goods, rework tasks + re-inspection
 - [x] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
-- [ ] Phase C: work instructions, approval workflows, e-signatures, tools, shared shift plans, machine connection layer
+- [x] Security: permission lookups limited to the signed-in person
+- [x] Phase C: work instructions, approval workflows (release/scrap/skip/version), e-signatures (password + reason), tools, shared shift plans
+- [ ] Phase C: live machine connection layer — needs real machine list + safety sign-off
+- [ ] Phase C: request-approval buttons directly on order/step pages (currently via Approvals page)
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
 - [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
