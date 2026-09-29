@@ -104,3 +104,10 @@ RLS helper functions listed above; they are intentional and required by the poli
 - Turn B — line-side box: offline recording at the line, sync and conflict flagging.
 - Turn C — machine read/command: live values plus start/stop/setpoint commands,
   permission-gated and hold-blocked. Needs safety sign-off and the machine/protocol list.
+
+## Phase B — routing rules, inspection, nonconformance, skills
+
+- `skills`, `operator_skills` (expiry), `skill_requirements` (step name + optional product). `guard_operator_skills` refuses starting a step without a valid certificate.
+- `inspection_plans` (checks, sampling once/every N, done at line or by QA portal), `inspection_results` (append-only). A step cannot complete until its samples are recorded or while a nonconformance is open.
+- `nonconformances` go to the QA portal (`nonconformance_raised`); `nonconformance_decision` (use_as_is / rework / scrap / return_to_supplier) comes back; rework creates a rework task.
+- `routing_rules` + `routing_rule_hits`: inspection fail / value out of range → rework or hold the step, or skip a step; product rules skip steps on release.
