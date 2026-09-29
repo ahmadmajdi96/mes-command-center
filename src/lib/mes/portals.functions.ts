@@ -15,8 +15,13 @@ export const dispatchPortalEvents = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { data: orgs } = await context.supabase.rpc("user_orgs", { _user_id: context.userId });
-    const orgIds = ((orgs ?? []) as { organization_id: string }[]).map((o) => o.organization_id);
+    // Companies this person may see: from their grants, plus any whose portal connections they can read (platform admins).
+    const [{ data: orgs }, { data: visible }] = await Promise.all([
+      context.supabase.rpc("user_orgs", { _user_id: context.userId }),
+      context.supabase.from("portal_connections").select("organization_id"),
+    ]);
+    const orgIds = Array.from(new Set([...((orgs ?? []) as { organization_id: string }[]).map((o) => o.organization_id), ...((visible ?? []) as { organization_id: string }[]).map((o) => o.organization_id)]));
+    if (!orgIds.length) return { sent: 0, failed: 0, total: 0 };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { sign } = await import("./portals.server");
     const admin = supabaseAdmin as any;

@@ -10,3 +10,6 @@
 <!-- LOVABLE:END -->
 
 - Line staffing is derived from active station assignments, so line views aggregate existing assignment records instead of storing a separate line-operator relation.
+
+- Maintenance and QA live in external portals; this app only exchanges events via portal_events (outbox, DB triggers) and the HMAC-signed /api/public/portals/$connectionId endpoint — never build maintenance/QA workflows here.
+- WIP split/merge/move are SECURITY DEFINER RPCs with in-function permission checks; material lot deduction happens in the consume_from_lot trigger so every consumption path enforces lot limits.

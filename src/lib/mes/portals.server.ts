@@ -34,6 +34,7 @@ export async function applyInbound(admin: any, conn: Conn, msg: Inbound): Promis
       if (!["pass", "fail"].includes(result)) return log("rejected", "result must be pass or fail", "rework_tasks", id);
       const { data: t } = await admin.from("rework_tasks").select("id, organization_id, status").eq("id", id).maybeSingle();
       if (!t || t.organization_id !== conn.organization_id) return log("rejected", "Rework task not found", "rework_tasks", id);
+      if (t.status !== "awaiting_inspection") return log("rejected", `Rework task is ${t.status.replace("_", " ")}, not awaiting re-inspection`, "rework_tasks", id);
       const { error } = await admin.from("rework_tasks").update({
         status: result === "pass" ? "passed" : "failed", inspection_source: "qa_portal",
         inspection_notes: String(d["notes"] ?? (result === "pass" ? "Passed in QA portal" : "")), inspector_name: who,
