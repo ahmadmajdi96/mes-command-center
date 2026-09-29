@@ -92,9 +92,15 @@ export async function applyInbound(admin: any, conn: Conn, msg: Inbound): Promis
       if (nc.status !== "open") return log("rejected", `Nonconformance already ${nc.status} (${nc.decision})`, "nonconformances", ref);
       let reworkId: string | null = null;
       if (decision === "rework") {
+        let qty = Number(nc.qty) || 0;
+        if (qty <= 0 && nc.operation_id) {
+          const { data: op } = await admin.from("order_operations").select("qty_input").eq("id", nc.operation_id).maybeSingle();
+          qty = Number(op?.qty_input) || 0;
+        }
+        if (qty <= 0) return log("rejected", "Rework needs a quantity; the nonconformance has none", "nonconformances", ref);
         const { data: t, error: te } = await admin.from("rework_tasks").insert({
           organization_id: nc.organization_id, production_order_id: nc.production_order_id, operation_id: nc.operation_id, batch_id: nc.batch_id,
-          qty: Number(nc.qty) || 0, uom: nc.uom, reason: `QA decision on ${nc.id}: ${nc.description}`, created_by_name: who,
+          qty, uom: nc.uom, reason: `QA decision on ${nc.id}: ${nc.description}`, created_by_name: who,
         }).select("id").single();
         if (te) return log("rejected", te.message, "nonconformances", ref);
         reworkId = t.id;
