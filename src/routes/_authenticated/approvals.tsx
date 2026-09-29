@@ -89,12 +89,10 @@ function ApprovalsPage() {
   };
 
   const saveLimit = async () => {
-    if (!org) return;
-    try {
-      await setW.upsert?.mutateAsync?.({ organization_id: org, scrap_limit: Number(limit), require_release_approval: cur?.require_release_approval ?? true })
-        ?? (cur ? setW.update.mutateAsync({ id: org, patch: { scrap_limit: Number(limit) } } as never) : setW.insert.mutateAsync({ organization_id: org, scrap_limit: Number(limit) }));
-      toast.success("Saved");
-    } catch (e) { toast.error(errMsg(e)); }
+    if (!org || !(Number(limit) >= 0)) return;
+    const { error } = await supabase.from("approval_settings" as never).upsert({ organization_id: org, scrap_limit: Number(limit) } as never);
+    if (error) return toast.error(error.message);
+    toast.success("Scrap limit saved"); setLimit(""); qc.invalidateQueries({ queryKey: ["exec"] });
   };
 
   return (
