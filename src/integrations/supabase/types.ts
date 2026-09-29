@@ -222,6 +222,45 @@ export type Database = {
           },
         ]
       }
+      batch_links: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          child_batch_id: string
+          created_at: string
+          id: string
+          link_type: string
+          organization_id: string
+          parent_batch_id: string
+          qty: number
+          reason: string | null
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          child_batch_id: string
+          created_at?: string
+          id?: string
+          link_type: string
+          organization_id: string
+          parent_batch_id: string
+          qty: number
+          reason?: string | null
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          child_batch_id?: string
+          created_at?: string
+          id?: string
+          link_type?: string
+          organization_id?: string
+          parent_batch_id?: string
+          qty?: number
+          reason?: string | null
+        }
+        Relationships: []
+      }
       batch_station_progress: {
         Row: {
           actor_user_id: string | null
@@ -995,9 +1034,11 @@ export type Database = {
           created_at: string
           id: string
           input_lot: string | null
+          lot_id: string | null
           notes: string | null
           operation_id: string | null
           organization_id: string
+          planned_qty: number | null
           production_order_id: string
           qty: number
           uom: string
@@ -1014,9 +1055,11 @@ export type Database = {
           created_at?: string
           id?: string
           input_lot?: string | null
+          lot_id?: string | null
           notes?: string | null
           operation_id?: string | null
           organization_id?: string
+          planned_qty?: number | null
           production_order_id: string
           qty: number
           uom?: string
@@ -1033,9 +1076,11 @@ export type Database = {
           created_at?: string
           id?: string
           input_lot?: string | null
+          lot_id?: string | null
           notes?: string | null
           operation_id?: string | null
           organization_id?: string
+          planned_qty?: number | null
           production_order_id?: string
           qty?: number
           uom?: string
@@ -1046,6 +1091,13 @@ export type Database = {
             columns: ["confirmation_id"]
             isOneToOne: false
             referencedRelation: "production_confirmations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_consumptions_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "material_lots"
             referencedColumns: ["id"]
           },
           {
@@ -1070,6 +1122,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      material_lots: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          created_at: string
+          expiry_date: string | null
+          id: string
+          kind: string
+          location_id: string | null
+          lot_number: string
+          name: string | null
+          notes: string | null
+          organization_id: string
+          qty_received: number
+          qty_remaining: number
+          sku: string
+          source_operation_id: string | null
+          source_order_id: string | null
+          source_receipt_id: string | null
+          status: string
+          supplier: string | null
+          uom: string
+          updated_at: string
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          kind?: string
+          location_id?: string | null
+          lot_number: string
+          name?: string | null
+          notes?: string | null
+          organization_id: string
+          qty_received: number
+          qty_remaining: number
+          sku: string
+          source_operation_id?: string | null
+          source_order_id?: string | null
+          source_receipt_id?: string | null
+          status?: string
+          supplier?: string | null
+          uom?: string
+          updated_at?: string
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          kind?: string
+          location_id?: string | null
+          lot_number?: string
+          name?: string | null
+          notes?: string | null
+          organization_id?: string
+          qty_received?: number
+          qty_remaining?: number
+          sku?: string
+          source_operation_id?: string | null
+          source_order_id?: string | null
+          source_receipt_id?: string | null
+          status?: string
+          supplier?: string | null
+          uom?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       mes_users: {
         Row: {
@@ -1618,6 +1742,99 @@ export type Database = {
         }
         Relationships: []
       }
+      portal_connections: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          last_received_at: string | null
+          last_sent_at: string | null
+          name: string
+          organization_id: string
+          outbound_url: string | null
+          portal: string
+          shared_secret: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_received_at?: string | null
+          last_sent_at?: string | null
+          name: string
+          organization_id: string
+          outbound_url?: string | null
+          portal: string
+          shared_secret: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_received_at?: string | null
+          last_sent_at?: string | null
+          name?: string
+          organization_id?: string
+          outbound_url?: string | null
+          portal?: string
+          shared_secret?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      portal_events: {
+        Row: {
+          attempts: number
+          connection_id: string | null
+          created_at: string
+          direction: string
+          event_type: string
+          id: string
+          last_error: string | null
+          organization_id: string
+          payload: Json
+          portal: string
+          processed_at: string | null
+          ref_id: string | null
+          ref_table: string | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          connection_id?: string | null
+          created_at?: string
+          direction: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          organization_id: string
+          payload?: Json
+          portal: string
+          processed_at?: string | null
+          ref_id?: string | null
+          ref_table?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          connection_id?: string | null
+          created_at?: string
+          direction?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          organization_id?: string
+          payload?: Json
+          portal?: string
+          processed_at?: string | null
+          ref_id?: string | null
+          ref_table?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       product_station_recipes: {
         Row: {
           blocks_on_fail: boolean
@@ -1773,11 +1990,15 @@ export type Database = {
           erp_id: string | null
           id: string
           line_id: string | null
+          located_at: string | null
+          location_id: string | null
           lot_number: string
+          merged_into: string | null
           notes: string | null
           number: string
           operator: string | null
           organization_id: string
+          parent_batch_id: string | null
           planned_end: string | null
           planned_start: string | null
           priority: string
@@ -1802,11 +2023,15 @@ export type Database = {
           erp_id?: string | null
           id: string
           line_id?: string | null
+          located_at?: string | null
+          location_id?: string | null
           lot_number: string
+          merged_into?: string | null
           notes?: string | null
           number: string
           operator?: string | null
           organization_id?: string
+          parent_batch_id?: string | null
           planned_end?: string | null
           planned_start?: string | null
           priority?: string
@@ -1831,11 +2056,15 @@ export type Database = {
           erp_id?: string | null
           id?: string
           line_id?: string | null
+          located_at?: string | null
+          location_id?: string | null
           lot_number?: string
+          merged_into?: string | null
           notes?: string | null
           number?: string
           operator?: string | null
           organization_id?: string
+          parent_batch_id?: string | null
           planned_end?: string | null
           planned_start?: string | null
           priority?: string
@@ -1856,6 +2085,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "production_batches_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "wip_locations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "production_batches_organization_id_fkey"
             columns: ["organization_id"]
@@ -2411,6 +2647,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rework_tasks: {
+        Row: {
+          assigned_to: string | null
+          attempts: number
+          batch_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by_name: string | null
+          created_by_user_id: string | null
+          id: string
+          inspected_at: string | null
+          inspection_notes: string | null
+          inspection_result: string | null
+          inspection_source: string | null
+          inspector_name: string | null
+          instructions: string | null
+          operation_id: string | null
+          organization_id: string
+          production_order_id: string
+          qty: number
+          reason: string
+          status: string
+          uom: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attempts?: number
+          batch_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by_name?: string | null
+          created_by_user_id?: string | null
+          id?: string
+          inspected_at?: string | null
+          inspection_notes?: string | null
+          inspection_result?: string | null
+          inspection_source?: string | null
+          inspector_name?: string | null
+          instructions?: string | null
+          operation_id?: string | null
+          organization_id: string
+          production_order_id: string
+          qty: number
+          reason: string
+          status?: string
+          uom?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attempts?: number
+          batch_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by_name?: string | null
+          created_by_user_id?: string | null
+          id?: string
+          inspected_at?: string | null
+          inspection_notes?: string | null
+          inspection_result?: string | null
+          inspection_source?: string | null
+          inspector_name?: string | null
+          instructions?: string | null
+          operation_id?: string | null
+          organization_id?: string
+          production_order_id?: string
+          qty?: number
+          reason?: string
+          status?: string
+          uom?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       role_permissions: {
         Row: {
@@ -3184,6 +3495,123 @@ export type Database = {
           },
         ]
       }
+      wip_counts: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          batch_id: string
+          counted_qty: number
+          created_at: string
+          expected_qty: number
+          id: string
+          location_id: string
+          organization_id: string
+          reason: string | null
+          variance: number | null
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          batch_id: string
+          counted_qty: number
+          created_at?: string
+          expected_qty: number
+          id?: string
+          location_id: string
+          organization_id: string
+          reason?: string | null
+          variance?: number | null
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          batch_id?: string
+          counted_qty?: number
+          created_at?: string
+          expected_qty?: number
+          id?: string
+          location_id?: string
+          organization_id?: string
+          reason?: string | null
+          variance?: number | null
+        }
+        Relationships: []
+      }
+      wip_locations: {
+        Row: {
+          active: boolean
+          aging_limit_hours: number
+          created_at: string
+          id: string
+          kind: string
+          line_id: string | null
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          aging_limit_hours?: number
+          created_at?: string
+          id: string
+          kind?: string
+          line_id?: string | null
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          aging_limit_hours?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          line_id?: string | null
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wip_moves: {
+        Row: {
+          actor_name: string | null
+          actor_user_id: string | null
+          batch_id: string
+          created_at: string
+          from_location_id: string | null
+          id: string
+          organization_id: string
+          qty: number | null
+          reason: string | null
+          to_location_id: string
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          batch_id: string
+          created_at?: string
+          from_location_id?: string | null
+          id?: string
+          organization_id: string
+          qty?: number | null
+          reason?: string | null
+          to_location_id: string
+        }
+        Update: {
+          actor_name?: string | null
+          actor_user_id?: string | null
+          batch_id?: string
+          created_at?: string
+          from_location_id?: string | null
+          id?: string
+          organization_id?: string
+          qty?: number | null
+          reason?: string | null
+          to_location_id?: string
+        }
+        Relationships: []
+      }
       work_centers: {
         Row: {
           created_at: string
@@ -3298,6 +3726,43 @@ export type Database = {
       }
     }
     Views: {
+      lot_genealogy: {
+        Row: {
+          input_lot: string | null
+          input_lot_id: string | null
+          input_sku: string | null
+          organization_id: string | null
+          output_lot: string | null
+          output_name: string | null
+          output_sku: string | null
+          production_order_id: string | null
+          qty_used: number | null
+          uom: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_consumptions_lot_id_fkey"
+            columns: ["input_lot_id"]
+            isOneToOne: false
+            referencedRelation: "material_lots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_consumptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_consumptions_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_on_hand: {
         Row: {
           name: string | null
@@ -3310,6 +3775,7 @@ export type Database = {
       }
     }
     Functions: {
+      actor_name: { Args: never; Returns: string }
       apply_production_version: {
         Args: { _po_id: string; _version_id: string }
         Returns: undefined
@@ -3319,6 +3785,17 @@ export type Database = {
         Returns: undefined
       }
       can_admin_users: { Args: { _user_id: string }; Returns: boolean }
+      enqueue_portal_event: {
+        Args: {
+          _org: string
+          _payload: Json
+          _portal: string
+          _ref_id: string
+          _ref_table: string
+          _type: string
+        }
+        Returns: undefined
+      }
       has_action: {
         Args: { _action: string; _user_id: string }
         Returns: boolean
@@ -3341,6 +3818,14 @@ export type Database = {
       }
       in_my_org: { Args: { _org: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      merge_batches: {
+        Args: { _reason: string; _sources: string[]; _target: string }
+        Returns: undefined
+      }
+      move_batch: {
+        Args: { _batch_id: string; _reason: string; _to: string }
+        Returns: undefined
+      }
       operation_block_reason: {
         Args: { _check_sequence: boolean; _op_id: string }
         Returns: string
@@ -3356,6 +3841,10 @@ export type Database = {
           scope_id: string
           scope_kind: string
         }[]
+      }
+      split_batch: {
+        Args: { _batch_id: string; _qty: number; _reason: string }
+        Returns: string
       }
       user_orgs: {
         Args: { _user_id: string }

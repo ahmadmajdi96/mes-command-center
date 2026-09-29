@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedWipRouteImport } from './routes/_authenticated/wip'
 import { Route as AuthenticatedWasteReasonsRouteImport } from './routes/_authenticated/waste-reasons'
 import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticated/tracking'
 import { Route as AuthenticatedTraceabilityRouteImport } from './routes/_authenticated/traceability'
@@ -19,6 +20,7 @@ import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authentica
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -26,6 +28,7 @@ import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
+import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
 import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
@@ -40,6 +43,7 @@ import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products.index'
 import { Route as AuthenticatedProductionOrdersIndexRouteImport } from './routes/_authenticated/production-orders.index'
 import { Route as AuthenticatedOperatorIndexRouteImport } from './routes/_authenticated/operator.index'
+import { Route as AuthenticatedMaterialLotsIndexRouteImport } from './routes/_authenticated/material-lots.index'
 import { Route as AuthenticatedMachinesIndexRouteImport } from './routes/_authenticated/machines.index'
 import { Route as AuthenticatedLinesIndexRouteImport } from './routes/_authenticated/lines.index'
 import { Route as AuthenticatedHmiIndexRouteImport } from './routes/_authenticated/hmi.index'
@@ -50,10 +54,12 @@ import { Route as AuthenticatedStationsStationIdRouteImport } from './routes/_au
 import { Route as AuthenticatedProductsProductIdRouteImport } from './routes/_authenticated/products.$productId'
 import { Route as AuthenticatedProductionOrdersPoIdRouteImport } from './routes/_authenticated/production-orders.$poId'
 import { Route as AuthenticatedOperatorStationIdRouteImport } from './routes/_authenticated/operator.$stationId'
+import { Route as AuthenticatedMaterialLotsLotIdRouteImport } from './routes/_authenticated/material-lots.$lotId'
 import { Route as AuthenticatedMachinesMachineIdRouteImport } from './routes/_authenticated/machines.$machineId'
 import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenticated/lines.$lineId'
 import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
 import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
+import { Route as ApiPublicPortalsConnectionIdRouteImport } from './routes/api/public/portals.$connectionId'
 import { Route as ApiPublicMesSummaryRouteImport } from './routes/api/public/mes/summary'
 import { Route as ApiMesV1WorkOrdersRouteImport } from './routes/api/mes/v1/work-orders'
 import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/traceability'
@@ -75,6 +81,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWipRoute = AuthenticatedWipRouteImport.update({
+  id: '/wip',
+  path: '/wip',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWasteReasonsRoute =
@@ -115,6 +126,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReworkRoute = AuthenticatedReworkRouteImport.update({
+  id: '/rework',
+  path: '/rework',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
   id: '/recipes',
   path: '/recipes',
@@ -150,6 +166,12 @@ const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIntegrationsRoute =
+  AuthenticatedIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
   id: '/genealogy',
   path: '/genealogy',
@@ -227,6 +249,12 @@ const AuthenticatedOperatorIndexRoute =
     path: '/operator/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMaterialLotsIndexRoute =
+  AuthenticatedMaterialLotsIndexRouteImport.update({
+    id: '/material-lots/',
+    path: '/material-lots/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMachinesIndexRoute =
   AuthenticatedMachinesIndexRouteImport.update({
     id: '/machines/',
@@ -284,6 +312,12 @@ const AuthenticatedOperatorStationIdRoute =
     path: '/operator/$stationId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMaterialLotsLotIdRoute =
+  AuthenticatedMaterialLotsLotIdRouteImport.update({
+    id: '/material-lots/$lotId',
+    path: '/material-lots/$lotId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMachinesMachineIdRoute =
   AuthenticatedMachinesMachineIdRouteImport.update({
     id: '/machines/$machineId',
@@ -307,6 +341,12 @@ const AuthenticatedBatchesBatchIdRoute =
     id: '/batches/$batchId',
     path: '/batches/$batchId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicPortalsConnectionIdRoute =
+  ApiPublicPortalsConnectionIdRouteImport.update({
+    id: '/api/public/portals/$connectionId',
+    path: '/api/public/portals/$connectionId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicMesSummaryRoute = ApiPublicMesSummaryRouteImport.update({
   id: '/api/public/mes/summary',
@@ -360,6 +400,7 @@ export interface FileRoutesByFullPath {
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
@@ -367,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/rework': typeof AuthenticatedReworkRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -374,10 +416,12 @@ export interface FileRoutesByFullPath {
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/wip': typeof AuthenticatedWipRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
   '/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
+  '/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRoute
@@ -388,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/hmi/': typeof AuthenticatedHmiIndexRoute
   '/lines/': typeof AuthenticatedLinesIndexRoute
   '/machines/': typeof AuthenticatedMachinesIndexRoute
+  '/material-lots/': typeof AuthenticatedMaterialLotsIndexRoute
   '/operator/': typeof AuthenticatedOperatorIndexRoute
   '/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
   '/products/': typeof AuthenticatedProductsIndexRoute
@@ -400,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
@@ -413,6 +459,7 @@ export interface FileRoutesByTo {
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
@@ -420,6 +467,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/rework': typeof AuthenticatedReworkRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -427,11 +475,13 @@ export interface FileRoutesByTo {
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/wip': typeof AuthenticatedWipRoute
   '/': typeof AuthenticatedIndexRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
   '/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
+  '/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRoute
@@ -442,6 +492,7 @@ export interface FileRoutesByTo {
   '/hmi': typeof AuthenticatedHmiIndexRoute
   '/lines': typeof AuthenticatedLinesIndexRoute
   '/machines': typeof AuthenticatedMachinesIndexRoute
+  '/material-lots': typeof AuthenticatedMaterialLotsIndexRoute
   '/operator': typeof AuthenticatedOperatorIndexRoute
   '/production-orders': typeof AuthenticatedProductionOrdersIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
@@ -454,6 +505,7 @@ export interface FileRoutesByTo {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
@@ -469,6 +521,7 @@ export interface FileRoutesById {
   '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
+  '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
@@ -476,6 +529,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
+  '/_authenticated/rework': typeof AuthenticatedReworkRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -483,11 +537,13 @@ export interface FileRoutesById {
   '/_authenticated/traceability': typeof AuthenticatedTraceabilityRoute
   '/_authenticated/tracking': typeof AuthenticatedTrackingRoute
   '/_authenticated/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/_authenticated/wip': typeof AuthenticatedWipRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/_authenticated/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/_authenticated/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
   '/_authenticated/machines/$machineId': typeof AuthenticatedMachinesMachineIdRoute
+  '/_authenticated/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
   '/_authenticated/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
   '/_authenticated/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
   '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRoute
@@ -498,6 +554,7 @@ export interface FileRoutesById {
   '/_authenticated/hmi/': typeof AuthenticatedHmiIndexRoute
   '/_authenticated/lines/': typeof AuthenticatedLinesIndexRoute
   '/_authenticated/machines/': typeof AuthenticatedMachinesIndexRoute
+  '/_authenticated/material-lots/': typeof AuthenticatedMaterialLotsIndexRoute
   '/_authenticated/operator/': typeof AuthenticatedOperatorIndexRoute
   '/_authenticated/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
@@ -510,6 +567,7 @@ export interface FileRoutesById {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
 }
@@ -526,6 +584,7 @@ export interface FileRouteTypes {
     | '/erp-contract'
     | '/execution'
     | '/genealogy'
+    | '/integrations'
     | '/inventory'
     | '/live'
     | '/master-data'
@@ -533,6 +592,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quality'
     | '/recipes'
+    | '/rework'
     | '/settings'
     | '/shifts'
     | '/step-templates'
@@ -540,10 +600,12 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/wip'
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/machines/$machineId'
+    | '/material-lots/$lotId'
     | '/operator/$stationId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -554,6 +616,7 @@ export interface FileRouteTypes {
     | '/hmi/'
     | '/lines/'
     | '/machines/'
+    | '/material-lots/'
     | '/operator/'
     | '/production-orders/'
     | '/products/'
@@ -566,6 +629,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   fileRoutesByTo: FileRoutesByTo
@@ -579,6 +643,7 @@ export interface FileRouteTypes {
     | '/erp-contract'
     | '/execution'
     | '/genealogy'
+    | '/integrations'
     | '/inventory'
     | '/live'
     | '/master-data'
@@ -586,6 +651,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quality'
     | '/recipes'
+    | '/rework'
     | '/settings'
     | '/shifts'
     | '/step-templates'
@@ -593,11 +659,13 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/wip'
     | '/'
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
     | '/machines/$machineId'
+    | '/material-lots/$lotId'
     | '/operator/$stationId'
     | '/production-orders/$poId'
     | '/products/$productId'
@@ -608,6 +676,7 @@ export interface FileRouteTypes {
     | '/hmi'
     | '/lines'
     | '/machines'
+    | '/material-lots'
     | '/operator'
     | '/production-orders'
     | '/products'
@@ -620,6 +689,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   id:
@@ -634,6 +704,7 @@ export interface FileRouteTypes {
     | '/_authenticated/erp-contract'
     | '/_authenticated/execution'
     | '/_authenticated/genealogy'
+    | '/_authenticated/integrations'
     | '/_authenticated/inventory'
     | '/_authenticated/live'
     | '/_authenticated/master-data'
@@ -641,6 +712,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
+    | '/_authenticated/rework'
     | '/_authenticated/settings'
     | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
@@ -648,11 +720,13 @@ export interface FileRouteTypes {
     | '/_authenticated/traceability'
     | '/_authenticated/tracking'
     | '/_authenticated/waste-reasons'
+    | '/_authenticated/wip'
     | '/_authenticated/'
     | '/_authenticated/batches/$batchId'
     | '/_authenticated/hmi/$stationId'
     | '/_authenticated/lines/$lineId'
     | '/_authenticated/machines/$machineId'
+    | '/_authenticated/material-lots/$lotId'
     | '/_authenticated/operator/$stationId'
     | '/_authenticated/production-orders/$poId'
     | '/_authenticated/products/$productId'
@@ -663,6 +737,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hmi/'
     | '/_authenticated/lines/'
     | '/_authenticated/machines/'
+    | '/_authenticated/material-lots/'
     | '/_authenticated/operator/'
     | '/_authenticated/production-orders/'
     | '/_authenticated/products/'
@@ -675,6 +750,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
   fileRoutesById: FileRoutesById
@@ -688,6 +764,7 @@ export interface RootRouteChildren {
   ApiMesV1TraceabilityRoute: typeof ApiMesV1TraceabilityRoute
   ApiMesV1WorkOrdersRoute: typeof ApiMesV1WorkOrdersRoute
   ApiPublicMesSummaryRoute: typeof ApiPublicMesSummaryRoute
+  ApiPublicPortalsConnectionIdRoute: typeof ApiPublicPortalsConnectionIdRoute
   ApiMesV1EdgeActionRoute: typeof ApiMesV1EdgeActionRoute
   ApiMesV1ErpEntityRoute: typeof ApiMesV1ErpEntityRoute
 }
@@ -713,6 +790,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wip': {
+      id: '/_authenticated/wip'
+      path: '/wip'
+      fullPath: '/wip'
+      preLoaderRoute: typeof AuthenticatedWipRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/waste-reasons': {
@@ -764,6 +848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rework': {
+      id: '/_authenticated/rework'
+      path: '/rework'
+      fullPath: '/rework'
+      preLoaderRoute: typeof AuthenticatedReworkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/recipes': {
       id: '/_authenticated/recipes'
       path: '/recipes'
@@ -811,6 +902,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory'
       fullPath: '/inventory'
       preLoaderRoute: typeof AuthenticatedInventoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/integrations': {
+      id: '/_authenticated/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/genealogy': {
@@ -911,6 +1009,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/material-lots/': {
+      id: '/_authenticated/material-lots/'
+      path: '/material-lots'
+      fullPath: '/material-lots/'
+      preLoaderRoute: typeof AuthenticatedMaterialLotsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/machines/': {
       id: '/_authenticated/machines/'
       path: '/machines'
@@ -981,6 +1086,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorStationIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/material-lots/$lotId': {
+      id: '/_authenticated/material-lots/$lotId'
+      path: '/material-lots/$lotId'
+      fullPath: '/material-lots/$lotId'
+      preLoaderRoute: typeof AuthenticatedMaterialLotsLotIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/machines/$machineId': {
       id: '/_authenticated/machines/$machineId'
       path: '/machines/$machineId'
@@ -1008,6 +1120,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/batches/$batchId'
       preLoaderRoute: typeof AuthenticatedBatchesBatchIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/portals/$connectionId': {
+      id: '/api/public/portals/$connectionId'
+      path: '/api/public/portals/$connectionId'
+      fullPath: '/api/public/portals/$connectionId'
+      preLoaderRoute: typeof ApiPublicPortalsConnectionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/mes/summary': {
       id: '/api/public/mes/summary'
@@ -1077,6 +1196,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
+  AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
@@ -1084,6 +1204,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
@@ -1091,11 +1212,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
   AuthenticatedTrackingRoute: typeof AuthenticatedTrackingRoute
   AuthenticatedWasteReasonsRoute: typeof AuthenticatedWasteReasonsRoute
+  AuthenticatedWipRoute: typeof AuthenticatedWipRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
   AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
   AuthenticatedLinesLineIdRoute: typeof AuthenticatedLinesLineIdRoute
   AuthenticatedMachinesMachineIdRoute: typeof AuthenticatedMachinesMachineIdRoute
+  AuthenticatedMaterialLotsLotIdRoute: typeof AuthenticatedMaterialLotsLotIdRoute
   AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
   AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
   AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
@@ -1106,6 +1229,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
   AuthenticatedLinesIndexRoute: typeof AuthenticatedLinesIndexRoute
   AuthenticatedMachinesIndexRoute: typeof AuthenticatedMachinesIndexRoute
+  AuthenticatedMaterialLotsIndexRoute: typeof AuthenticatedMaterialLotsIndexRoute
   AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
   AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
@@ -1123,6 +1247,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
+  AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
@@ -1130,6 +1255,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
+  AuthenticatedReworkRoute: AuthenticatedReworkRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
@@ -1137,11 +1263,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTraceabilityRoute: AuthenticatedTraceabilityRoute,
   AuthenticatedTrackingRoute: AuthenticatedTrackingRoute,
   AuthenticatedWasteReasonsRoute: AuthenticatedWasteReasonsRoute,
+  AuthenticatedWipRoute: AuthenticatedWipRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedBatchesBatchIdRoute: AuthenticatedBatchesBatchIdRoute,
   AuthenticatedHmiStationIdRoute: AuthenticatedHmiStationIdRoute,
   AuthenticatedLinesLineIdRoute: AuthenticatedLinesLineIdRoute,
   AuthenticatedMachinesMachineIdRoute: AuthenticatedMachinesMachineIdRoute,
+  AuthenticatedMaterialLotsLotIdRoute: AuthenticatedMaterialLotsLotIdRoute,
   AuthenticatedOperatorStationIdRoute: AuthenticatedOperatorStationIdRoute,
   AuthenticatedProductionOrdersPoIdRoute:
     AuthenticatedProductionOrdersPoIdRoute,
@@ -1153,6 +1281,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHmiIndexRoute: AuthenticatedHmiIndexRoute,
   AuthenticatedLinesIndexRoute: AuthenticatedLinesIndexRoute,
   AuthenticatedMachinesIndexRoute: AuthenticatedMachinesIndexRoute,
+  AuthenticatedMaterialLotsIndexRoute: AuthenticatedMaterialLotsIndexRoute,
   AuthenticatedOperatorIndexRoute: AuthenticatedOperatorIndexRoute,
   AuthenticatedProductionOrdersIndexRoute:
     AuthenticatedProductionOrdersIndexRoute,
@@ -1174,6 +1303,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMesV1TraceabilityRoute: ApiMesV1TraceabilityRoute,
   ApiMesV1WorkOrdersRoute: ApiMesV1WorkOrdersRoute,
   ApiPublicMesSummaryRoute: ApiPublicMesSummaryRoute,
+  ApiPublicPortalsConnectionIdRoute: ApiPublicPortalsConnectionIdRoute,
   ApiMesV1EdgeActionRoute: ApiMesV1EdgeActionRoute,
   ApiMesV1ErpEntityRoute: ApiMesV1ErpEntityRoute,
 }
