@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
-import { PROTOCOLS, protocolName, type Machine } from "@/lib/machines";
+import { PROTOCOLS, protocolName, safetyLabel, type Machine } from "@/lib/machines";
 
 export const Route = createFileRoute("/_authenticated/machines/")({
   head: () => ({
@@ -63,7 +63,7 @@ function Page() {
       <input aria-label="Search" placeholder="Search machines…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full max-w-sm rounded-lg border border-border/60 bg-background px-3 py-2 text-sm" />
       <div className="glass-panel overflow-x-auto rounded-2xl">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-muted-foreground"><th className="p-3">Machine</th><th>Protocol</th><th>Station</th><th>Mode</th><th>Status</th><th>Last seen</th></tr></thead>
+          <thead><tr className="text-left text-muted-foreground"><th className="p-3">Machine</th><th>Protocol</th><th>Station</th><th>Mode</th><th>Status</th><th>Safety</th><th>Last seen</th></tr></thead>
           <tbody>
             {list.map((m) => (
               <tr key={m.id} onClick={() => nav({ to: "/machines/$machineId", params: { machineId: m.id } })} className="cursor-pointer border-t border-border/40 hover:bg-muted/40">
@@ -72,10 +72,11 @@ function Page() {
                 <td>{stations.find((s) => s.id === m.station_id)?.name ?? "—"}</td>
                 <td className="capitalize">{m.connection_mode}</td>
                 <td className={m.status === "online" ? "text-success" : "text-muted-foreground"}>{m.status}</td>
+                <td className={safetyLabel(m).tone}>{safetyLabel(m).text}</td>
                 <td>{m.last_seen_at ? new Date(m.last_seen_at).toLocaleString() : "—"}</td>
               </tr>
             ))}
-            {!list.length && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No machines yet.</td></tr>}
+            {!list.length && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No machines yet.</td></tr>}
           </tbody>
         </table>
       </div>
