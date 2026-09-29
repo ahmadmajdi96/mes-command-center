@@ -22,6 +22,7 @@ import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authentica
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSchedulingRouteImport } from './routes/_authenticated/scheduling'
 import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
@@ -148,6 +149,11 @@ const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSchedulingRoute = AuthenticatedSchedulingRouteImport.update({
+  id: '/scheduling',
+  path: '/scheduling',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReworkRoute = AuthenticatedReworkRouteImport.update({
@@ -499,6 +505,7 @@ export interface FileRoutesByFullPath {
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/rework': typeof AuthenticatedReworkRoute
+  '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -571,6 +578,7 @@ export interface FileRoutesByTo {
   '/quality': typeof AuthenticatedQualityRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/rework': typeof AuthenticatedReworkRoute
+  '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -646,6 +654,7 @@ export interface FileRoutesById {
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/rework': typeof AuthenticatedReworkRoute
+  '/_authenticated/scheduling': typeof AuthenticatedSchedulingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
@@ -722,6 +731,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/recipes'
     | '/rework'
+    | '/scheduling'
     | '/settings'
     | '/shifts'
     | '/step-templates'
@@ -794,6 +804,7 @@ export interface FileRouteTypes {
     | '/quality'
     | '/recipes'
     | '/rework'
+    | '/scheduling'
     | '/settings'
     | '/shifts'
     | '/step-templates'
@@ -868,6 +879,7 @@ export interface FileRouteTypes {
     | '/_authenticated/quality'
     | '/_authenticated/recipes'
     | '/_authenticated/rework'
+    | '/_authenticated/scheduling'
     | '/_authenticated/settings'
     | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
@@ -1028,6 +1040,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/scheduling': {
+      id: '/_authenticated/scheduling'
+      path: '/scheduling'
+      fullPath: '/scheduling'
+      preLoaderRoute: typeof AuthenticatedSchedulingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/rework': {
@@ -1465,6 +1484,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
+  AuthenticatedSchedulingRoute: typeof AuthenticatedSchedulingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
@@ -1528,6 +1548,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedReworkRoute: AuthenticatedReworkRoute,
+  AuthenticatedSchedulingRoute: AuthenticatedSchedulingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
