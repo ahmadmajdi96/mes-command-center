@@ -14,7 +14,7 @@
 - [x] Most Important: step-by-step order execution (release checks, holds, exceptions, approvals, reject/scrap)
 - [x] Re-validate Most Important end to end (incl. corrected report totals)
 - [x] Phase A: WIP split/merge/aging/reconciliation/locations, material lots + actual consumption, semi-finished goods, rework tasks + re-inspection
-- [ ] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
+- [x] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
 - [ ] Phase C: work instructions, approval workflows, e-signatures, tools, shared shift plans, machine connection layer
 - [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
 - [x] Mock Maintenance/QA portals over real signed HTTP, inbox + replies, auto-send every 20s
