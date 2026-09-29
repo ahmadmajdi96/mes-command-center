@@ -55,6 +55,7 @@ export const decideApproval = createServerFn({ method: "POST" })
     const r = req as { id: string; organization_id: string; status: string; kind: string; ref_table: string; ref_id: string } | null;
     if (!r) throw new Error("Request not found");
     if (r.status !== "pending") throw new Error("This request was already decided");
+    if ((r as { requested_by?: string }).requested_by === context.userId) throw new Error("You cannot approve your own request — another approver must sign");
 
     const [{ data: a }, { data: b }] = await Promise.all([
       context.supabase.rpc("has_action", { _user_id: context.userId, _action: "execution.override" }),
