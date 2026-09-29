@@ -60,6 +60,7 @@ import { Route as AuthenticatedLinesLineIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedHmiStationIdRouteImport } from './routes/_authenticated/hmi.$stationId'
 import { Route as AuthenticatedBatchesBatchIdRouteImport } from './routes/_authenticated/batches.$batchId'
 import { Route as ApiPublicPortalsConnectionIdRouteImport } from './routes/api/public/portals.$connectionId'
+import { Route as ApiPublicMockPortalConnectionIdRouteImport } from './routes/api/public/mock-portal.$connectionId'
 import { Route as ApiPublicMesSummaryRouteImport } from './routes/api/public/mes/summary'
 import { Route as ApiMesV1WorkOrdersRouteImport } from './routes/api/mes/v1/work-orders'
 import { Route as ApiMesV1TraceabilityRouteImport } from './routes/api/mes/v1/traceability'
@@ -348,6 +349,12 @@ const ApiPublicPortalsConnectionIdRoute =
     path: '/api/public/portals/$connectionId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMockPortalConnectionIdRoute =
+  ApiPublicMockPortalConnectionIdRouteImport.update({
+    id: '/api/public/mock-portal/$connectionId',
+    path: '/api/public/mock-portal/$connectionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMesSummaryRoute = ApiPublicMesSummaryRouteImport.update({
   id: '/api/public/mes/summary',
   path: '/api/public/mes/summary',
@@ -445,6 +452,7 @@ export interface FileRoutesByFullPath {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/mock-portal/$connectionId': typeof ApiPublicMockPortalConnectionIdRoute
   '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
@@ -505,6 +513,7 @@ export interface FileRoutesByTo {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/mock-portal/$connectionId': typeof ApiPublicMockPortalConnectionIdRoute
   '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
@@ -567,6 +576,7 @@ export interface FileRoutesById {
   '/api/mes/v1/traceability': typeof ApiMesV1TraceabilityRoute
   '/api/mes/v1/work-orders': typeof ApiMesV1WorkOrdersRoute
   '/api/public/mes/summary': typeof ApiPublicMesSummaryRoute
+  '/api/public/mock-portal/$connectionId': typeof ApiPublicMockPortalConnectionIdRoute
   '/api/public/portals/$connectionId': typeof ApiPublicPortalsConnectionIdRoute
   '/api/mes/v1/edge/$action': typeof ApiMesV1EdgeActionRoute
   '/api/mes/v1/erp/$entity': typeof ApiMesV1ErpEntityRoute
@@ -629,6 +639,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/mock-portal/$connectionId'
     | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
@@ -689,6 +700,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/mock-portal/$connectionId'
     | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
@@ -750,6 +762,7 @@ export interface FileRouteTypes {
     | '/api/mes/v1/traceability'
     | '/api/mes/v1/work-orders'
     | '/api/public/mes/summary'
+    | '/api/public/mock-portal/$connectionId'
     | '/api/public/portals/$connectionId'
     | '/api/mes/v1/edge/$action'
     | '/api/mes/v1/erp/$entity'
@@ -764,6 +777,7 @@ export interface RootRouteChildren {
   ApiMesV1TraceabilityRoute: typeof ApiMesV1TraceabilityRoute
   ApiMesV1WorkOrdersRoute: typeof ApiMesV1WorkOrdersRoute
   ApiPublicMesSummaryRoute: typeof ApiPublicMesSummaryRoute
+  ApiPublicMockPortalConnectionIdRoute: typeof ApiPublicMockPortalConnectionIdRoute
   ApiPublicPortalsConnectionIdRoute: typeof ApiPublicPortalsConnectionIdRoute
   ApiMesV1EdgeActionRoute: typeof ApiMesV1EdgeActionRoute
   ApiMesV1ErpEntityRoute: typeof ApiMesV1ErpEntityRoute
@@ -1128,6 +1142,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPortalsConnectionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mock-portal/$connectionId': {
+      id: '/api/public/mock-portal/$connectionId'
+      path: '/api/public/mock-portal/$connectionId'
+      fullPath: '/api/public/mock-portal/$connectionId'
+      preLoaderRoute: typeof ApiPublicMockPortalConnectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mes/summary': {
       id: '/api/public/mes/summary'
       path: '/api/public/mes/summary'
@@ -1303,6 +1324,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMesV1TraceabilityRoute: ApiMesV1TraceabilityRoute,
   ApiMesV1WorkOrdersRoute: ApiMesV1WorkOrdersRoute,
   ApiPublicMesSummaryRoute: ApiPublicMesSummaryRoute,
+  ApiPublicMockPortalConnectionIdRoute: ApiPublicMockPortalConnectionIdRoute,
   ApiPublicPortalsConnectionIdRoute: ApiPublicPortalsConnectionIdRoute,
   ApiMesV1EdgeActionRoute: ApiMesV1EdgeActionRoute,
   ApiMesV1ErpEntityRoute: ApiMesV1ErpEntityRoute,

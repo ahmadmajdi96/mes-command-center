@@ -68,7 +68,7 @@ export const simulatePortalReply = createServerFn({ method: "POST" })
   });
 
 /** Points a connection at the built-in mock portal (for use until the real portal is live). */
-export const useMockPortal = createServerFn({ method: "POST" })
+export const connectMockPortal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ connectionId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
