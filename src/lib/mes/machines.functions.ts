@@ -79,3 +79,55 @@ export const sendMachineCommand = createServerFn({ method: "POST" })
     if (e2) throw new Error(e2.message);
     return { id: row.id, status: "acknowledged", ...w };
   });
+
+export const SAFETY_CHECKS = [
+  { key: "estop", label: "Emergency stop tested and working" },
+  { key: "guards", label: "Guards and interlocks in place and verified" },
+  { key: "loto", label: "Lock-out / tag-out procedure documented" },
+  { key: "commands", label: "Every command and its address reviewed against the machine manual" },
+  { key: "limits", label: "Setpoint and value limits reviewed" },
+  { key: "local", label: "Local operator can always override remote commands" },
+] as const;
+
+/** Signs (or revokes) a machine's safety sign-off: password re-entry + reason, stored permanently. */
+export const signMachineSafety = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    machineId: z.string().min(1).max(100), decision: z.enum(["approved", "revoked"]),
+    checklist: z.record(z.string(), z.boolean()).default({}), reason: z.string().trim().min(3).max(500),
+    validUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), password: z.string().min(1).max(200),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const m = await loadMachine(context.supabase, data.machineId);
+    const [a, b] = await Promise.all([
+      context.supabase.rpc("has_action", { _user_id: context.userId, _action: "machines.command" }),
+      context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+    ]);
+    if (!a.data && !b.data) throw new Error("You are not allowed to sign machine safety");
+    const email = (context.claims as any)?.email as string | undefined;
+    if (!email) throw new Error("No email on your account");
+    const { createClient } = await import("@supabase/supabase-js");
+    const c = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, { auth: { persistSession: false, autoRefreshToken: false, storage: undefined } });
+    if ((await c.auth.signInWithPassword({ email, password: data.password })).error) throw new Error("Password is incorrect — signature refused");
+    if (data.decision === "approved") {
+      const missing = SAFETY_CHECKS.filter((s) => !data.checklist[s.key]).map((s) => s.label);
+      if (missing.length) throw new Error(`Not all checks confirmed: ${missing.join("; ")}`);
+      if (!data.validUntil || data.validUntil <= new Date().toISOString().slice(0, 10)) throw new Error("Pick a future valid-until date");
+      const ep = checkEndpoint(m.protocol, m.endpoint);
+      if (m.connection_mode !== "manual" && !ep.ok) throw new Error(`Fix the machine address first: ${ep.error}`);
+    }
+    const { data: me } = await context.supabase.rpc("actor_name");
+    const name = (me as string) || email;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("machine_safety_signoffs" as never).insert({
+      organization_id: m.organization_id, machine_id: m.id, decision: data.decision, checklist: data.checklist, reason: data.reason,
+      valid_until: data.decision === "approved" ? data.validUntil : null, signed_by: context.userId, signed_by_name: name,
+    } as never);
+    if (error) throw new Error(error.message);
+    const { error: e2 } = await supabaseAdmin.from("machines" as never).update({
+      safety_status: data.decision, safety_valid_until: data.decision === "approved" ? data.validUntil : null,
+      safety_signed_by: name, safety_signed_at: new Date().toISOString(),
+    } as never).eq("id", m.id);
+    if (e2) throw new Error(e2.message);
+    return { ok: true };
+  });
