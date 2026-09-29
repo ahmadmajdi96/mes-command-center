@@ -11,8 +11,8 @@
 - [x] Workforce: Shift Management
 - [x] Production Lines upgrade
 - [x] Most Important: step-by-step order execution (release checks, holds, exceptions, approvals, reject/scrap)
-- [ ] Re-validate Most Important end to end (incl. corrected report totals)
-- [ ] Phase A: WIP split/merge/aging/reconciliation/locations, material lots + actual consumption, semi-finished goods, rework tasks + re-inspection
+- [x] Re-validate Most Important end to end (incl. corrected report totals)
+- [x] Phase A: WIP split/merge/aging/reconciliation/locations, material lots + actual consumption, semi-finished goods, rework tasks + re-inspection
 - [ ] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
 - [ ] Phase C: work instructions, approval workflows, e-signatures, tools, shared shift plans, machine connection layer
-- [ ] Maintenance & QA stay in external portals — integration API + webhooks only
+- [x] Maintenance & QA stay in external portals — signed inbound endpoint, outbound queue, Integrations page
