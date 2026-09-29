@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { plansForOperation, requiredSamples } from "./quality.functions";
 
 /**
  * Step-level execution: start, setup, hold/resume, confirm/complete, approve,
@@ -123,6 +124,8 @@ export const startOperation = createServerFn({ method: "POST" })
     if (fields.includes("machine") && !v.machineId) throw new Error("This operation requires a machine");
     if (fields.includes("batch") && !v.batchId) throw new Error("This operation requires a batch / lot");
     if (fields.includes("parameters") && !Object.values(v.parameters ?? {}).some((x) => String(x).trim())) throw new Error("This operation requires execution parameters");
+    const { data: missingSkills } = await ctx.supabase.rpc("operation_missing_skills", { _op_id: op.id, _user_id: ctx.userId });
+    if ((missingSkills ?? []).length) throw new Error(`You are not qualified for "${op.name}": missing or expired certification for ${(missingSkills as string[]).join(", ")}`);
 
     // Move a released order to running on the first start
     if (po.status === "released") {
@@ -262,6 +265,15 @@ export const confirmOperation = createServerFn({ method: "POST" })
       if (fields.includes("completion_reason") && !str(v.completionReason)) missing.push("completion reason");
       if (processed < Number(op.qty_input) - 1e-9 && !str(v.completionReason)) missing.push(`completion reason (only ${processed} of ${op.qty_input} ${po.uom} processed)`);
       if (missing.length) throw new Error(`Before completing, fill in: ${missing.join(", ")}`);
+
+      const plans = await plansForOperation(ctx.supabase, op, po.product_id ?? null);
+      const { data: results } = await ctx.supabase.from("inspection_results").select("plan_id").eq("operation_id", op.id);
+      for (const p of plans) {
+        const need = requiredSamples(p, processed), have = (results ?? []).filter((r: any) => r.plan_id === p.id).length;
+        if (have < need) throw new Error(`Inspection "${p.name}" needs ${need} sample(s) before completing (${have} recorded${p.performed_by === "qa_portal" ? ", waiting for the QA portal" : ""})`);
+      }
+      const { data: openNc } = await ctx.supabase.from("nonconformances").select("id").eq("operation_id", op.id).eq("status", "open");
+      if ((openNc ?? []).length) throw new Error(`Waiting for a QA decision on ${openNc.map((n: any) => n.id).join(", ")}`);
     }
 
     const { error } = await ctx.supabase.from("production_confirmations").insert({
