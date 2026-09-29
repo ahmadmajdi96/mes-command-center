@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedWipRouteImport } from './routes/_authenticated/wip'
 import { Route as AuthenticatedWasteReasonsRouteImport } from './routes/_authenticated/waste-reasons'
 import { Route as AuthenticatedTrackingRouteImport } from './routes/_authenticated/tracking'
 import { Route as AuthenticatedTraceabilityRouteImport } from './routes/_authenticated/traceability'
@@ -76,6 +77,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWipRoute = AuthenticatedWipRouteImport.update({
+  id: '/wip',
+  path: '/wip',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWasteReasonsRoute =
@@ -381,6 +387,7 @@ export interface FileRoutesByFullPath {
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/wip': typeof AuthenticatedWipRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
   '/lines/$lineId': typeof AuthenticatedLinesLineIdRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/traceability': typeof AuthenticatedTraceabilityRoute
   '/tracking': typeof AuthenticatedTrackingRoute
   '/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/wip': typeof AuthenticatedWipRoute
   '/': typeof AuthenticatedIndexRoute
   '/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
@@ -492,6 +500,7 @@ export interface FileRoutesById {
   '/_authenticated/traceability': typeof AuthenticatedTraceabilityRoute
   '/_authenticated/tracking': typeof AuthenticatedTrackingRoute
   '/_authenticated/waste-reasons': typeof AuthenticatedWasteReasonsRoute
+  '/_authenticated/wip': typeof AuthenticatedWipRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/batches/$batchId': typeof AuthenticatedBatchesBatchIdRoute
   '/_authenticated/hmi/$stationId': typeof AuthenticatedHmiStationIdRoute
@@ -550,6 +559,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/wip'
     | '/batches/$batchId'
     | '/hmi/$stationId'
     | '/lines/$lineId'
@@ -604,6 +614,7 @@ export interface FileRouteTypes {
     | '/traceability'
     | '/tracking'
     | '/waste-reasons'
+    | '/wip'
     | '/'
     | '/batches/$batchId'
     | '/hmi/$stationId'
@@ -660,6 +671,7 @@ export interface FileRouteTypes {
     | '/_authenticated/traceability'
     | '/_authenticated/tracking'
     | '/_authenticated/waste-reasons'
+    | '/_authenticated/wip'
     | '/_authenticated/'
     | '/_authenticated/batches/$batchId'
     | '/_authenticated/hmi/$stationId'
@@ -727,6 +739,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wip': {
+      id: '/_authenticated/wip'
+      path: '/wip'
+      fullPath: '/wip'
+      preLoaderRoute: typeof AuthenticatedWipRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/waste-reasons': {
@@ -1112,6 +1131,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTraceabilityRoute: typeof AuthenticatedTraceabilityRoute
   AuthenticatedTrackingRoute: typeof AuthenticatedTrackingRoute
   AuthenticatedWasteReasonsRoute: typeof AuthenticatedWasteReasonsRoute
+  AuthenticatedWipRoute: typeof AuthenticatedWipRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedBatchesBatchIdRoute: typeof AuthenticatedBatchesBatchIdRoute
   AuthenticatedHmiStationIdRoute: typeof AuthenticatedHmiStationIdRoute
@@ -1158,6 +1178,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTraceabilityRoute: AuthenticatedTraceabilityRoute,
   AuthenticatedTrackingRoute: AuthenticatedTrackingRoute,
   AuthenticatedWasteReasonsRoute: AuthenticatedWasteReasonsRoute,
+  AuthenticatedWipRoute: AuthenticatedWipRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedBatchesBatchIdRoute: AuthenticatedBatchesBatchIdRoute,
   AuthenticatedHmiStationIdRoute: AuthenticatedHmiStationIdRoute,
