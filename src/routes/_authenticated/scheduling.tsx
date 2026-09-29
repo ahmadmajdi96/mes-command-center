@@ -29,7 +29,7 @@ function SchedulingPage() {
   const { data: stations = [] } = useRows<any>("stations", { order: "sequence", asc: true });
   const [days, setDays] = useState(7);
   const [hoursPerDay, setHours] = useState(16);
-  const [start, setStart] = useState(() => new Date(new Date().setHours(0, 0, 0, 0)).toISOString().slice(0, 10));
+  const [start, setStart] = useState(() => new Date(new Date().setHours(0, 0, 0, 0) - DAY).toISOString().slice(0, 10));
   const t0 = new Date(start).getTime(), t1 = t0 + days * DAY;
 
   const planned = useMemo(() => orders.filter((o) => OPEN.includes(o.status) || (o.planned_start && new Date(o.planned_start).getTime() < t1 && new Date(o.planned_end ?? o.planned_start).getTime() > t0)), [orders, t0, t1]);
@@ -38,7 +38,7 @@ function SchedulingPage() {
   const span = (o: any) => {
     const s = new Date(o.planned_start).getTime();
     const e = o.planned_end ? new Date(o.planned_end).getTime() : s + Math.max(opMin(o), 60) * 60000;
-    return { s, e };
+    return { s, e: o.status === "running" ? Math.max(e, Date.now()) : e };
   };
 
   const rows = lines.map((l) => {
@@ -95,11 +95,11 @@ function SchedulingPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="glass-panel rounded-2xl p-4">
           <h2 className="mb-2 text-sm font-semibold">Orders and their steps</h2>
-          <table className="w-full text-xs"><thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-1 text-left">Order</th><th className="text-left">Line</th><th className="text-left">Start</th><th className="text-right">Work (h)</th><th className="text-left">Steps / machine</th></tr></thead>
+          <table className="w-full text-xs"><thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-1 text-left">Order</th><th className="text-left">Line</th><th className="text-left">Start</th><th className="pr-3 text-right">Work (h)</th><th className="text-left">Steps / machine</th></tr></thead>
             <tbody>{planned.map((o) => (
               <tr key={o.id} className="border-t border-border/40 align-top">
                 <td className="py-1.5"><Link to="/production-orders/$poId" params={{ poId: o.id }} className="font-mono text-primary">{o.id}</Link><div className="text-muted-foreground">{o.status}</div></td>
-                <td>{o.line_id ?? "—"}</td><td>{o.planned_start ? new Date(o.planned_start).toLocaleString() : "—"}</td><td className="text-right">{(opMin(o) / 60).toFixed(1)}</td>
+                <td>{o.line_id ?? "—"}</td><td>{o.planned_start ? new Date(o.planned_start).toLocaleString() : "—"}</td><td className="pr-3 text-right">{(opMin(o) / 60).toFixed(1)}</td>
                 <td>{ops.filter((p) => p.production_order_id === o.id).map((p) => <div key={p.id}>{p.sequence}. {p.name} <span className="text-muted-foreground">{p.machine_id ?? p.station_id ?? p.work_center_id ?? ""}</span></div>)}</td>
               </tr>))}</tbody></table>
         </div>
