@@ -43,7 +43,7 @@ function IntegrationsPage() {
   const [nc, setNc] = useState({ portal: "maintenance", name: "", url: "" });
   const [sim, setSim] = useState({ conn: "", type: "", body: "" });
   const [dir, setDir] = useState(""); const [st, setSt] = useState("");
-  const useMock = useServerFn(connectMockPortal);
+  const mockConnect = useServerFn(connectMockPortal);
   const respond = useServerFn(mockPortalRespond);
   const { data: inbox = [] } = useRows<any>("mock_portal_inbox", { enabled: isAdmin });
   const [auto, setAuto] = useState(true);
@@ -79,7 +79,7 @@ function IntegrationsPage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div><b>{c.name}</b> <span className="uppercase text-muted-foreground">· {c.portal}</span> {!c.active && <span className="text-warning">· paused</span>}</div>
                   <div className="flex gap-2">
-                    {!String(c.outbound_url ?? "").includes("/api/public/mock-portal/") && <button className="text-primary" onClick={async () => { try { await useMock({ data: { connectionId: c.id } }); toast.success("Now sending to the built-in mock portal"); qc.invalidateQueries({ queryKey: ["exec"] }); } catch (e) { toast.error(errMsg(e)); } }}>Use mock portal</button>}
+                    {!String(c.outbound_url ?? "").includes("/api/public/mock-portal/") && <button className="text-primary" onClick={async () => { try { await mockConnect({ data: { connectionId: c.id } }); toast.success("Now sending to the built-in mock portal"); qc.invalidateQueries({ queryKey: ["exec"] }); } catch (e) { toast.error(errMsg(e)); } }}>Use mock portal</button>}
                     <button className="text-muted-foreground hover:text-foreground" onClick={() => w.update.mutate({ id: c.id, patch: { active: !c.active } })}>{c.active ? "Pause" : "Resume"}</button>
                     <button className="text-destructive" onClick={() => { if (confirm("Remove connection?")) w.remove.mutate(c.id); }}>Remove</button>
                   </div>
