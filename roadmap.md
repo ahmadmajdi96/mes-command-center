@@ -6,7 +6,13 @@
 - [x] Machines: 11 protocols, tags/limits/hold-on-breach, commands (simulated/manual/edge), edge box feed
 - [ ] Live pull from custom ERP — on hold per user (standalone)
 - [ ] Real machine drivers on the edge box — needs real machine list + safety sign-off
-- [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page (next)
-- [x] Control Center: plant/shift/interval filters, live OEE bands + station picker, clickable lines, Andon/Pareto/Stoppage/Temperature "View all" (Plant Analytics page)
-- [x] Workforce: Shift Management (shift definitions, weekly roster, coverage vs minimum, hourly headcount, shift performance)
-- [x] Production Lines: move Shop Floor navigation, add list/detail search, filters and CSV export, simplify line creation with automatic IDs and field guidance, link current work orders, add zoomable aligned station flow, and manage line operators inline
+- [ ] Page-by-page review: clickable list rows, detail pages, back arrows on every page
+- [x] Control Center filters, OEE, Plant Analytics
+- [x] Workforce: Shift Management
+- [x] Production Lines upgrade
+- [x] Most Important: step-by-step order execution (release checks, holds, exceptions, approvals, reject/scrap)
+- [ ] Re-validate Most Important end to end (incl. corrected report totals)
+- [ ] Phase A: WIP split/merge/aging/reconciliation/locations, material lots + actual consumption, semi-finished goods, rework tasks + re-inspection
+- [ ] Phase B: dynamic routing rules, inspection plans, nonconformance, skills + blocking unqualified operators
+- [ ] Phase C: work instructions, approval workflows, e-signatures, tools, shared shift plans, machine connection layer
+- [ ] Maintenance & QA stay in external portals — integration API + webhooks only
