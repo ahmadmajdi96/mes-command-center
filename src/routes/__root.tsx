@@ -41,7 +41,7 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(error as Error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

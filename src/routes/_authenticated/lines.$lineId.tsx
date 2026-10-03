@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/lines/$lineId")({
     <div className="grid place-items-center p-12 text-sm text-muted-foreground">Line not found.</div>
   ),
   errorComponent: ({ error }) => (
-    <div className="grid place-items-center p-12 text-sm text-destructive">{error.message}</div>
+    <div className="grid place-items-center p-12 text-sm text-destructive">{error instanceof Error ? error.message : String(error)}</div>
   ),
 });
 
