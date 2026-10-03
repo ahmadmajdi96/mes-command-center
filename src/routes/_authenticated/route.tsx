@@ -1,6 +1,9 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { Bell, Search, ChevronRight, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
+import { Search, ChevronRight, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CommandPalette } from "@/components/command-palette";
+import { NotificationBell } from "@/components/notification-bell";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -32,6 +35,17 @@ function TopBar() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchOpen, setSearchOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const { data: profile } = useQuery({
     queryKey: ["my-profile", user.id],
@@ -74,17 +88,17 @@ function TopBar() {
         <span>Shift A · 06:00 → 14:00</span>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <div className="relative hidden md:block">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            placeholder="Search WO, lot, line…"
-            className="h-9 w-64 rounded-lg border border-border/60 bg-card/60 pl-8 pr-3 text-sm placeholder:text-muted-foreground/60 focus:border-primary/50 focus:outline-none"
-          />
-        </div>
-        <button className="relative grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:text-foreground">
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
+        <button
+          onClick={() => setSearchOpen(true)}
+          aria-label="Search everything"
+          className="flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2.5 text-sm text-muted-foreground transition hover:border-primary/50 md:w-64"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="hidden flex-1 text-left md:inline">Search everything…</span>
+          <kbd className="hidden rounded border border-border/60 px-1.5 font-mono text-[10px] md:inline">Ctrl K</kbd>
         </button>
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
+        <NotificationBell userId={user.id} />
         <Link
           to="/profile"
           className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2 py-1 transition hover:border-primary/50"
