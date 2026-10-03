@@ -39,14 +39,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const overview = [
+export const overview = [
   { title: "Control Center", url: "/", icon: LayoutDashboard },
   { title: "Production Lines", url: "/lines", icon: Factory },
   { title: "Stations", url: "/stations", icon: Cpu },
   { title: "Live Shop Floor", url: "/live", icon: Radio },
 ];
 
-const planning = [
+export const planning = [
   { title: "Products", url: "/products", icon: Package },
   { title: "Recipes", url: "/recipes", icon: ClipboardCheck },
   { title: "Production Orders", url: "/production-orders", icon: ClipboardList },
@@ -56,7 +56,7 @@ const planning = [
   { title: "Inventory", url: "/inventory", icon: Package },
 ];
 
-const execution = [
+export const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
   { title: "Operator App (mobile)", url: "/mobile", icon: PlayCircle },
@@ -73,7 +73,7 @@ const execution = [
   { title: "Tools", url: "/tools", icon: Settings },
 ];
 
-const monitoring = [
+export const monitoring = [
   { title: "Andon / Downtime", url: "/downtime", icon: AlertOctagon },
   { title: "Plant Analytics", url: "/analytics", icon: Activity },
   { title: "Telemetry", url: "/telemetry", icon: Activity },
@@ -84,14 +84,14 @@ const monitoring = [
   { title: "Waste Reasons", url: "/waste-reasons", icon: Trash2 },
 ];
 
-const workforce = [
+export const workforce = [
   { title: "Users", url: "/users", icon: Users },
   { title: "Assignments", url: "/assignments", icon: UserCog },
   { title: "Skills & Certifications", url: "/skills", icon: ListChecks },
   { title: "Shifts", url: "/shifts", icon: CalendarDays },
 ];
 
-const platform = [
+export const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
   { title: "ERP Contract", url: "/erp-contract", icon: Boxes },
   { title: "Machines", url: "/machines", icon: Activity },
@@ -99,6 +99,8 @@ const platform = [
   { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "People & Access", url: "/access", icon: ShieldCheck },
+  { title: "Roles & Permissions", url: "/roles", icon: UserCog },
+  { title: "Notifications", url: "/notifications", icon: Radio },
   { title: "Settings", url: "/settings", icon: Settings },
 
 ];

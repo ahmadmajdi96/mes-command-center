@@ -1788,6 +1788,66 @@ export type Database = {
           },
         ]
       }
+      notification_prefs: {
+        Row: {
+          enabled: boolean
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          enabled?: boolean
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          enabled?: boolean
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string | null
+          organization_id: string | null
+          read_at: string | null
+          severity: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          organization_id?: string | null
+          read_at?: string | null
+          severity?: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          organization_id?: string | null
+          read_at?: string | null
+          severity?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       operation_events: {
         Row: {
           actor_name: string | null
@@ -2316,16 +2376,19 @@ export type Database = {
       }
       permissions: {
         Row: {
+          category: string | null
           created_at: string
           description: string
           key: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           description: string
           key: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           description?: string
           key?: string
@@ -3345,22 +3408,31 @@ export type Database = {
       }
       roles: {
         Row: {
+          color: string | null
           created_at: string
           description: string | null
+          is_system: boolean
           key: string
           label: string
+          updated_at: string
         }
         Insert: {
+          color?: string | null
           created_at?: string
           description?: string | null
+          is_system?: boolean
           key: string
           label: string
+          updated_at?: string
         }
         Update: {
+          color?: string | null
           created_at?: string
           description?: string | null
+          is_system?: boolean
           key?: string
           label?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4701,6 +4773,31 @@ export type Database = {
       }
       move_batch: {
         Args: { _batch_id: string; _reason: string; _to: string }
+        Returns: undefined
+      }
+      notify_user: {
+        Args: {
+          _link: string
+          _msg: string
+          _org: string
+          _sev: string
+          _title: string
+          _type: string
+          _uid: string
+        }
+        Returns: undefined
+      }
+      notify_users: {
+        Args: {
+          _action: string
+          _exclude?: string
+          _link: string
+          _msg: string
+          _org: string
+          _sev: string
+          _title: string
+          _type: string
+        }
         Returns: undefined
       }
       operation_block_reason: {
