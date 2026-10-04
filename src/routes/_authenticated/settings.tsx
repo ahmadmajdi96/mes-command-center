@@ -58,7 +58,7 @@ function Settings() {
               <Database className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold">Lovable Cloud database</h3>
+              <h3 className="text-sm font-semibold">Cloud database</h3>
               <p className="mt-1 max-w-xl text-xs text-muted-foreground">
                 Seed lines, stations, work orders, downtime, quality holds, genealogy and the
                 3-month audit history into the real database. Idempotent — safe to run twice.
