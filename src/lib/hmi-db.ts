@@ -92,6 +92,7 @@ export function useUpsertRecipe() {
       sequence?: number;
       target_cycle_sec?: number | null;
       instructions?: string | null;
+      organization_id?: string;
     }) => {
       const { data, error } = await supabase
         .from("product_station_recipes")
@@ -103,7 +104,8 @@ export function useUpsertRecipe() {
             sequence: v.sequence ?? 0,
             target_cycle_sec: v.target_cycle_sec ?? null,
             instructions: v.instructions ?? null,
-          },
+            ...(v.organization_id ? { organization_id: v.organization_id } : {}),
+          } as never,
           { onConflict: "product_id,station_id" },
         )
         .select()
