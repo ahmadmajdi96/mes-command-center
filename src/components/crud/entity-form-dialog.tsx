@@ -20,7 +20,18 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export type FieldType = "text" | "number" | "textarea" | "select" | "multiselect" | "file";
+export type FieldType = "text" | "number" | "textarea" | "select" | "multiselect" | "file" | "datetime";
+
+/** Radix Select forbids "" as an item value; empty options map to this sentinel. */
+const NONE = "__none__";
+
+function toLocalInput(v: unknown) {
+  if (!v) return "";
+  const d = new Date(String(v));
+  if (Number.isNaN(d.getTime())) return String(v);
+  const off = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
 
 export interface Field {
   name: string;
@@ -42,6 +53,39 @@ export interface Field {
   visibleWhen?: { field: string; equals: string | string[] };
   /** Logical section header rendered before the field */
   section?: string;
+  /** For number: lowest allowed value (e.g. 0 for non-negative). */
+  min?: number;
+  /** For number: highest allowed value. */
+  max?: number;
+  /** For number: step (use 1 for whole numbers). */
+  step?: number;
+  /** For number: whole numbers only. */
+  integer?: boolean;
+  /** For datetime: must be on/after this other datetime field. */
+  notBefore?: string;
+}
+
+/** Validate one field; returns an error message or null. Used live and on submit. */
+function fieldError(f: Field, v: any, all: Record<string, any>): string | null {
+  if (f.type === "multiselect") {
+    const min = f.minSelected ?? (f.required ? 1 : 0);
+    return min > 0 && (!Array.isArray(v) || v.length < min) ? `Select at least ${min} option${min === 1 ? "" : "s"}` : null;
+  }
+  if (f.type === "file") return f.required && !v ? "File is required" : null;
+  if (f.required && (v === "" || v == null)) return `${f.label} is required`;
+  if (f.type === "number" && v !== "" && v != null) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return `${f.label} must be a number`;
+    if (f.min !== undefined && n < f.min) return f.min === 0 ? `${f.label} cannot be negative` : `${f.label} must be at least ${f.min}`;
+    if (f.max !== undefined && n > f.max) return `${f.label} must be at most ${f.max}`;
+    if (f.integer && !Number.isInteger(n)) return `${f.label} must be a whole number`;
+  }
+  if (f.type === "datetime" && v) {
+    if (Number.isNaN(new Date(v).getTime())) return `${f.label} is not a valid date`;
+    const other = f.notBefore ? all[f.notBefore] : null;
+    if (other && new Date(v).getTime() < new Date(other).getTime()) return `${f.label} must be after the start`;
+  }
+  return null;
 }
 
 export function EntityFormDialog<T extends Record<string, any>>({
@@ -75,12 +119,25 @@ export function EntityFormDialog<T extends Record<string, any>>({
         const init = (initial as any)?.[f.name];
         if (f.type === "multiselect") seed[f.name] = Array.isArray(init) ? init : [];
         else if (f.type === "file") seed[f.name] = init ?? null;
+        else if (f.type === "datetime") seed[f.name] = toLocalInput(init);
         else seed[f.name] = init ?? (f.type === "number" ? 0 : "");
       });
       setValues(seed);
       setErrors({});
     }
   }, [open]);
+
+  const setField = (f: Field, val: any) =>
+    setValues((cur) => {
+      const next = { ...cur, [f.name]: val };
+      setErrors((e) => {
+        const copy = { ...e };
+        const msg = fieldError(f, val, next);
+        if (msg && (e[f.name] || f.type === "number" || f.type === "datetime")) copy[f.name] = msg; else delete copy[f.name];
+        return copy;
+      });
+      return next;
+    });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,17 +152,8 @@ export function EntityFormDialog<T extends Record<string, any>>({
         const ok = Array.isArray(want) ? want.includes(v) : v === want;
         if (!ok) continue;
       }
-      const v = values[f.name];
-      if (f.type === "multiselect") {
-        const min = f.minSelected ?? (f.required ? 1 : 0);
-        if (min > 0 && (!Array.isArray(v) || v.length < min)) {
-          errs[f.name] = `Select at least ${min} option${min === 1 ? "" : "s"}`;
-        }
-      } else if (f.type === "file") {
-        if (f.required && !v) errs[f.name] = "File is required";
-      } else if (f.required && (v === "" || v == null)) {
-        errs[f.name] = `${f.label} is required`;
-      }
+      const msg = fieldError(f, values[f.name], values);
+      if (msg) errs[f.name] = msg;
     }
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -116,7 +164,9 @@ export function EntityFormDialog<T extends Record<string, any>>({
     // dialog stays open with the entered values so nothing is silently lost.
     setSaving(true);
     try {
-      await onSubmit(values as T);
+      const out: Record<string, any> = {};
+      for (const [k, v] of Object.entries(values)) out[k] = v === NONE ? "" : v;
+      await onSubmit(out as T);
       toast.success(`${title.replace(/^(Create|New|Edit) /, "")} saved`);
       setOpen(false);
     } catch (err: any) {
@@ -163,20 +213,20 @@ export function EntityFormDialog<T extends Record<string, any>>({
                       id={f.name}
                       value={values[f.name] ?? ""}
                       placeholder={f.placeholder}
-                      onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
-                      className="bg-card/60"
+                      onChange={(e) => setField(f, e.target.value)}
+                      className={`bg-card/60 ${errors[f.name] ? "border-destructive/60" : ""}`}
                     />
                   ) : f.type === "select" ? (
                     <Select
-                      value={values[f.name] ?? ""}
-                      onValueChange={(val) => setValues((v) => ({ ...v, [f.name]: val }))}
+                      value={values[f.name] === "" || values[f.name] == null ? undefined : String(values[f.name])}
+                      onValueChange={(val) => setField(f, val === NONE ? "" : val)}
                     >
-                      <SelectTrigger className="bg-card/60">
+                      <SelectTrigger id={f.name} className={`bg-card/60 ${errors[f.name] ? "border-destructive/60" : ""}`}>
                         <SelectValue placeholder={f.placeholder ?? "Select…"} />
                       </SelectTrigger>
                       <SelectContent>
                         {f.options?.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
+                          <SelectItem key={o.value || NONE} value={o.value || NONE}>
                             {o.label}
                           </SelectItem>
                         ))}
@@ -258,14 +308,19 @@ export function EntityFormDialog<T extends Record<string, any>>({
                   ) : (
                     <Input
                       id={f.name}
-                      type={f.type === "number" ? "number" : "text"}
+                      type={f.type === "number" ? "number" : f.type === "datetime" ? "datetime-local" : "text"}
+                      inputMode={f.type === "number" ? (f.integer ? "numeric" : "decimal") : undefined}
+                      min={f.type === "number" ? f.min : f.type === "datetime" && f.notBefore ? values[f.notBefore] || undefined : undefined}
+                      max={f.type === "number" ? f.max : undefined}
+                      step={f.type === "number" ? (f.step ?? (f.integer ? 1 : "any")) : undefined}
+                      aria-invalid={!!errors[f.name]}
                       value={values[f.name] ?? ""}
                       placeholder={f.placeholder}
+                      onKeyDown={(e) => {
+                        if (f.type === "number" && f.min !== undefined && f.min >= 0 && e.key === "-") e.preventDefault();
+                      }}
                       onChange={(e) =>
-                        setValues((v) => ({
-                          ...v,
-                          [f.name]: f.type === "number" ? Number(e.target.value) : e.target.value,
-                        }))
+                        setField(f, f.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)
                       }
                       className={`bg-card/60 ${errors[f.name] ? "border-destructive/60" : ""}`}
                     />
