@@ -76,7 +76,7 @@ function fieldError(f: Field, v: any, all: Record<string, any>): string | null {
   if (f.type === "number" && v !== "" && v != null) {
     const n = Number(v);
     if (!Number.isFinite(n)) return `${f.label} must be a number`;
-    if (f.min !== undefined && n < f.min) return f.min === 0 ? `${f.label} cannot be negative` : `${f.label} must be at least ${f.min}`;
+    if (f.min !== undefined && n < f.min) return f.min === 0 ? `${f.label} cannot be negative` : f.min > 0 && f.min < 0.01 ? `${f.label} must be more than 0` : `${f.label} must be at least ${f.min}`;
     if (f.max !== undefined && n > f.max) return `${f.label} must be at most ${f.max}`;
     if (f.integer && !Number.isInteger(n)) return `${f.label} must be a whole number`;
   }
@@ -187,7 +187,7 @@ export function EntityFormDialog<T extends Record<string, any>>({
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <form onSubmit={submit} className="grid max-h-[70vh] grid-cols-2 gap-4 overflow-y-auto pr-1">
+        <form noValidate onSubmit={submit} className="grid max-h-[70vh] grid-cols-2 gap-4 overflow-y-auto pr-1">
           {fields.map((f, idx) => {
             if (f.visibleWhen) {
               const v = values[f.visibleWhen.field];
@@ -322,9 +322,30 @@ export function EntityFormDialog<T extends Record<string, any>>({
                       onChange={(e) =>
                         setField(f, f.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)
                       }
-                      className={`bg-card/60 ${errors[f.name] ? "border-destructive/60" : ""}`}
+                      className={`bg-card/60 ${f.type === "number" ? "pr-16" : ""} ${errors[f.name] ? "border-destructive/60" : ""}`}
                     />
                   )}
+                  {f.type === "number" && (() => {
+                    const stepN = typeof f.step === "number" ? f.step : 1;
+                    const bump = (dir: 1 | -1) => {
+                      const cur = Number(values[f.name] || 0);
+                      let n = Math.round((cur + dir * stepN) * 1e6) / 1e6;
+                      if (f.min !== undefined) n = Math.max(f.min, n);
+                      if (f.max !== undefined) n = Math.min(f.max, n);
+                      setField(f, n);
+                    };
+                    return (
+                      <div className="pointer-events-none relative -mt-9 flex h-9 justify-end gap-0.5 pr-1">
+                        {([-1, 1] as const).map((d) => (
+                          <button key={d} type="button" tabIndex={-1} onClick={() => bump(d)}
+                            aria-label={`${d < 0 ? "Decrease" : "Increase"} ${f.label}`}
+                            className="pointer-events-auto my-1 grid w-7 place-items-center rounded-md border border-border/60 bg-background/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary">
+                            {d < 0 ? "−" : "+"}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
                 {errors[f.name] && (
                   <div className="mt-1 text-[11px] text-destructive">{errors[f.name]}</div>
