@@ -4,7 +4,7 @@ import { Plus, Trash2, Save, ClipboardList, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useProducts } from "@/lib/products-db";
 import { useMyOrg } from "@/lib/wip-db";
-import { useMes } from "@/lib/mes-store";
+import { useRows } from "@/lib/execution-db";
 import {
   useRecipesForProduct, useUpsertRecipe, type RecipeVariable,
 } from "@/lib/hmi-db";
@@ -21,7 +21,9 @@ export const Route = createFileRoute("/_authenticated/recipes")({
 
 function RecipesPage() {
   const { data: products = [] } = useProducts();
-  const store = useMes();
+  // Stations come from the database so a recipe always points at a real station.
+  const { data: dbStations = [] } = useRows<any>("stations", { order: "sequence", asc: true });
+  const store = { stations: dbStations as { id: string; name: string; type: string }[] };
   const [productId, setProductId] = useState<string>("");
   const [stationId, setStationId] = useState<string>("");
 
