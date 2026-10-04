@@ -76,7 +76,7 @@ function fieldError(f: Field, v: any, all: Record<string, any>): string | null {
   if (f.type === "number" && v !== "" && v != null) {
     const n = Number(v);
     if (!Number.isFinite(n)) return `${f.label} must be a number`;
-    if (f.min !== undefined && n < f.min) return f.min === 0 ? `${f.label} cannot be negative` : `${f.label} must be at least ${f.min}`;
+    if (f.min !== undefined && n < f.min) return f.min === 0 ? `${f.label} cannot be negative` : f.min > 0 && f.min < 0.01 ? `${f.label} must be more than 0` : `${f.label} must be at least ${f.min}`;
     if (f.max !== undefined && n > f.max) return `${f.label} must be at most ${f.max}`;
     if (f.integer && !Number.isInteger(n)) return `${f.label} must be a whole number`;
   }
