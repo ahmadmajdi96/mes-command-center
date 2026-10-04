@@ -187,7 +187,7 @@ export function EntityFormDialog<T extends Record<string, any>>({
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <form onSubmit={submit} className="grid max-h-[70vh] grid-cols-2 gap-4 overflow-y-auto pr-1">
+        <form noValidate onSubmit={submit} className="grid max-h-[70vh] grid-cols-2 gap-4 overflow-y-auto pr-1">
           {fields.map((f, idx) => {
             if (f.visibleWhen) {
               const v = values[f.visibleWhen.field];
