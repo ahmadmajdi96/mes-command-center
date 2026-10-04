@@ -322,9 +322,30 @@ export function EntityFormDialog<T extends Record<string, any>>({
                       onChange={(e) =>
                         setField(f, f.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)
                       }
-                      className={`bg-card/60 ${errors[f.name] ? "border-destructive/60" : ""}`}
+                      className={`bg-card/60 ${f.type === "number" ? "pr-16" : ""} ${errors[f.name] ? "border-destructive/60" : ""}`}
                     />
                   )}
+                  {f.type === "number" && (() => {
+                    const stepN = typeof f.step === "number" ? f.step : 1;
+                    const bump = (dir: 1 | -1) => {
+                      const cur = Number(values[f.name] || 0);
+                      let n = Math.round((cur + dir * stepN) * 1e6) / 1e6;
+                      if (f.min !== undefined) n = Math.max(f.min, n);
+                      if (f.max !== undefined) n = Math.min(f.max, n);
+                      setField(f, n);
+                    };
+                    return (
+                      <div className="pointer-events-none relative -mt-9 flex h-9 justify-end gap-0.5 pr-1">
+                        {([-1, 1] as const).map((d) => (
+                          <button key={d} type="button" tabIndex={-1} onClick={() => bump(d)}
+                            aria-label={`${d < 0 ? "Decrease" : "Increase"} ${f.label}`}
+                            className="pointer-events-auto my-1 grid w-7 place-items-center rounded-md border border-border/60 bg-background/60 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary">
+                            {d < 0 ? "−" : "+"}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
                 {errors[f.name] && (
                   <div className="mt-1 text-[11px] text-destructive">{errors[f.name]}</div>
