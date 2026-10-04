@@ -172,8 +172,8 @@ function PosPage() {
                       fields={fields}
                       initial={{
                         ...o,
-                        planned_start: o.planned_start ? o.planned_start.slice(0, 16) : "",
-                        planned_end: o.planned_end ? o.planned_end.slice(0, 16) : "",
+                        planned_start: o.planned_start ?? "",
+                        planned_end: o.planned_end ?? "",
                       } as never}
                       onSubmit={async (v) => {
                         await update.mutateAsync({
