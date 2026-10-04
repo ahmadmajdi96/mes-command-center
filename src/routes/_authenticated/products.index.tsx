@@ -25,10 +25,10 @@ const fields: Field[] = [
     { value: "L", label: "L" }, { value: "ml", label: "ml" }, { value: "btl", label: "bottle" },
     { value: "ctn", label: "carton" }, { value: "jar", label: "jar" },
   ], required: true },
-  { name: "standard_cost", label: "Std Cost", type: "number" },
-  { name: "sale_price", label: "Sale Price", type: "number" },
-  { name: "lead_time", label: "Lead time (days)", type: "number" },
-  { name: "batching_limit", label: "Batching limit", type: "number" },
+  { name: "standard_cost", label: "Std Cost", type: "number", min: 0, step: 0.01, description: "Cost per unit — 0 or more" },
+  { name: "sale_price", label: "Sale Price", type: "number", min: 0, step: 0.01, description: "Price per unit — 0 or more" },
+  { name: "lead_time", label: "Lead time (days)", type: "number", min: 0, integer: true, description: "Whole days — 0 or more" },
+  { name: "batching_limit", label: "Batching limit", type: "number", min: 0, description: "Max quantity per batch — 0 means no limit" },
   { name: "description", label: "Description", type: "textarea", span: 2 },
 ];
 

@@ -47,12 +47,12 @@ function PosPage() {
 
   const fields: Field[] = [
     { name: "product_id", label: "Product", type: "select", options: products.map((p) => ({ value: p.id, label: `${p.sku} · ${p.name}` })), required: true, span: 2 },
-    { name: "qty", label: "Quantity", type: "number", required: true },
+    { name: "qty", label: "Quantity", type: "number", required: true, min: 0.001, description: "Must be more than 0" },
     { name: "uom", label: "UOM", type: "text", required: true },
     { name: "line_id", label: "Line", type: "select", options: [{ value: "", label: "— unassigned —" }, ...lines.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` }))] },
     { name: "shift", label: "Shift", type: "select", options: ["A", "B", "C"].map((s) => ({ value: s, label: s })) },
-    { name: "planned_start", label: "Planned start", type: "text", placeholder: "YYYY-MM-DDTHH:mm" },
-    { name: "planned_end", label: "Planned end", type: "text", placeholder: "YYYY-MM-DDTHH:mm" },
+    { name: "planned_start", label: "Planned start", type: "datetime" },
+    { name: "planned_end", label: "Planned end", type: "datetime", notBefore: "planned_start" },
     { name: "operator", label: "Operator", type: "text" },
     { name: "priority", label: "Priority", type: "select", options: ["low", "normal", "high", "urgent"].map((s) => ({ value: s, label: s })) },
     { name: "status", label: "Status", type: "select", options: poStatuses.map((s) => ({ value: s, label: s })), required: true, span: 2 },
