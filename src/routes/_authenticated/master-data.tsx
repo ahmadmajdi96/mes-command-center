@@ -243,9 +243,9 @@ function Versions() {
           <option value="">Routing…</option>{routings.filter((r: any) => !p || r.sku === p.sku).map((r: any) => <option key={r.id} value={r.id}>{r.id}</option>)}
         </select>
         <input className={inp} type="date" value={f.valid_from} onChange={(e) => setF({ ...f, valid_from: e.target.value })} title="Valid from" />
-        <input className={inp} type="date" value={f.valid_to} onChange={(e) => setF({ ...f, valid_to: e.target.value })} title="Valid to" />
+        <div><input className={inp} type="date" min={f.valid_from || undefined} value={f.valid_to} onChange={(e) => setF({ ...f, valid_to: e.target.value })} title="Valid to" />{f.valid_from && f.valid_to && f.valid_to < f.valid_from && <p className="mt-0.5 text-[11px] text-destructive">Valid to can't be before valid from</p>}</div>
         <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={f.is_default} onChange={(e) => setF({ ...f, is_default: e.target.checked })} />Default</label>
-        <button className={btn} disabled={!p || !f.bom_id || !f.routing_id} onClick={() => w.insert.mutate({
+        <button className={btn} disabled={!p || !f.bom_id || !f.routing_id || !f.version.trim() || (!!f.valid_from && !!f.valid_to && f.valid_to < f.valid_from)} onClick={() => w.insert.mutate({
           id: `PV-${p!.sku}-${f.version}`, product_id: p!.id, sku: p!.sku, version: f.version, description: f.description || null,
           bom_id: f.bom_id, routing_id: f.routing_id, valid_from: f.valid_from || null, valid_to: f.valid_to || null, is_default: f.is_default,
         }, { onSuccess: () => toast.success("Production version added"), onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Add</button>
