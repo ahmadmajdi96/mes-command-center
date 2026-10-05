@@ -77,7 +77,7 @@ function RecipesPage() {
     if (cycle !== "" && Number(cycle) < 0) e.cycle = "Cycle cannot be negative";
     return e;
   }
-  useEffect(() => { if (Object.keys(errs).length) setErrs(validate(vars)); }, [vars, cycle]);
+  useEffect(() => { setErrs(validate(vars)); }, [vars, cycle]);
 
   async function save() {
     if (!productId || !stationId) { toast.error("Pick a product and a station first"); return; }
