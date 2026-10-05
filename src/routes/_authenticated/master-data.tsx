@@ -1,3 +1,4 @@
+import { DecimalInput } from "@/components/decimal-input";
 import { createFileRoute } from "@tanstack/react-router";
 import { RecLink } from "@/components/rec-link";
 import { useState } from "react";
@@ -120,8 +121,8 @@ function Boms() {
           <option value="">Product…</option>{products.map((p) => <option key={p.id} value={p.id}>{p.sku} · {p.name}</option>)}
         </select>
         <input className={inp} placeholder="Version" value={f.version} onChange={(e) => setF({ ...f, version: e.target.value })} />
-        <input className={inp} type="number" placeholder="Base qty" value={f.base_qty} onChange={(e) => setF({ ...f, base_qty: Number(e.target.value) })} />
-        <button className={btn} disabled={!f.product_id} onClick={() => {
+        <div><DecimalInput className={inp} aria-label="Base qty" placeholder="Base qty" value={f.base_qty} onValue={(v) => setF({ ...f, base_qty: v as number })} />{!(Number(f.base_qty) > 0) && <p className="mt-0.5 text-[11px] text-destructive">Base qty must be more than 0</p>}</div>
+        <button className={btn} disabled={!f.product_id || !(Number(f.base_qty) > 0)} onClick={() => {
           const p = products.find((x) => x.id === f.product_id)!;
           w.insert.mutate({ id: `BOM-${p.sku}-${f.version}`, product_id: p.id, sku: p.sku, version: f.version, base_qty: f.base_qty, uom: p.uom }, { onSuccess: () => toast.success("BOM added"), onError: (e) => toast.error(errMsg(e)) });
         }}><Plus className="h-3.5 w-3.5" />Add BOM</button>
@@ -146,11 +147,11 @@ function Boms() {
               </select>
               <input className={inp} placeholder="SKU" value={n.sku} onChange={(e) => set({ sku: e.target.value })} />
               <input className={inp} placeholder="Name" value={n.name} onChange={(e) => set({ name: e.target.value })} />
-              <input className={`${inp} w-20`} type="number" value={n.qty} onChange={(e) => set({ qty: Number(e.target.value) })} />
+              <div><DecimalInput className={`${inp} w-20`} aria-label="Quantity" placeholder="Qty" value={n.qty} onValue={(v) => set({ qty: v })} />{!(Number(n.qty) > 0) && <p className="mt-0.5 text-[11px] text-destructive">Quantity must be more than 0</p>}</div>
               <input className={`${inp} w-16`} value={n.uom} onChange={(e) => set({ uom: e.target.value })} />
               <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={n.backflush} onChange={(e) => set({ backflush: e.target.checked })} />Backflush</label>
               <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={n.auto_confirm} onChange={(e) => set({ auto_confirm: e.target.checked })} />Auto-confirm</label>
-              <button className={btn} disabled={!n.sku} onClick={() => wi.insert.mutate({ bom_id: b.id, organization_id: b.organization_id, item_type: n.item_type, component_sku: n.sku, component_name: n.name || n.sku, qty: n.qty, uom: n.uom, backflush: n.backflush, auto_confirm: n.auto_confirm, sequence: (mine.length + 1) * 10 }, { onSuccess: () => set({ sku: "", name: "" }), onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Item</button>
+              <button className={btn} disabled={!n.sku || !(Number(n.qty) > 0)} onClick={() => wi.insert.mutate({ bom_id: b.id, organization_id: b.organization_id, item_type: n.item_type, component_sku: n.sku, component_name: n.name || n.sku, qty: n.qty, uom: n.uom, backflush: n.backflush, auto_confirm: n.auto_confirm, sequence: (mine.length + 1) * 10 }, { onSuccess: () => set({ sku: "", name: "" }), onError: (e) => toast.error(errMsg(e)) })}><Plus className="h-3.5 w-3.5" />Item</button>
             </div>
           </div>
         );
@@ -201,8 +202,8 @@ function Routings() {
               <select className={inp} value={n.work_center_id} onChange={(e) => set({ work_center_id: e.target.value })}>
                 <option value="">Work center…</option>{wcs.map((c: any) => <option key={c.id} value={c.id}>{c.id} · {c.name}</option>)}
               </select>
-              <input className={`${inp} w-20`} type="number" title="Setup minutes" value={n.setup_min} onChange={(e) => set({ setup_min: Number(e.target.value) })} />
-              <input className={`${inp} w-20`} type="number" title="Run minutes per unit" value={n.run_min_per_unit} onChange={(e) => set({ run_min_per_unit: Number(e.target.value) })} />
+              <label className="text-[10px] text-muted-foreground">Setup min<DecimalInput className={`${inp} w-20`} aria-label="Setup minutes" title="Setup minutes" value={n.setup_min} onValue={(v) => set({ setup_min: v ?? 0 })} /></label>
+              <label className="text-[10px] text-muted-foreground">Run min / unit<DecimalInput className={`${inp} w-20`} aria-label="Run minutes per unit" title="Run minutes per unit" value={n.run_min_per_unit} onValue={(v) => set({ run_min_per_unit: v ?? 0 })} /></label>
               <input className={`${inp} min-w-[240px] flex-1`} placeholder="Work instructions for the operator" value={n.work_instructions} onChange={(e) => set({ work_instructions: e.target.value })} />
               <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={n.requires_approval} onChange={(e) => set({ requires_approval: e.target.checked })} />Needs approval</label>
               {["machine", "batch", "parameters", "notes", "completion_reason"].map((f) => (
