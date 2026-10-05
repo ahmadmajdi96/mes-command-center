@@ -65,4 +65,17 @@ export async function applyProductionVersion(poId: string, versionId: string) {
   if (error) throw error;
 }
 
-export const errMsg = (e: unknown) => (e instanceof Error ? e.message : (e as { message?: string })?.message ?? String(e));
+const FRIENDLY: Record<string, string> = {
+  bom_items_qty_check: "Quantity must be more than 0",
+  boms_base_qty_positive: "Base qty must be more than 0",
+  routing_operations_sequence_nonneg: "Sequence cannot be negative",
+  routing_operations_setup_nonneg: "Setup minutes cannot be negative",
+  routing_operations_run_nonneg: "Run minutes cannot be negative",
+};
+export const errMsg = (e: unknown) => {
+  const m = e instanceof Error ? e.message : (e as { message?: string })?.message ?? String(e);
+  const hit = Object.keys(FRIENDLY).find((k) => m.includes(k));
+  if (hit) return FRIENDLY[hit];
+  if (m.includes("violates check constraint")) return "One of the values isn't allowed — check the numbers and try again";
+  return m;
+};
