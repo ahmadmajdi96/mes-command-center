@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useProducts } from "@/lib/products-db";
 import { useMyOrg } from "@/lib/wip-db";
 import { useRows } from "@/lib/execution-db";
+import { DecimalInput } from "@/components/decimal-input";
 import {
   useRecipesForProduct, useUpsertRecipe, type RecipeVariable,
 } from "@/lib/hmi-db";
@@ -156,8 +157,8 @@ function RecipesPage() {
                 <option value="select">select</option>
               </select>
               <input aria-label="Unit" value={v.unit ?? ""} onChange={(e) => update(i, { unit: e.target.value })} placeholder="unit" className="h-8 rounded border border-border/60 bg-background/60 px-2 font-mono text-xs" />
-              <div><input aria-label="Min" type="number" min={0} step="any" onKeyDown={noMinus} value={v.min ?? ""} onChange={(e) => update(i, { min: e.target.value === "" ? undefined : Number(e.target.value) })} placeholder="min" className={"h-8 w-full rounded border border-border/60 bg-background/60 px-2 font-mono text-xs" + bad(`${i}.min`)} />{fe(`${i}.min`)}</div>
-              <div><input aria-label="Max" type="number" min={v.min ?? 0} step="any" onKeyDown={noMinus} value={v.max ?? ""} onChange={(e) => update(i, { max: e.target.value === "" ? undefined : Number(e.target.value) })} placeholder="max" className={"h-8 w-full rounded border border-border/60 bg-background/60 px-2 font-mono text-xs" + bad(`${i}.max`)} />{fe(`${i}.max`)}</div>
+              <div><DecimalInput aria-label="Min" value={v.min} onValue={(n) => update(i, { min: n })} placeholder="min" className={"h-8 w-full rounded border border-border/60 bg-background/60 px-2 font-mono text-xs" + bad(`${i}.min`)} />{fe(`${i}.min`)}</div>
+              <div><DecimalInput aria-label="Max" value={v.max} onValue={(n) => update(i, { max: n })} placeholder="max" className={"h-8 w-full rounded border border-border/60 bg-background/60 px-2 font-mono text-xs" + bad(`${i}.max`)} />{fe(`${i}.max`)}</div>
               <div className="flex h-8 items-center gap-4">
                 <label className="inline-flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-1 text-[11px] hover:bg-card/60">
                   <input type="checkbox" className="h-3.5 w-3.5" checked={!!v.required} onChange={(e) => update(i, { required: e.target.checked })} /> Required
