@@ -4752,8 +4752,8 @@ export type Database = {
       has_permission: {
         Args: {
           _action: string
-          _scope_id?: string
-          _scope_kind?: string
+          _scope_id: string
+          _scope_kind: string
           _user_id: string
         }
         Returns: boolean
