@@ -42,10 +42,12 @@ function ApprovalsPage() {
 
   const [f, setF] = useState({ kind: "order_release" as ApprovalKind, order: "", op: "", qty: "", version: "", note: "" });
   const [sign, setSign] = useState<{ id: string; approve: boolean } | null>(null);
-  const [sf, setSf] = useState({ reason: "", password: "" });
+  const [sf, setSf] = useState<{ reason: string; password: string; meaning: "Reviewed" | "Approved" | "Released" }>({ reason: "", password: "", meaning: "Approved" });
   const [busy, setBusy] = useState(false);
   const cur = settings.find((s) => s.organization_id === org);
   const [limit, setLimit] = useState<string>("");
+  const [esc, setEsc] = useState(""); const [dtm, setDtm] = useState(""); const [idle, setIdle] = useState("");
+  const escHours = Number(cur?.escalate_after_hours ?? 4);
 
   const rows = useMemo(() => reqs.map((r) => ({ ...r, kindLabel: APPROVAL_KINDS[r.kind as ApprovalKind] ?? r.kind })), [reqs]);
   const lr = useListControls(rows, { searchKeys: ["summary", "kindLabel", "status", "requested_by_name", "decided_by_name", "decision_reason", "ref_id"], dateKey: "created_at", exportName: "approvals" });
@@ -82,18 +84,23 @@ function ApprovalsPage() {
     if (!sign) return;
     setBusy(true);
     try {
-      await decide({ data: { id: sign.id, approve: sign.approve, reason: sf.reason, password: sf.password } });
+      await decide({ data: { id: sign.id, approve: sign.approve, reason: sf.reason, password: sf.password, meaning: sf.meaning } });
       toast.success(sign.approve ? "Approved and signed" : "Rejected and signed");
-      setSign(null); setSf({ reason: "", password: "" });
+      setSign(null); setSf({ reason: "", password: "", meaning: "Approved" });
       qc.invalidateQueries({ queryKey: ["exec"] });
     } catch (e) { toast.error(errMsg(e)); } finally { setBusy(false); }
   };
 
   const saveLimit = async () => {
-    if (!org || !(Number(limit) >= 0)) return;
-    const { error } = await supabase.from("approval_settings" as never).upsert({ organization_id: org, scrap_limit: Number(limit) } as never);
+    if (!org) return;
+    const patch: Record<string, unknown> = { organization_id: org, scrap_limit: limit ? Number(limit) : Number(cur?.scrap_limit ?? 50) };
+    for (const [k, v] of [["escalate_after_hours", esc], ["downtime_reason_minutes", dtm], ["idle_signout_minutes", idle]] as const) {
+      if (v) { if (!(Number(v) >= 1) || !Number.isInteger(Number(v))) return toast.error("Times must be whole numbers of 1 or more"); patch[k] = Number(v); }
+    }
+    if (!(Number(patch.scrap_limit) >= 0)) return toast.error("Scrap limit can't be negative");
+    const { error } = await supabase.from("approval_settings" as never).upsert(patch as never);
     if (error) return toast.error(error.message);
-    toast.success("Scrap limit saved"); setLimit(""); qc.invalidateQueries({ queryKey: ["exec"] });
+    toast.success("Settings saved"); setLimit(""); setEsc(""); setDtm(""); setIdle(""); qc.invalidateQueries({ queryKey: ["exec"] });
   };
 
   return (
@@ -118,8 +125,11 @@ function ApprovalsPage() {
 
       {canSettings && (
         <div className="glass-panel flex flex-wrap items-end gap-3 rounded-2xl p-5">
-          <label className={lbl + " w-48"}>Scrap limit per step<input className={inp} type="number" placeholder={String(cur?.scrap_limit ?? 50)} value={limit} onChange={(e) => setLimit(e.target.value)} /><span>Current: {cur?.scrap_limit ?? 50}. Above this needs approval.</span></label>
-          <button className={ghost} disabled={!limit} onClick={saveLimit}>Save limit</button>
+          <label className={lbl + " w-48"}>Scrap limit per step<input className={inp} type="number" min={0} placeholder={String(cur?.scrap_limit ?? 50)} value={limit} onChange={(e) => setLimit(e.target.value)} /><span>Current: {cur?.scrap_limit ?? 50}. Above this needs approval.</span></label>
+          <label className={lbl + " w-48"}>Escalate after (hours)<input className={inp} type="number" min={1} placeholder={String(escHours)} value={esc} onChange={(e) => setEsc(e.target.value)} /><span>Waiting longer alerts approvers.</span></label>
+          <label className={lbl + " w-48"}>Downtime reason due (min)<input className={inp} type="number" min={1} placeholder={String(cur?.downtime_reason_minutes ?? 15)} value={dtm} onChange={(e) => setDtm(e.target.value)} /><span>Stops without a reason get flagged.</span></label>
+          <label className={lbl + " w-48"}>Idle sign-out (min)<input className={inp} type="number" min={1} placeholder={String(cur?.idle_signout_minutes ?? 15)} value={idle} onChange={(e) => setIdle(e.target.value)} /><span>Shared screens sign out when idle.</span></label>
+          <button className={ghost} disabled={!limit && !esc && !dtm && !idle} onClick={saveLimit}>Save settings</button>
         </div>)}
 
       <div className="glass-panel rounded-2xl p-5">
@@ -130,7 +140,7 @@ function ApprovalsPage() {
           <tbody>{lr.visible.map((r) => (
             <tr key={r.id} className="border-t border-border/40" data-testid={`approval-${r.id}`}>
               <td className="py-2">{fmt(r.created_at)}</td><td>{r.kindLabel}</td><td><RecLink kind="approval" id={r.id}>{r.summary}</RecLink></td><td>{r.requested_by_name ?? "—"}</td>
-              <td className={STATUS_CLS[r.status]}>{r.status}</td>
+              <td className={STATUS_CLS[r.status]}>{r.status}{r.status === "pending" && Date.now() - new Date(r.created_at).getTime() > escHours * 3600_000 && <span className="ml-1 rounded bg-destructive/15 px-1 text-[10px] text-destructive">overdue</span>}</td>
               <td>{r.decided_by_name ? `${r.decided_by_name} · ${fmt(r.decided_at)} · ${r.decision_reason}` : "—"}</td>
               <td className="text-right">{r.status === "pending" && canDecide && (<div className="flex justify-end gap-1">
                 <button className={ghost} onClick={() => setSign({ id: r.id, approve: true })}>Approve</button>
@@ -159,6 +169,12 @@ function ApprovalsPage() {
           <div className="glass-panel w-full max-w-sm space-y-3 rounded-2xl p-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-semibold">{sign.approve ? "Approve" : "Reject"} — electronic signature</h3>
             <p className="text-xs text-muted-foreground">By signing you confirm this decision under your own name.</p>
+            {sign.approve && (
+              <label className={lbl}>Meaning of this signature<select className={inp} value={sf.meaning} onChange={(e) => setSf({ ...sf, meaning: e.target.value as typeof sf.meaning })}>
+                <option value="Reviewed">Reviewed — I checked it</option>
+                <option value="Approved">Approved — I agree it can go ahead</option>
+                <option value="Released">Released — I release it to production</option>
+              </select><span>Saved with the signature.</span></label>)}
             <label className={lbl}>Reason<input className={inp} value={sf.reason} onChange={(e) => setSf({ ...sf, reason: e.target.value })} /></label>
             <label className={lbl}>Your password<input className={inp} type="password" autoComplete="current-password" value={sf.password} onChange={(e) => setSf({ ...sf, password: e.target.value })} /></label>
             <div className="flex justify-end gap-2"><button className={ghost} onClick={() => setSign(null)}>Cancel</button>

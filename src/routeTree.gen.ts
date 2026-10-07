@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
+import { Route as AuthenticatedAdminLogRouteImport } from './routes/_authenticated/admin-log'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
@@ -21,6 +23,7 @@ import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
+import { Route as AuthenticatedIntegrationHealthRouteImport } from './routes/_authenticated/integration-health'
 import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
@@ -30,6 +33,7 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
+import { Route as AuthenticatedRecallRouteImport } from './routes/_authenticated/recall'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
@@ -96,6 +100,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -104,6 +113,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedAccessRoute = AuthenticatedAccessRouteImport.update({
   id: '/access',
   path: '/access',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminLogRoute = AuthenticatedAdminLogRouteImport.update({
+  id: '/admin-log',
+  path: '/admin-log',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
@@ -148,6 +162,12 @@ const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
   path: '/genealogy',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIntegrationHealthRoute =
+  AuthenticatedIntegrationHealthRouteImport.update({
+    id: '/integration-health',
+    path: '/integration-health',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedIntegrationsRoute =
   AuthenticatedIntegrationsRouteImport.update({
     id: '/integrations',
@@ -193,6 +213,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedQualityRoute = AuthenticatedQualityRouteImport.update({
   id: '/quality',
   path: '/quality',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRecallRoute = AuthenticatedRecallRouteImport.update({
+  id: '/recall',
+  path: '/recall',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
@@ -512,7 +537,9 @@ const ApiMesV1ErpEntityRoute = ApiMesV1ErpEntityRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/access': typeof AuthenticatedAccessRoute
+  '/admin-log': typeof AuthenticatedAdminLogRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
@@ -521,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/integration-health': typeof AuthenticatedIntegrationHealthRoute
   '/integrations': typeof AuthenticatedIntegrationsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
@@ -530,6 +558,7 @@ export interface FileRoutesByFullPath {
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
+  '/recall': typeof AuthenticatedRecallRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
@@ -589,7 +618,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/access': typeof AuthenticatedAccessRoute
+  '/admin-log': typeof AuthenticatedAdminLogRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
@@ -598,6 +629,7 @@ export interface FileRoutesByTo {
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
+  '/integration-health': typeof AuthenticatedIntegrationHealthRoute
   '/integrations': typeof AuthenticatedIntegrationsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
@@ -607,6 +639,7 @@ export interface FileRoutesByTo {
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
+  '/recall': typeof AuthenticatedRecallRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
@@ -669,7 +702,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/access': typeof AuthenticatedAccessRoute
+  '/_authenticated/admin-log': typeof AuthenticatedAdminLogRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
@@ -678,6 +713,7 @@ export interface FileRoutesById {
   '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
+  '/_authenticated/integration-health': typeof AuthenticatedIntegrationHealthRoute
   '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
@@ -687,6 +723,7 @@ export interface FileRoutesById {
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
+  '/_authenticated/recall': typeof AuthenticatedRecallRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rework': typeof AuthenticatedReworkRoute
@@ -750,7 +787,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/reset-password'
     | '/access'
+    | '/admin-log'
     | '/analytics'
     | '/approvals'
     | '/assignments'
@@ -759,6 +798,7 @@ export interface FileRouteTypes {
     | '/erp-contract'
     | '/execution'
     | '/genealogy'
+    | '/integration-health'
     | '/integrations'
     | '/inventory'
     | '/live'
@@ -768,6 +808,7 @@ export interface FileRouteTypes {
     | '/planner'
     | '/profile'
     | '/quality'
+    | '/recall'
     | '/recipes'
     | '/reports'
     | '/rework'
@@ -827,7 +868,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/reset-password'
     | '/access'
+    | '/admin-log'
     | '/analytics'
     | '/approvals'
     | '/assignments'
@@ -836,6 +879,7 @@ export interface FileRouteTypes {
     | '/erp-contract'
     | '/execution'
     | '/genealogy'
+    | '/integration-health'
     | '/integrations'
     | '/inventory'
     | '/live'
@@ -845,6 +889,7 @@ export interface FileRouteTypes {
     | '/planner'
     | '/profile'
     | '/quality'
+    | '/recall'
     | '/recipes'
     | '/reports'
     | '/rework'
@@ -906,7 +951,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/reset-password'
     | '/_authenticated/access'
+    | '/_authenticated/admin-log'
     | '/_authenticated/analytics'
     | '/_authenticated/approvals'
     | '/_authenticated/assignments'
@@ -915,6 +962,7 @@ export interface FileRouteTypes {
     | '/_authenticated/erp-contract'
     | '/_authenticated/execution'
     | '/_authenticated/genealogy'
+    | '/_authenticated/integration-health'
     | '/_authenticated/integrations'
     | '/_authenticated/inventory'
     | '/_authenticated/live'
@@ -924,6 +972,7 @@ export interface FileRouteTypes {
     | '/_authenticated/planner'
     | '/_authenticated/profile'
     | '/_authenticated/quality'
+    | '/_authenticated/recall'
     | '/_authenticated/recipes'
     | '/_authenticated/reports'
     | '/_authenticated/rework'
@@ -986,6 +1035,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ApiMesV1DowntimeRoute: typeof ApiMesV1DowntimeRoute
   ApiMesV1KpiRoute: typeof ApiMesV1KpiRoute
   ApiMesV1QualityHoldsRoute: typeof ApiMesV1QualityHoldsRoute
@@ -1014,6 +1064,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
@@ -1026,6 +1083,13 @@ declare module '@tanstack/react-router' {
       path: '/access'
       fullPath: '/access'
       preLoaderRoute: typeof AuthenticatedAccessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-log': {
+      id: '/_authenticated/admin-log'
+      path: '/admin-log'
+      fullPath: '/admin-log'
+      preLoaderRoute: typeof AuthenticatedAdminLogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/analytics': {
@@ -1082,6 +1146,13 @@ declare module '@tanstack/react-router' {
       path: '/genealogy'
       fullPath: '/genealogy'
       preLoaderRoute: typeof AuthenticatedGenealogyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/integration-health': {
+      id: '/_authenticated/integration-health'
+      path: '/integration-health'
+      fullPath: '/integration-health'
+      preLoaderRoute: typeof AuthenticatedIntegrationHealthRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/integrations': {
@@ -1145,6 +1216,13 @@ declare module '@tanstack/react-router' {
       path: '/quality'
       fullPath: '/quality'
       preLoaderRoute: typeof AuthenticatedQualityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recall': {
+      id: '/_authenticated/recall'
+      path: '/recall'
+      fullPath: '/recall'
+      preLoaderRoute: typeof AuthenticatedRecallRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recipes': {
@@ -1544,6 +1622,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccessRoute: typeof AuthenticatedAccessRoute
+  AuthenticatedAdminLogRoute: typeof AuthenticatedAdminLogRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
@@ -1552,6 +1631,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
+  AuthenticatedIntegrationHealthRoute: typeof AuthenticatedIntegrationHealthRoute
   AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
@@ -1561,6 +1641,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
+  AuthenticatedRecallRoute: typeof AuthenticatedRecallRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
@@ -1612,6 +1693,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccessRoute: AuthenticatedAccessRoute,
+  AuthenticatedAdminLogRoute: AuthenticatedAdminLogRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
@@ -1620,6 +1702,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
+  AuthenticatedIntegrationHealthRoute: AuthenticatedIntegrationHealthRoute,
   AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
@@ -1629,6 +1712,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
+  AuthenticatedRecallRoute: AuthenticatedRecallRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedReworkRoute: AuthenticatedReworkRoute,
@@ -1688,6 +1772,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ApiMesV1DowntimeRoute: ApiMesV1DowntimeRoute,
   ApiMesV1KpiRoute: ApiMesV1KpiRoute,
   ApiMesV1QualityHoldsRoute: ApiMesV1QualityHoldsRoute,

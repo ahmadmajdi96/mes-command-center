@@ -83,6 +83,7 @@ export type Database = {
           active: boolean
           created_at: string
           created_by: string | null
+          expires_at: string | null
           id: string
           key_hash: string
           key_prefix: string
@@ -95,6 +96,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           key_hash: string
           key_prefix: string
@@ -107,6 +109,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           key_hash?: string
           key_prefix?: string
@@ -133,6 +136,7 @@ export type Database = {
           decided_by_name: string | null
           decision_reason: string | null
           details: Json
+          escalated_at: string | null
           id: string
           kind: string
           organization_id: string
@@ -151,6 +155,7 @@ export type Database = {
           decided_by_name?: string | null
           decision_reason?: string | null
           details?: Json
+          escalated_at?: string | null
           id?: string
           kind: string
           organization_id: string
@@ -169,6 +174,7 @@ export type Database = {
           decided_by_name?: string | null
           decision_reason?: string | null
           details?: Json
+          escalated_at?: string | null
           id?: string
           kind?: string
           organization_id?: string
@@ -184,18 +190,27 @@ export type Database = {
       }
       approval_settings: {
         Row: {
+          downtime_reason_minutes: number
+          escalate_after_hours: number
+          idle_signout_minutes: number
           organization_id: string
           require_release_approval: boolean
           scrap_limit: number
           updated_at: string
         }
         Insert: {
+          downtime_reason_minutes?: number
+          escalate_after_hours?: number
+          idle_signout_minutes?: number
           organization_id: string
           require_release_approval?: boolean
           scrap_limit?: number
           updated_at?: string
         }
         Update: {
+          downtime_reason_minutes?: number
+          escalate_after_hours?: number
+          idle_signout_minutes?: number
           organization_id?: string
           require_release_approval?: boolean
           scrap_limit?: number
@@ -299,6 +314,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      auth_login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          success: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          success?: boolean
+        }
+        Relationships: []
       }
       batch_links: {
         Row: {
@@ -581,6 +617,7 @@ export type Database = {
           operator_id: string | null
           operator_name: string | null
           organization_id: string
+          reason_alerted_at: string | null
           reason_code: string
           started_at: string
           started_ts: string | null
@@ -599,6 +636,7 @@ export type Database = {
           operator_id?: string | null
           operator_name?: string | null
           organization_id?: string
+          reason_alerted_at?: string | null
           reason_code: string
           started_at: string
           started_ts?: string | null
@@ -617,6 +655,7 @@ export type Database = {
           operator_id?: string | null
           operator_name?: string | null
           organization_id?: string
+          reason_alerted_at?: string | null
           reason_code?: string
           started_at?: string
           started_ts?: string | null
@@ -633,6 +672,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      downtime_reason_codes: {
+        Row: {
+          active: boolean
+          category: string
+          code: string
+          created_at: string
+          id: string
+          label: string
+          organization_id: string
+          planned: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          code: string
+          created_at?: string
+          id?: string
+          label: string
+          organization_id: string
+          planned?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          code?: string
+          created_at?: string
+          id?: string
+          label?: string
+          organization_id?: string
+          planned?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       e_signatures: {
         Row: {
@@ -4775,6 +4850,10 @@ export type Database = {
         Args: { _batch_id: string; _reason: string; _to: string }
         Returns: undefined
       }
+      new_master_version: {
+        Args: { _id: string; _kind: string }
+        Returns: string
+      }
       notify_user: {
         Args: {
           _link: string
@@ -4813,6 +4892,7 @@ export type Database = {
         Returns: string[]
       }
       order_release_check: { Args: { _po_id: string }; Returns: Json }
+      run_reminders: { Args: never; Returns: undefined }
       scope_ancestors: {
         Args: { _id: string; _kind: string }
         Returns: {
