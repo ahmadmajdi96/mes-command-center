@@ -18,6 +18,9 @@ import {
 } from "@/lib/hmi-db";
 import { EvidenceUploader } from "@/components/evidence-uploader";
 import { supabase } from "@/integrations/supabase/client";
+import { OperatorSwitch } from "@/components/operator-switch";
+import { FloorModeToggle } from "@/components/floor-mode";
+import { AndonCallButton } from "@/components/andon-call";
 
 export const Route = createFileRoute("/_authenticated/hmi/$stationId")({
   head: ({ params }) => ({
@@ -127,6 +130,11 @@ function HmiStation() {
         <Link to="/hmi" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> All stations
         </Link>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <OperatorSwitch />
+          <FloorModeToggle />
+          <AndonCallButton stationId={station.id} stationName={station.name} />
+        </div>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <div className={`grid h-11 w-11 place-items-center rounded-xl border ${
             isAuto ? "border-primary/40 bg-primary/10 text-primary"

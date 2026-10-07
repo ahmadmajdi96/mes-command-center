@@ -165,3 +165,10 @@
   100% { transform: translateX(-50%); }
 }
 @utility animate-ticker { animation: ticker 40s linear infinite; }
+
+/* Floor mode: large text and bigger touch targets for shop-floor screens */
+.floor-mode body { font-size: 18px; }
+.floor-mode .text-xs, .floor-mode .text-\[10px\], .floor-mode .text-\[11px\] { font-size: 15px; }
+.floor-mode .text-sm { font-size: 17px; }
+.floor-mode button, .floor-mode select, .floor-mode input { min-height: 44px; }
+.floor-mode h1 { font-size: 2rem; }

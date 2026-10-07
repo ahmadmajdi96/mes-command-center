@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Mail, Phone, ShieldCheck, Briefcase, User as UserIcon, KeyRound } from "lucide-react";
+import { SetMyPin } from "@/components/operator-switch";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -190,6 +191,10 @@ function ProfilePage() {
             {changePassword.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Update password
           </button>
         </form>
+      </div>
+
+      <div className="glass-panel rounded-2xl p-4">
+        <SetMyPin />
       </div>
     </div>
   );

@@ -78,6 +78,54 @@ export type Database = {
           },
         ]
       }
+      andon_calls: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          kind: string
+          message: string | null
+          organization_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          station_id: string | null
+          status: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          kind?: string
+          message?: string | null
+          organization_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          station_id?: string | null
+          status?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          kind?: string
+          message?: string | null
+          organization_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          station_id?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           active: boolean
@@ -249,6 +297,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      attachments: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          entity_id: string
+          entity_kind: string
+          file_name: string
+          file_path: string
+          id: string
+          organization_id: string
+          uploaded_by: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          entity_id: string
+          entity_kind: string
+          file_name: string
+          file_path: string
+          id?: string
+          organization_id: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_kind?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          organization_id?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: []
       }
       audit_entries: {
         Row: {
@@ -604,6 +691,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      changeover_matrix: {
+        Row: {
+          created_at: string
+          from_product_id: string | null
+          id: string
+          minutes: number
+          organization_id: string
+          to_product_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          from_product_id?: string | null
+          id?: string
+          minutes?: number
+          organization_id: string
+          to_product_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          from_product_id?: string | null
+          id?: string
+          minutes?: number
+          organization_id?: string
+          to_product_id?: string | null
+        }
+        Relationships: []
       }
       downtime_events: {
         Row: {
@@ -1090,9 +1204,12 @@ export type Database = {
           organization_id: string
           product_id: string | null
           requires_ack: boolean
+          status: string
           step_no: number
+          supersedes: string | null
           title: string
           updated_at: string
+          version: number
         }
         Insert: {
           body?: string | null
@@ -1103,9 +1220,12 @@ export type Database = {
           organization_id: string
           product_id?: string | null
           requires_ack?: boolean
+          status?: string
           step_no: number
+          supersedes?: string | null
           title: string
           updated_at?: string
+          version?: number
         }
         Update: {
           body?: string | null
@@ -1116,9 +1236,12 @@ export type Database = {
           organization_id?: string
           product_id?: string | null
           requires_ack?: boolean
+          status?: string
           step_no?: number
+          supersedes?: string | null
           title?: string
           updated_at?: string
+          version?: number
         }
         Relationships: []
       }
@@ -1983,6 +2106,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      operator_pins: {
+        Row: {
+          organization_id: string
+          pin_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          organization_id: string
+          pin_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          organization_id?: string
+          pin_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       operator_skills: {
         Row: {

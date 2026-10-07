@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRows } from "@/lib/execution-db";
 import { startOperation, changeOperationStatus } from "@/lib/mes/operations.functions";
 import { sendMachineCommand } from "@/lib/mes/machines.functions";
+import { OperatorSwitch } from "@/components/operator-switch";
+import { FloorModeToggle } from "@/components/floor-mode";
+import { AndonCallButton } from "@/components/andon-call";
 
 export const Route = createFileRoute("/_authenticated/mobile")({
   head: () => ({
@@ -67,6 +70,11 @@ function MobileApp() {
       <div className="flex items-center justify-between">
         <h1 className="flex items-center gap-2 font-display text-xl font-semibold"><Smartphone className="h-5 w-5 text-primary" />Operator App</h1>
         <span className="flex items-center gap-1 text-[10px] text-success"><span className="h-2 w-2 animate-pulse rounded-full bg-success" />Live</span>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <OperatorSwitch />
+        <FloorModeToggle />
+        {stationId && <AndonCallButton stationId={stationId} stationName={stations.find((s) => s.id === stationId)?.name} />}
       </div>
       <select aria-label="My station" className="h-11 w-full rounded-xl border border-border/60 bg-card/60 px-3 text-sm" value={stationId} onChange={(e) => pick(e.target.value)}>
         <option value="">Choose my station…</option>

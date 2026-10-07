@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { useRows } from "@/lib/execution-db";
 import { PageHead, Field, fmt, th } from "@/components/qp-ui";
 import { DECISION } from "./nonconformance.index";
+import { Attachments } from "@/components/attachments";
 
 export const Route = createFileRoute("/_authenticated/nonconformance/$ncId")({
   head: () => ({ meta: [
@@ -42,6 +43,7 @@ function NcDetail() {
       </div>
       {r && <div className="glass-panel rounded-2xl p-5 text-xs"><h2 className="mb-2 text-sm font-semibold">Inspection that failed</h2>
         {Object.entries(r.values ?? {}).map(([k, v]) => `${k} = ${v}`).join(" · ") || "No values"}<div className="text-destructive">{(r.failed_checks ?? []).join("; ")}</div></div>}
+      <div className="glass-panel rounded-2xl p-5"><Attachments kind="nonconformance" id={nc.id} /></div>
       <div className="glass-panel rounded-2xl p-5">
         <h2 className="mb-2 text-sm font-semibold">QA portal messages</h2>
         <table className="w-full text-xs"><thead className="text-[10px] uppercase text-muted-foreground"><tr><th className={th}>When</th><th className="text-left">Direction</th><th className="text-left">Message</th><th className="text-left">Status</th><th className="text-left">Note</th></tr></thead>

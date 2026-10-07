@@ -16,6 +16,7 @@ import { useCan } from "@/lib/access";
 import { DataMatrix } from "@/components/datamatrix";
 import { ModifyOrderButton } from "@/components/operation-execution";
 import { RequestApprovalButton } from "@/components/request-approval";
+import { Attachments } from "@/components/attachments";
 
 export const Route = createFileRoute("/_authenticated/production-orders/$poId")({
   head: ({ params }) => ({ meta: [{ title: `PO ${params.poId} · Cortanex MES` }] }),
@@ -135,6 +136,8 @@ function PoDetail() {
           </div>
         </div>
       </div>
+
+      <div className="glass-panel rounded-2xl p-5"><Attachments kind="production_order" id={po.id} /></div>
 
       {/* Batches */}
       <div className="glass-panel rounded-2xl p-5">

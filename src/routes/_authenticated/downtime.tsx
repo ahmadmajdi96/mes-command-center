@@ -9,6 +9,7 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
 import { useRows } from "@/lib/execution-db";
+import { AndonCallsPanel } from "@/components/andon-call";
 
 export const Route = createFileRoute("/_authenticated/downtime")({
   head: () => ({
@@ -95,6 +96,8 @@ function DowntimePage() {
         <Kpi label="MTTR" value="14m" icon={Wrench} accent="info" />
         <Kpi label="MTBF" value="3h 22m" icon={Clock} accent="success" />
       </div>
+
+      <AndonCallsPanel />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="glass-panel rounded-2xl p-5 lg:col-span-2">

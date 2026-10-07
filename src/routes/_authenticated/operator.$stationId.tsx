@@ -17,6 +17,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { submitOrQueue } from "@/lib/offline-queue";
 import { OfflineQueuePanel } from "@/components/offline-queue-panel";
 import { TroubleshootPanel } from "@/components/troubleshoot-panel";
+import { OperatorSwitch } from "@/components/operator-switch";
+import { FloorModeToggle } from "@/components/floor-mode";
+import { AndonCallButton } from "@/components/andon-call";
 
 
 export const Route = createFileRoute("/_authenticated/operator/$stationId")({
@@ -136,6 +139,11 @@ function OperatorApp() {
         <Link to="/operator" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> Stations
         </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <OperatorSwitch />
+          <FloorModeToggle />
+          <AndonCallButton stationId={station.id} stationName={station.name} />
+        </div>
         {semi && (
           <div className="inline-flex rounded-lg border border-border/60 bg-background/60 p-0.5 text-xs">
             {(["auto", "manual"] as const).map((m) => (
