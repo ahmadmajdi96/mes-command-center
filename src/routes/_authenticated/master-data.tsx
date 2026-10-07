@@ -56,6 +56,25 @@ function OverrideToggle({ table, row }: { table: string; row: any }) {
     </button>
   );
 }
+function VersionControls({ table, kind, row }: { table: string; kind: "bom" | "routing"; row: any }) {
+  const w = useWrite(table);
+  const qc = useQueryClient();
+  const cls = row.status === "active" ? "text-success" : row.status === "draft" ? "text-warning" : "text-muted-foreground";
+  return (
+    <>
+      <span className={`self-center text-[10px] uppercase ${cls}`} title={row.status === "active" ? "Locked — make a new version to change it" : undefined}>{row.status}{row.status === "active" ? " · locked" : ""}</span>
+      <button className={iconBtn + " px-2 text-[11px]"} onClick={async () => {
+        const { data, error } = await supabase.rpc("new_master_version" as never, { _kind: kind, _id: row.id } as never);
+        if (error) return toast.error(errMsg(error));
+        toast.success(`Draft ${data} created — edit it, then activate`); qc.invalidateQueries({ queryKey: ["exec"] });
+      }}>New version</button>
+      {row.status === "draft" && <button className={iconBtn + " px-2 text-[11px] text-primary"} onClick={() => {
+        if (!confirm(`Activate ${row.id}? The current active version of ${row.sku} will be retired.`)) return;
+        w.update.mutate({ id: row.id, patch: { status: "active" } }, { onSuccess: () => toast.success("Activated"), onError: (e) => toast.error(errMsg(e)) });
+      }}>Activate</button>}
+    </>
+  );
+}
 function Del({ table, id }: { table: string; id: string }) {
   const w = useWrite(table);
   return (
@@ -124,7 +143,7 @@ function Boms() {
         <div><DecimalInput className={inp} aria-label="Base qty" placeholder="Base qty" value={f.base_qty} onValue={(v) => setF({ ...f, base_qty: v as number })} />{!(Number(f.base_qty) > 0) && <p className="mt-0.5 text-[11px] text-destructive">Base qty must be more than 0</p>}</div>
         <button className={btn} disabled={!f.product_id || !(Number(f.base_qty) > 0)} onClick={() => {
           const p = products.find((x) => x.id === f.product_id)!;
-          w.insert.mutate({ id: `BOM-${p.sku}-${f.version}`, product_id: p.id, sku: p.sku, version: f.version, base_qty: f.base_qty, uom: p.uom }, { onSuccess: () => toast.success("BOM added"), onError: (e) => toast.error(errMsg(e)) });
+          w.insert.mutate({ id: `BOM-${p.sku}-${f.version}`, product_id: p.id, sku: p.sku, version: f.version, base_qty: f.base_qty, uom: p.uom, status: "draft" }, { onSuccess: () => toast.success("BOM added"), onError: (e) => toast.error(errMsg(e)) });
         }}><Plus className="h-3.5 w-3.5" />Add BOM</button>
       </div>
       {lc.toolbar}
@@ -136,7 +155,7 @@ function Boms() {
           <div key={b.id} className="glass-panel space-y-2 rounded-2xl p-3">
             <div className="flex items-center justify-between">
               <div><RecLink kind="bom" id={b.id} className="font-mono text-sm text-primary hover:underline">{b.id}</RecLink> <span className="text-xs text-muted-foreground">{b.sku} · v{b.version} · per {b.base_qty} {b.uom}</span></div>
-              <div className="flex gap-1"><OverrideToggle table="boms" row={b} /><Del table="boms" id={b.id} /></div>
+              <div className="flex gap-1"><VersionControls table="boms" kind="bom" row={b} /><OverrideToggle table="boms" row={b} /><Del table="boms" id={b.id} /></div>
             </div>
             <Table cols={["Type", "Component", "Qty", "Backflush", "Auto-confirm", ""]} rows={mine} render={(i) => [
               i.item_type.replace("_", "-"), `${i.component_sku} · ${i.component_name}`, `${i.qty} ${i.uom}`, i.backflush ? "yes" : "—", i.auto_confirm ? "yes" : "—", <Del table="bom_items" id={i.id} />,
@@ -180,7 +199,7 @@ function Routings() {
         <input className={inp} placeholder="Version" value={f.version} onChange={(e) => setF({ ...f, version: e.target.value })} />
         <button className={btn} disabled={!f.product_id} onClick={() => {
           const p = products.find((x) => x.id === f.product_id)!;
-          w.insert.mutate({ id: `RT-${p.sku}-${f.version}`, product_id: p.id, sku: p.sku, version: f.version }, { onSuccess: () => toast.success("Routing added"), onError: (e) => toast.error(errMsg(e)) });
+          w.insert.mutate({ id: `RT-${p.sku}-${f.version}`, product_id: p.id, sku: p.sku, version: f.version, status: "draft" }, { onSuccess: () => toast.success("Routing added as draft"), onError: (e) => toast.error(errMsg(e)) });
         }}><Plus className="h-3.5 w-3.5" />Add routing</button>
       </div>
       {lc.toolbar}
@@ -192,7 +211,7 @@ function Routings() {
           <div key={r.id} className="glass-panel space-y-2 rounded-2xl p-3">
             <div className="flex items-center justify-between">
               <div><RecLink kind="routing" id={r.id} className="font-mono text-sm text-primary hover:underline">{r.id}</RecLink> <span className="text-xs text-muted-foreground">{r.sku} · v{r.version}</span></div>
-              <div className="flex gap-1"><OverrideToggle table="routings" row={r} /><Del table="routings" id={r.id} /></div>
+              <div className="flex gap-1"><VersionControls table="routings" kind="routing" row={r} /><OverrideToggle table="routings" row={r} /><Del table="routings" id={r.id} /></div>
             </div>
             <Table cols={["Seq", "Operation", "Work center", "Setup / run", "Work instructions", "Rules", ""]} rows={mine} render={(o) => [
               o.sequence, o.name, o.work_center_id ?? "—", `${o.setup_min} min / ${o.run_min_per_unit} min·unit`, <span className="whitespace-pre-wrap">{o.work_instructions ?? "—"}</span>, <span className="text-[11px]">{[o.requires_approval ? "needs approval" : null, ...(o.required_fields ?? []).map((f: string) => `requires ${f.replace("_", " ")}`)].filter(Boolean).join(" · ") || "—"}</span>, <Del table="routing_operations" id={o.id} />,
