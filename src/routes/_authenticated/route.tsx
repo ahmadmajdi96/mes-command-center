@@ -9,6 +9,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { getMyAccess } from "@/lib/mes/authz.functions";
 import { AccessProvider } from "@/lib/access";
+import { IdleSignout } from "@/components/idle-signout";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -192,6 +193,7 @@ function AuthedLayout() {
             <main className="flex-1 p-4 sm:p-6">
               <Outlet />
             </main>
+            <IdleSignout />
           </div>
         </div>
       </SidebarProvider>

@@ -8,6 +8,7 @@ import { AlertOctagon, Wrench, Clock, Plus, Pencil } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
 import { ConfirmDelete } from "@/components/crud/confirm-delete";
+import { useRows } from "@/lib/execution-db";
 
 export const Route = createFileRoute("/_authenticated/downtime")({
   head: () => ({
@@ -25,7 +26,9 @@ function dtFields(
   stations: { id: string; name: string; lineId: string }[],
   assignments: { id: string; userId: string; targetType: string; targetId: string; active: boolean }[],
   users: { id: string; name: string }[],
+  codes: { code: string; label: string; category: string; planned: boolean; active: boolean }[] = [],
 ): Field[] {
+  const act = codes.filter((c) => c.active);
   return [
     { name: "lineId", label: "Line", type: "select", options: lines.map(l => ({ value: l.id, label: `${l.id} · ${l.name}` })), required: true },
     { name: "lineName", label: "Line Name", type: "text", required: true },
@@ -40,8 +43,12 @@ function dtFields(
         return { value: a.id, label: `${a.id} · ${u?.name ?? a.userId} → ${a.targetId}` };
       }),
     ]},
-    { name: "reasonCode", label: "Reason", type: "text", placeholder: "Capper jam", required: true, span: 2 },
-    { name: "category", label: "Category", type: "select", required: true, options: [
+    act.length
+      ? { name: "reasonCode", label: "Reason", type: "select", required: true, span: 2, options: act.map((c) => ({ value: c.label, label: `${c.category} → ${c.label}${c.planned ? " (planned)" : ""}` })) }
+      : { name: "reasonCode", label: "Reason", type: "text", placeholder: "Capper jam", required: true, span: 2 },
+    { name: "category", label: "Category", type: "select", required: true, options: act.length
+      ? Array.from(new Set(act.map((c) => c.category))).map((c) => ({ value: c, label: c }))
+      : [
       { value: "equipment_failure", label: "Equipment failure" },
       { value: "changeover", label: "Changeover" },
       { value: "material_shortage", label: "Material shortage" },
@@ -58,6 +65,7 @@ function dtFields(
 
 function DowntimePage() {
   const store = useMes();
+  const { data: codes = [] } = useRows<any>("downtime_reason_codes", { order: "category", asc: true });
   const open = store.downtime.filter((d) => d.status === "open");
   const totalMin = store.downtime.reduce((s, d) => s + d.durationMin, 0);
 
@@ -70,8 +78,8 @@ function DowntimePage() {
         </div>
         <EntityFormDialog<Omit<DowntimeEvent, "id">>
           title="Log Downtime Event"
-          fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users)}
-          initial={{ status: "open", category: "equipment_failure" } as any}
+          fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users, codes)}
+          initial={{ status: "open", category: codes[0]?.category ?? "equipment_failure" } as any}
           onSubmit={(v) => store.createDowntime(v)}
           trigger={
             <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-destructive to-warning px-3 py-1.5 text-xs font-medium text-destructive-foreground shadow-[var(--shadow-glow)]">
@@ -162,7 +170,7 @@ function DowntimePage() {
                     <div className="flex justify-end gap-1.5">
                       <EntityFormDialog<DowntimeEvent>
                         title="Edit Downtime Event"
-                        fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users)}
+                        fields={dtFields(store.lines, store.workOrders, store.stations, store.assignments, store.users, codes)}
                         initial={d}
                         onSubmit={(v) => store.updateDowntime(d.id, v)}
                         trigger={

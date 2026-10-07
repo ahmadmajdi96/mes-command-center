@@ -1,0 +1,1 @@
+CREATE POLICY "server only" ON public.auth_login_attempts FOR ALL TO authenticated, anon USING (false) WITH CHECK (false);

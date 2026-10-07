@@ -40,7 +40,8 @@ export const requestApproval = createServerFn({ method: "POST" })
 /** Approve or reject with an electronic signature (password re-entry + reason). */
 export const decideApproval = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; approve: boolean; reason: string; password: string }) => {
+  .inputValidator((d: { id: string; approve: boolean; reason: string; password: string; meaning?: "Reviewed" | "Approved" | "Released" }) => {
+    if (d.meaning && !["Reviewed", "Approved", "Released"].includes(d.meaning)) throw new Error("Unknown signature meaning");
     if (!d.id) throw new Error("Missing request");
     if (!d.reason?.trim() || d.reason.trim().length < 3) throw new Error("A reason is required to sign");
     if (!d.password) throw new Error("Enter your password to sign");
@@ -74,7 +75,7 @@ export const decideApproval = createServerFn({ method: "POST" })
     if (e1) throw new Error(e1.message);
     const { error: e2 } = await (supabaseAdmin as any).from("e_signatures").insert({
       organization_id: r.organization_id, signer_id: context.userId, signer_name: name, signer_email: email,
-      meaning: `${data.approve ? "Approved" : "Rejected"}: ${APPROVAL_KINDS[r.kind as ApprovalKind] ?? r.kind}`,
+      meaning: `${data.approve ? (data.meaning ?? "Approved") : "Rejected"}: ${APPROVAL_KINDS[r.kind as ApprovalKind] ?? r.kind}`,
       ref_table: "approval_requests", ref_id: r.id, reason: data.reason.trim(), signed_at: now,
     });
     if (e2) throw new Error(e2.message);

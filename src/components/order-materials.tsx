@@ -39,7 +39,11 @@ export function OrderMaterials({ po }: { po: any }) {
   }), [components, cons]);
 
   const [f, setF] = useState({ sku: "", lot: "", qty: 0, op: "" });
-  const lotOptions = lots.filter((l) => l.sku === f.sku && l.status === "available" && Number(l.qty_remaining) > 0);
+  const today = new Date().toISOString().slice(0, 10);
+  // First-expiring-first-out: usable lots, soonest expiry first; expired lots are left out (the database refuses them too).
+  const lotOptions = lots.filter((l) => l.sku === f.sku && l.status === "available" && Number(l.qty_remaining) > 0 && (!l.expiry_date || l.expiry_date >= today))
+    .sort((a, b) => (a.expiry_date ?? "9999").localeCompare(b.expiry_date ?? "9999"));
+  const expiredCount = lots.filter((l) => l.sku === f.sku && l.expiry_date && l.expiry_date < today && Number(l.qty_remaining) > 0).length;
   const [sf, setSf] = useState({ op: "", sku: "", qty: 0 });
   const [rw, setRw] = useState({ qty: 0, reason: "", batch: "", op: "", instructions: "" });
   const rejectedTotal = ops.reduce((s, o) => s + Number(o.qty_rejected ?? 0), 0);
@@ -60,7 +64,7 @@ export function OrderMaterials({ po }: { po: any }) {
         {canRecord && live && (
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <label className="text-[11px] text-muted-foreground">Material<select className={inp} aria-label="Consume material" value={f.sku} onChange={(e) => setF({ ...f, sku: e.target.value, lot: "" })}><option value="">Choose…</option>{components.map((c) => <option key={c.id} value={c.component_sku}>{c.component_sku} · {c.component_name}</option>)}</select></label>
-            <label className="text-[11px] text-muted-foreground">Lot (scan or pick)<input className={inp} aria-label="Consume lot" list="lot-opts" value={f.lot} onChange={(e) => setF({ ...f, lot: e.target.value })} placeholder="Lot number" /><datalist id="lot-opts">{lotOptions.map((l) => <option key={l.id} value={l.lot_number}>{Number(l.qty_remaining)} {l.uom} left</option>)}</datalist><span>{lotOptions.length} available lot(s)</span></label>
+            <label className="text-[11px] text-muted-foreground">Lot (scan or pick)<input className={inp} aria-label="Consume lot" list="lot-opts" value={f.lot} onChange={(e) => setF({ ...f, lot: e.target.value })} placeholder="Lot number" /><datalist id="lot-opts">{lotOptions.map((l) => <option key={l.id} value={l.lot_number}>{Number(l.qty_remaining)} {l.uom} left</option>)}</datalist><span>{lotOptions.length} usable lot(s){lotOptions[0] && <> · use first: <button type="button" className="text-primary underline" onClick={() => setF({ ...f, lot: lotOptions[0].lot_number })}>{lotOptions[0].lot_number}</button>{lotOptions[0].expiry_date ? ` (expires ${lotOptions[0].expiry_date})` : ""}</>}{expiredCount > 0 && <span className="text-destructive"> · {expiredCount} expired lot(s) blocked</span>}</span></label>
             <label className="text-[11px] text-muted-foreground">Quantity used<input className={inp} aria-label="Consume quantity" type="number" min={0} value={f.qty} onChange={(e) => setF({ ...f, qty: Number(e.target.value) })} /></label>
             <label className="text-[11px] text-muted-foreground">Step<select className={inp} value={f.op} onChange={(e) => setF({ ...f, op: e.target.value })}><option value="">Order level</option>{ops.map((o) => <option key={o.id} value={o.id}>{o.sequence} {o.name}</option>)}</select></label>
             <button className={`${btn} sm:col-span-2 justify-center`} disabled={!f.sku || !f.lot || f.qty <= 0 || consW.insert.isPending} onClick={async () => {

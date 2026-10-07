@@ -26,3 +26,10 @@
 - [x] Phase D2: reports & compliance (batch record, printable signed report, audit export)
 - [x] Phase D3: scheduling & capacity (finite capacity, drag-drop, conflicts)
 - [x] Phase D4: mobile operator app
+- [x] Readiness Wave 1 (most): security, BOM/routing change control, lot expiry/FEFO/recall, downtime reason list, approval escalation + signature meaning, order close note + checklist, integration health, admin log
+- [ ] Wave 1 leftovers: work-instruction versioning, WIP move/split/merge browser retest
+- [ ] Readiness Wave 2: operator PIN switch, floor mode, Andon call, photos, capacity from shifts, conflicts, changeovers, auto-schedule
+- [ ] Readiness Wave 3: sampling enforcement, SPC, CoA, labels, cycle counts, scrap limits per product, waste cost
+- [ ] Readiness Wave 4: expiry reminders, shift swaps, delegation, quiet hours, email alerts, scheduled reports, audit viewer, OEE targets, saved views, handover, hourly board
+- [ ] Readiness Wave 5: wall-board, what-if, order templates, Excel import, UoM, onboarding wizard
+- [ ] Blocked: real machines + sign-off, ERP details, test account, demo-data decision

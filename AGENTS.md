@@ -17,3 +17,6 @@
 - Detail pages for simple lists use one config-driven route (/record/$kind/$id, config in src/lib/record-kinds.ts) — why: one consistent detail view with back arrow, related records and history instead of 15 near-identical pages.
 - Search palette (Ctrl+K) queries each table via the browser client so results respect RLS; notifications are created only by DB triggers via notify_users/notify_user (execute revoked from clients) — why: alerts can't be forged and never block production writes.
 - SECURITY DEFINER helpers (permission checks, WIP move/split/merge) live in the non-exposed `private` schema with same-name SECURITY INVOKER wrappers in public — why: keeps them off the public API (linter 0029) while policies and rpc calls stay unchanged.
+- Sign-in goes through the signInWithLockout server function (counts failures in auth_login_attempts, service-role only) — why: lockout can't be bypassed from the browser.
+- Active BOMs/routings are locked by DB triggers for signed-in users; changes go through new_master_version() drafts and activation needs recipes.publish — why: change control without blocking ERP sync (service role bypasses).
+- Overdue approvals and missing downtime reasons are flagged in the UI from timestamps; an hourly pg_cron job (run_reminders) sends the alerts — why: cheap backstop instead of frequent polling.

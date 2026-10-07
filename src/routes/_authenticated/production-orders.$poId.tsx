@@ -2,6 +2,8 @@ import { OrderExecution } from "@/components/order-execution";
 import { OrderMaterials } from "@/components/order-materials";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ClipboardList, Layers, Plus, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useProductionOrder } from "@/lib/production-orders-db";
@@ -90,9 +92,9 @@ function PoDetail() {
                   disabled={!canLifecycle || setStatus.isPending}
                   onClick={() => {
                     let reason: string | undefined;
-                    if (s === "cancelled") {
-                      reason = window.prompt("Why is this order being cancelled?")?.trim();
-                      if (!reason) { toast.error("A cancellation reason is required"); return; }
+                    if (s === "cancelled" || s === "closed") {
+                      reason = window.prompt(s === "cancelled" ? "Why is this order being cancelled?" : "Closing note (why it is being closed)")?.trim();
+                      if (!reason) { toast.error(s === "cancelled" ? "A cancellation reason is required" : "A closing note is required"); return; }
                     }
                     setStatus.mutate(
                       { id: po.id, status: s, reason },
@@ -124,6 +126,7 @@ function PoDetail() {
               )}
             </div>
 
+            {["planned", "scheduled"].includes(po.status) && <ReleaseChecklist poId={po.id} />}
           </div>
 
           <div className="grid place-items-center rounded-2xl border border-border/40 bg-card/40 p-4">
@@ -235,6 +238,30 @@ function Info({ label, value }: { label: string; value: string }) {
     <div className="rounded-xl border border-border/40 bg-card/40 p-3">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className="mt-1 font-mono text-sm">{value}</div>
+    </div>
+  );
+}
+
+function ReleaseChecklist({ poId }: { poId: string }) {
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["release-check", poId],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("order_release_check" as never, { _po_id: poId } as never);
+      if (error) throw error;
+      return (data ?? []) as { label: string; ok: boolean; blocking: boolean; detail?: string }[];
+    },
+  });
+  if (isLoading) return <p className="mt-4 text-xs text-muted-foreground">Checking release readiness…</p>;
+  const blocked = data.filter((c) => c.blocking && !c.ok).length;
+  return (
+    <div className="mt-5 rounded-xl border border-border/50 p-3">
+      <div className="text-xs font-semibold">Release checklist {blocked ? <span className="text-destructive">· {blocked} blocking</span> : <span className="text-success">· ready</span>}</div>
+      <ul className="mt-2 grid gap-1 text-xs sm:grid-cols-2">
+        {data.map((c, i) => (
+          <li key={i} className={c.ok ? "text-success" : c.blocking ? "text-destructive" : "text-warning"}>{c.ok ? "✓" : c.blocking ? "✕" : "!"} {c.label}{c.detail ? <span className="text-muted-foreground"> — {c.detail}</span> : null}</li>
+        ))}
+        {data.length === 0 && <li className="text-muted-foreground">No checks defined.</li>}
+      </ul>
     </div>
   );
 }
