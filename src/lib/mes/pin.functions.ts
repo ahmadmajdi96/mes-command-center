@@ -18,13 +18,15 @@ async function orgsOf(userId: string): Promise<string[]> {
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
   const orgs = new Set<string>();
+  let global = false;
   for (const g of data ?? []) {
     if (g.scope_kind === "org" && g.scope_id) orgs.add(g.scope_id);
+    if (g.scope_kind === "global") global = true;
   }
-  if (orgs.size === 0 && (data ?? []).length > 0) {
-    // Grants scoped below the org (plant/line/station): resolve their parent org.
-    const { data: rows } = await (supabaseAdmin as any).rpc("user_orgs", { _user_id: userId });
-    for (const o of rows ?? []) if (o.organization_id) orgs.add(o.organization_id);
+  if (global || (orgs.size === 0 && (data ?? []).length > 0)) {
+    // Global or sub-org grants: fall back to the org list (single-company deployments) / ancestor lookup.
+    const { data: allOrgs } = await (supabaseAdmin as any).from("organizations").select("id");
+    for (const o of allOrgs ?? []) orgs.add(o.id);
   }
   return [...orgs];
 }
