@@ -37,8 +37,8 @@ export const setOperatorPin = createServerFn({ method: "POST" })
     return { pin: d.pin };
   })
   .handler(async ({ data, context }) => {
-    const { userId, supabase } = context as { userId: string; supabase: any };
-    const orgs = await myOrgs(supabase, userId);
+    const { userId } = context as { userId: string };
+    const orgs = await orgsOf(userId);
     if (!orgs[0]) throw new Error("No company membership found");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const pin_hash = await hashPin(userId, data.pin);
@@ -55,9 +55,9 @@ export const verifyOperatorPin = createServerFn({ method: "POST" })
     return { user_id: String(d.user_id), pin: d.pin };
   })
   .handler(async ({ data, context }) => {
-    const { userId, supabase } = context as { userId: string; supabase: any };
-    const mine = new Set(await myOrgs(supabase, userId));
-    const theirs = await theirOrgs(data.user_id);
+    const { userId } = context as { userId: string };
+    const mine = new Set(await orgsOf(userId));
+    const theirs = await orgsOf(data.user_id);
     if (!theirs.some((o) => mine.has(o))) throw new Error("That person is not in your company");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await (supabaseAdmin as any).from("operator_pins").select("pin_hash").eq("user_id", data.user_id).maybeSingle();
