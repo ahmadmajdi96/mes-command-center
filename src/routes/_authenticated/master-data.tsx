@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { RecLink } from "@/components/rec-link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Plus, Trash2, Lock, Unlock } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { useListControls } from "@/components/list-controls";
