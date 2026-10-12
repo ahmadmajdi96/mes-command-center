@@ -47,6 +47,20 @@ function Workflow({ nodes }: { nodes: string[] }) {
   </div>;
 }
 
+function StepDiagram({ steps }: { steps: { title: string }[] }) {
+  return <div className="my-7 border-y border-border py-5">
+    <h3 className="mb-4 font-mono text-xs uppercase text-muted-foreground">Step-by-step diagram</h3>
+    <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Step-by-step workflow diagram">
+      {steps.map((s, i) => <li key={s.title} className="relative flex items-center gap-3 rounded-md border border-border bg-card px-3 py-3">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs text-primary-foreground">{i + 1}</span>
+        <span className="text-xs font-medium leading-5">{s.title}</span>
+        {i < steps.length - 1 && <ArrowRight aria-hidden className="ml-auto size-4 shrink-0 text-muted-foreground"/>}
+        {i === steps.length - 1 && <CheckCircle2 aria-hidden className="ml-auto size-4 shrink-0 text-primary"/>}
+      </li>)}
+    </ol>
+  </div>;
+}
+
 function Chapter({ section, number, onImage }: { section: DocSection; number: number; onImage: (section: DocSection) => void }) {
   const asset = section.screenshot ? screenshots[section.screenshot] : undefined;
   return <article id={section.id} className="doc-chapter min-w-0 scroll-mt-20" aria-labelledby={`title-${section.id}`}>
@@ -64,6 +78,7 @@ function Chapter({ section, number, onImage }: { section: DocSection; number: nu
       <figcaption className="mt-3 text-xs leading-5 text-muted-foreground">{section.caption}</figcaption>
       {section.annotations && <ol className="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">{section.annotations.map((a,i)=><li key={a} className="flex gap-2 text-xs leading-5"><span className="font-mono text-primary">{i+1}.</span>{a}</li>)}</ol>}
     </figure>}
+    {section.steps && section.steps.length > 1 && <StepDiagram steps={section.steps}/>}
     {section.steps && <div className="mt-8"><h3 className="mb-5 text-lg font-semibold">Step-by-step workflow</h3><ol className="space-y-6">{section.steps.map((step,i)=><li key={step.title} className="flex gap-4"><span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary font-mono text-xs text-primary">{i+1}</span><div className="min-w-0"><h4 className="text-sm font-semibold">{step.title}</h4><p className="mt-2 text-sm leading-7 text-muted-foreground">{step.body}</p></div></li>)}</ol></div>}
     {section.tables?.map(table=><div key={table.title} className="mt-8"><h3 className="mb-3 text-lg font-semibold">{table.title}</h3><div className="overflow-x-auto rounded-md border border-border"><table className="w-full min-w-[540px] text-left text-sm"><thead className="bg-secondary"><tr>{table.columns.map(c=><th key={c} className="px-4 py-3 text-xs font-semibold">{c}</th>)}</tr></thead><tbody>{table.rows.map((row,i)=><tr key={i} className="border-t border-border">{row.map((cell,j)=><td key={j} className={`px-4 py-3 align-top text-xs leading-6 ${j===0 ? "font-medium text-foreground" : "text-muted-foreground"}`}>{cell}</td>)}</tr>)}</tbody></table></div></div>)}
     {section.code?.map(code=><div key={code.title} className="mt-7"><h3 className="mb-2 text-sm font-semibold">{code.title}</h3><pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-border bg-muted p-4 font-mono text-xs leading-6">{code.text}</pre></div>)}
