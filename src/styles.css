@@ -172,3 +172,20 @@
 .floor-mode .text-sm { font-size: 17px; }
 .floor-mode button, .floor-mode select, .floor-mode input { min-height: 44px; }
 .floor-mode h1 { font-size: 2rem; }
+
+@media print {
+  body:has(.technical-docs) { background: var(--background); background-image: none; }
+  body:has(.technical-docs) [data-slot="sidebar"],
+  body:has(.technical-docs) [data-sidebar="sidebar"],
+  body:has(.technical-docs) [data-slot="sidebar-gap"],
+  body:has(.technical-docs) header:not(.doc-header) { display: none !important; }
+  .technical-docs .doc-visible, .technical-docs .doc-navigation { display: none !important; }
+  .technical-docs .doc-print-only { display: block !important; }
+  .technical-docs { width: 100%; max-width: none; print-color-adjust: exact; }
+  .technical-docs > .grid { display: block; }
+  .technical-docs .doc-chapter { break-before: page; }
+  .technical-docs .doc-chapter:first-child { break-before: auto; }
+  .technical-docs figure, .technical-docs tr, .technical-docs li { break-inside: avoid; }
+  .technical-docs table { min-width: 0; }
+  .technical-docs figure img { max-height: 650px; width: auto; max-width: 100%; object-fit: contain; }
+}
