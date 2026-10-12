@@ -20,3 +20,4 @@
 - Sign-in goes through the signInWithLockout server function (counts failures in auth_login_attempts, service-role only) — why: lockout can't be bypassed from the browser.
 - Active BOMs/routings are locked by DB triggers for signed-in users; changes go through new_master_version() drafts and activation needs recipes.publish — why: change control without blocking ERP sync (service role bypasses).
 - Overdue approvals and missing downtime reasons are flagged in the UI from timestamps; an hourly pg_cron job (run_reminders) sends the alerts — why: cheap backstop instead of frequent polling.
+- Technical documentation lives in an authenticated /documentation route with structured content in a browser-safe module and CDN screenshot pointers — why: keep the guide searchable, maintainable, and behind the existing access gate.
