@@ -25,6 +25,7 @@ import {
   HardHat,
   ClipboardCheck,
   Trash2,
+  BookOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -105,6 +106,7 @@ export const platform = [
   { title: "Admin Activity", url: "/admin-log", icon: History },
   { title: "Notifications", url: "/notifications", icon: Radio },
   { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Technical Documentation", url: "/documentation", icon: BookOpen },
 
 ];
 
