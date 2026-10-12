@@ -5,20 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { documentation, type DocSection } from "@/lib/documentation";
-import orders from "@/assets/documentation/orders.webp.asset.json";
-import execution from "@/assets/documentation/execution.webp.asset.json";
-import scheduling from "@/assets/documentation/scheduling.webp.asset.json";
-import wip from "@/assets/documentation/wip.webp.asset.json";
-import lots from "@/assets/documentation/lots.webp.asset.json";
-import approvals from "@/assets/documentation/approvals.webp.asset.json";
-import machines from "@/assets/documentation/machines.webp.asset.json";
-import reports from "@/assets/documentation/reports.webp.asset.json";
-import portals from "@/assets/documentation/portals.webp.asset.json";
-import roles from "@/assets/documentation/roles.webp.asset.json";
-import downtime from "@/assets/documentation/downtime.webp.asset.json";
-import instructions from "@/assets/documentation/instructions.webp.asset.json";
+import orders from "@/assets/documentation/mes-doc-orders.webp";
+import execution from "@/assets/documentation/mes-doc-execution.webp";
+import scheduling from "@/assets/documentation/mes-doc-scheduling.webp";
+import wip from "@/assets/documentation/mes-doc-wip.webp";
+import lots from "@/assets/documentation/mes-doc-lots.webp";
+import approvals from "@/assets/documentation/mes-doc-approvals.webp";
+import machines from "@/assets/documentation/mes-doc-machines.webp";
+import reports from "@/assets/documentation/mes-doc-reports.webp";
+import portals from "@/assets/documentation/mes-doc-portals.webp";
+import roles from "@/assets/documentation/mes-doc-roles.webp";
+import downtime from "@/assets/documentation/mes-doc-downtime.webp";
+import instructions from "@/assets/documentation/mes-doc-instructions.webp";
 
-const screenshots: Record<string, { url: string }> = { orders, execution, scheduling, wip, lots, approvals, machines, reports, portals, roles, downtime, instructions };
+const screenshots: Record<string, string> = { orders, execution, scheduling, wip, lots, approvals, machines, reports, portals, roles, downtime, instructions };
 const categories = ["Foundations", "Production workflows", "Technical reference"];
 
 export const Route = createFileRoute("/documentation")({
