@@ -52,6 +52,7 @@ export const documentation: DocSection[] = [
   },
   {
     id: "page-reference", title: "Complete page reference", category: "Foundations",
+    flow:["Sign in", "Pick a menu section", "Open a list", "Open a record detail", "Act or export"],
     summary: "A page-by-page map of navigation, responsibilities and related detail views.",
     tables: [{title:"Overview & planning",columns:["Page / URL","Purpose","Related workflow"],rows:[
       ["Control Center · /", "Plant/shift/time filters, OEE, trends, live activity", "Drill into a line, order or analytics view"],
@@ -360,12 +361,14 @@ export const documentation: DocSection[] = [
   },
   {
     id:"notifications",title:"Search, notifications & realtime",category:"Technical reference",
+    flow:["Production event", "Database trigger", "Scope recipients", "Alert delivered live", "Open related record"],
     summary:"Find records with company-scoped search and use database-generated alerts to navigate back to actionable production context.",
     paragraphs:["The search palette opens from Search everything or Ctrl/⌘+K. It includes navigation pages and browser-client table searches for orders, products, lines, stations, machines, lots, nonconformances, downtime, tools, approvals, people and skills. Record searches respect RLS; a result’s absence can reflect access scope rather than missing data.","The bell and Notifications page show unread counts, read/unread state, filtering, deletion and preferences. Database triggers—not browser calls to notification helpers—create alerts for production and access events. Recipients are selected by action and scope; changing a role can change which alerts a person receives.","Realtime subscriptions and query invalidation update supported views. They are not a guarantee that every screen is a continuously refreshed industrial signal. If a screen becomes stale, check connection/session and read the underlying record again. Hourly reminders may arrive up to roughly one job interval later."],
     steps:[{title:"Search by context",body:"Search an order/lot/machine identifier, select the matching record and inspect its detail/history. List pages also offer search, date range, sizes 50/75/100/150/200 and CSV/Excel exports where those controls are implemented."},{title:"Follow an alert",body:"Open the bell or Notifications, inspect type and severity, open the related record and resolve the actual issue. Marking an alert read does not release a hold or approve a request."},{title:"Review delivery limitations",body:"Email delivery of critical alerts, quiet hours and configurable escalation chains remain roadmap work. Current in-app delivery must not be treated as a guaranteed paging system."}],
   },
   {
     id:"operations",title:"Deployment, testing & operating procedures",category:"Technical reference",
+    flow:["Daily health check", "Review integrations", "Handle failures / retry", "Review access & audit", "Back up & verify"],
     summary:"Separate local development, published-runtime acceptance and production operating readiness.",
     tables:[{title:"Environments & checks",columns:["Area","Current implementation","Required acceptance"],rows:[
       ["Lovable hosting","TanStack Start with Worker server runtime and hosted Cloud services","Published sign-in, server functions, integration routes, bindings and media"],
@@ -380,6 +383,7 @@ export const documentation: DocSection[] = [
   },
   {
     id:"troubleshooting",title:"Troubleshooting & production boundaries",category:"Technical reference",
+    flow:["Notice symptom", "Check page message", "Check Integration Health", "Check permissions / data", "Fix and retest"],
     summary:"Resolve the underlying record or dependency rather than bypassing the rule that raised the problem.",
     tables:[{title:"Diagnostic runbook",columns:["Symptom","Inspect","Next action"],rows:[
       ["Access cannot be verified / empty pages","Session, effective grants, scope and network","Reload/re-authenticate; authorized admin reviews grants. Never disable RLS."],
@@ -397,6 +401,7 @@ export const documentation: DocSection[] = [
   },
   {
     id:"readiness",title:"Known limits & remaining readiness work",category:"Technical reference",
+    flow:["Confirm P0 items", "Real machines & ERP", "Test account & checks", "Demo data decision", "Go live"],
     summary:"Implemented screens and demonstration integrations are not equivalent to a complete production commissioning sign-off.",
     tables:[{title:"Readiness status",columns:["Area","Status / boundary","Next dependency"],rows:[
       ["Core MES / Phases A–C","Execution, WIP/material traceability, QA handoff, skills, instructions, approvals, tools and shared shifts implemented","Continue full acceptance testing with real plant scenarios"],
