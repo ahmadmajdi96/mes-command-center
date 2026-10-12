@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DocumentationRouteImport } from './routes/documentation'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
@@ -19,7 +20,6 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
-import { Route as AuthenticatedDocumentationRouteImport } from './routes/_authenticated/documentation'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
 import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
@@ -101,6 +101,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocumentationRoute = DocumentationRouteImport.update({
+  id: '/documentation',
+  path: '/documentation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -142,12 +147,6 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDocumentationRoute =
-  AuthenticatedDocumentationRouteImport.update({
-    id: '/documentation',
-    path: '/documentation',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedDowntimeRoute = AuthenticatedDowntimeRouteImport.update({
   id: '/downtime',
   path: '/downtime',
@@ -544,6 +543,7 @@ const ApiMesV1ErpEntityRoute = ApiMesV1ErpEntityRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/documentation': typeof DocumentationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/access': typeof AuthenticatedAccessRoute
   '/admin-log': typeof AuthenticatedAdminLogRoute
@@ -551,7 +551,6 @@ export interface FileRoutesByFullPath {
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
-  '/documentation': typeof AuthenticatedDocumentationRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
@@ -626,6 +625,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/documentation': typeof DocumentationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/access': typeof AuthenticatedAccessRoute
   '/admin-log': typeof AuthenticatedAdminLogRoute
@@ -633,7 +633,6 @@ export interface FileRoutesByTo {
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
-  '/documentation': typeof AuthenticatedDocumentationRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
@@ -711,6 +710,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/documentation': typeof DocumentationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/access': typeof AuthenticatedAccessRoute
   '/_authenticated/admin-log': typeof AuthenticatedAdminLogRoute
@@ -718,7 +718,6 @@ export interface FileRoutesById {
   '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
-  '/_authenticated/documentation': typeof AuthenticatedDocumentationRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
   '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
@@ -797,6 +796,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/documentation'
     | '/reset-password'
     | '/access'
     | '/admin-log'
@@ -804,7 +804,6 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/assignments'
     | '/audit'
-    | '/documentation'
     | '/downtime'
     | '/erp-contract'
     | '/execution'
@@ -879,6 +878,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/documentation'
     | '/reset-password'
     | '/access'
     | '/admin-log'
@@ -886,7 +886,6 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/assignments'
     | '/audit'
-    | '/documentation'
     | '/downtime'
     | '/erp-contract'
     | '/execution'
@@ -963,6 +962,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/documentation'
     | '/reset-password'
     | '/_authenticated/access'
     | '/_authenticated/admin-log'
@@ -970,7 +970,6 @@ export interface FileRouteTypes {
     | '/_authenticated/approvals'
     | '/_authenticated/assignments'
     | '/_authenticated/audit'
-    | '/_authenticated/documentation'
     | '/_authenticated/downtime'
     | '/_authenticated/erp-contract'
     | '/_authenticated/execution'
@@ -1048,6 +1047,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DocumentationRoute: typeof DocumentationRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiMesV1DowntimeRoute: typeof ApiMesV1DowntimeRoute
   ApiMesV1KpiRoute: typeof ApiMesV1KpiRoute
@@ -1075,6 +1075,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documentation': {
+      id: '/documentation'
+      path: '/documentation'
+      fullPath: '/documentation'
+      preLoaderRoute: typeof DocumentationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -1131,13 +1138,6 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/documentation': {
-      id: '/_authenticated/documentation'
-      path: '/documentation'
-      fullPath: '/documentation'
-      preLoaderRoute: typeof AuthenticatedDocumentationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/downtime': {
@@ -1647,7 +1647,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
-  AuthenticatedDocumentationRoute: typeof AuthenticatedDocumentationRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
   AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
@@ -1719,7 +1718,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
-  AuthenticatedDocumentationRoute: AuthenticatedDocumentationRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
   AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
@@ -1794,6 +1792,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DocumentationRoute: DocumentationRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiMesV1DowntimeRoute: ApiMesV1DowntimeRoute,
   ApiMesV1KpiRoute: ApiMesV1KpiRoute,
