@@ -52,6 +52,10 @@ export const Route = createFileRoute("/_authenticated/")({
     meta: [
       { title: "Control Center · Cortanex MES" },
       { name: "description", content: "Real-time plant-wide OEE, andon alerts, and live work order execution status." },
+      { property: "og:title", content: "Control Center · Cortanex MES" },
+      { property: "og:description", content: "Real-time plant-wide OEE, andon alerts, and live work order execution status." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Dashboard,

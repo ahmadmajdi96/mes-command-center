@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Technical documentation page: architecture, page reference, detailed workflow diagrams, real screenshots, integration/security/operations guide; browser verification
+- [x] Technical documentation page: 24 chapters, page reference, detailed workflow diagrams, 12 real screenshots, integration/security/operations guide; signed-in browser verification
 - [x] Wheat Flour T55 master data + full test order (fixed triple material deduction)
 - [x] ERP contract page + manual import (paste/upload JSON or CSV), materials matched by SKU
 - [x] ERP round trip verified (order in, confirmations/receipts/consumption out)

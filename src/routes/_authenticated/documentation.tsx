@@ -58,7 +58,7 @@ function Chapter({ section, number, onImage }: { section: DocSection; number: nu
     {section.flow && <Workflow nodes={section.flow}/>}
     {asset && <figure className="my-7">
       <div className="relative overflow-hidden rounded-md border border-border bg-card">
-        <img src={asset.url} alt={`${section.title}: captured Cortanex MES application screen`} loading="lazy" width={1024} height={900} className="h-auto w-full"/>
+        <img src={asset.url} alt={`${section.title}: captured Cortanex MES application screen`} loading="eager" width={1024} height={900} className="h-auto w-full"/>
         <Button variant="secondary" size="icon" title="Enlarge screenshot" aria-label={`Enlarge ${section.title} screenshot`} onClick={()=>onImage(section)} className="absolute right-3 top-3 print:hidden"><Maximize2/></Button>
       </div>
       <figcaption className="mt-3 text-xs leading-5 text-muted-foreground">{section.caption}</figcaption>
@@ -93,7 +93,7 @@ function DocumentationPage() {
         <div className="relative"><Search className="absolute left-3 top-3 size-4 text-muted-foreground"/><Input aria-label="Search documentation" placeholder="Search documentation…" value={query} onChange={e=>setQuery(e.target.value)} className="h-10 pl-9 pr-9"/>{query && <Button size="icon" variant="ghost" className="absolute right-1 top-1 size-8" onClick={()=>setQuery("")} aria-label="Clear documentation search"><X/></Button>}</div>
         <div className="mt-3 flex border-b border-border pb-3"><Button size="sm" variant={mode==="chapter"?"secondary":"ghost"} onClick={()=>setMode("chapter")} aria-pressed={mode==="chapter"}><BookOpen/>Chapter</Button><Button size="sm" variant={mode==="all"?"secondary":"ghost"} onClick={()=>setMode("all")} aria-pressed={mode==="all"}><FileText/>Full guide</Button></div>
         {query && <p className="mt-3 text-xs text-muted-foreground" role="status">{filtered.length} matching chapters</p>}
-        <nav aria-label="Documentation chapters" className="mt-4 max-h-[65vh] overflow-y-auto pr-1">{categories.map(category=>{
+        <nav aria-label="Documentation chapters" className="mt-4 max-h-52 overflow-y-auto pr-1 lg:max-h-[65vh]">{categories.map(category=>{
           const items=filtered.filter(s=>s.category===category); if(!items.length)return null;
           return <div key={category} className="mb-5"><h2 className="mb-2 font-mono text-[10px] uppercase text-muted-foreground">{category}</h2>{items.map(section=><Button key={section.id} variant="ghost" onClick={()=>select(section.id)} aria-current={selected===section.id && mode==="chapter"?"page":undefined} className={`mb-1 h-auto min-h-9 w-full justify-start whitespace-normal py-2 text-left text-xs leading-5 ${selected===section.id && mode==="chapter"?"border-l-2 border-primary bg-primary/10 text-primary":"text-muted-foreground"}`}><span className="w-5 shrink-0 font-mono text-[10px]">{String(documentation.indexOf(section)+1).padStart(2,"0")}</span>{section.title}</Button>)}</div>;
         })}{filtered.length===0 && <div className="py-6 text-sm text-muted-foreground">No matching chapters. Try an order, lot, portal or permission topic.</div>}</nav>
@@ -105,6 +105,6 @@ function DocumentationPage() {
         <p className="mt-10 border-t border-border py-5 text-xs leading-5 text-muted-foreground">Cortanex MES · Technical reference · Screenshots use demonstration records. No credentials are included.</p>
       </div>
     </div>
-    <Dialog open={Boolean(image)} onOpenChange={open=>{if(!open)setImage(null);}}><DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto"><DialogHeader><DialogTitle>{image?.title}</DialogTitle></DialogHeader>{image?.screenshot && screenshots[image.screenshot] && <img src={screenshots[image.screenshot]?.url} alt={`${image.title} enlarged application screenshot`} className="h-auto w-full rounded-md"/>}<p className="text-xs leading-5 text-muted-foreground">{image?.caption}</p></DialogContent></Dialog>
+    <Dialog open={Boolean(image)} onOpenChange={open=>{if(!open)setImage(null);}}><DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto bg-background" aria-describedby="documentation-image-caption"><DialogHeader><DialogTitle>{image?.title}</DialogTitle></DialogHeader>{image?.screenshot && screenshots[image.screenshot] && <img src={screenshots[image.screenshot]?.url} alt={`${image.title} enlarged application screenshot`} className="h-auto w-full rounded-md"/>}<p id="documentation-image-caption" className="text-xs leading-5 text-muted-foreground">{image?.caption}</p></DialogContent></Dialog>
   </div>;
 }
