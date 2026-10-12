@@ -21,7 +21,7 @@ import instructions from "@/assets/documentation/instructions.webp.asset.json";
 const screenshots: Record<string, { url: string }> = { orders, execution, scheduling, wip, lots, approvals, machines, reports, portals, roles, downtime, instructions };
 const categories = ["Foundations", "Production workflows", "Technical reference"];
 
-export const Route = createFileRoute("/_authenticated/documentation")({
+export const Route = createFileRoute("/documentation")({
   head: () => ({ meta: [
     { title: "Technical Documentation — Cortanex MES" },
     { name: "description", content: "Cortanex MES technical guide: architecture, illustrated workflows, data model, integration contracts, security and operating procedures." },
@@ -82,7 +82,7 @@ function DocumentationPage() {
   const index = documentation.findIndex(s=>s.id===current?.id);
   const select = (id: string) => {setSelected(id); setMode("chapter"); window.scrollTo({top:0,behavior:"instant"});};
   const visible = mode === "all" ? filtered : current ? [current] : [];
-  return <div className="technical-docs mx-auto max-w-[1600px]">
+  return <div className="technical-docs mx-auto max-w-[1600px] p-4 sm:p-6">
     <header className="doc-header mb-8 border-b border-border pb-6">
       <div className="mb-3 flex items-center gap-2 text-xs text-primary"><BookOpen className="size-4"/><span className="font-mono uppercase">Engineering & operations reference</span></div>
       <div className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-semibold">Cortanex MES Documentation</h1><p className="mt-3 text-sm text-muted-foreground">Architecture, workflows, integration contracts and operating procedures.</p></div><Button onClick={()=>window.print()} variant="outline" className="print:hidden"><Printer/>Print / PDF</Button></div>
