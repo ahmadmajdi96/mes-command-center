@@ -72,7 +72,7 @@ function Chapter({ section, number, onImage }: { section: DocSection; number: nu
     {section.flow && <Workflow nodes={section.flow}/>}
     {asset && <figure className="my-7">
       <div className="relative overflow-hidden rounded-md border border-border bg-card">
-        <img src={asset.url} alt={`${section.title}: captured Cortanex MES application screen`} loading="eager" width={1024} height={900} className="h-auto w-full"/>
+        <img src={asset} alt={`${section.title}: captured Cortanex MES application screen`} loading="eager" width={1024} height={900} className="h-auto w-full"/>
         <Button variant="secondary" size="icon" title="Enlarge screenshot" aria-label={`Enlarge ${section.title} screenshot`} onClick={()=>onImage(section)} className="absolute right-3 top-3 print:hidden"><Maximize2/></Button>
       </div>
       <figcaption className="mt-3 text-xs leading-5 text-muted-foreground">{section.caption}</figcaption>
@@ -120,6 +120,6 @@ function DocumentationPage() {
         <p className="mt-10 border-t border-border py-5 text-xs leading-5 text-muted-foreground">Cortanex MES · Technical reference · Screenshots use demonstration records. No credentials are included.</p>
       </div>
     </div>
-    <Dialog open={Boolean(image)} onOpenChange={open=>{if(!open)setImage(null);}}><DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto bg-background" aria-describedby="documentation-image-caption"><DialogHeader><DialogTitle>{image?.title}</DialogTitle></DialogHeader>{image?.screenshot && screenshots[image.screenshot] && <img src={screenshots[image.screenshot]?.url} alt={`${image.title} enlarged application screenshot`} className="h-auto w-full rounded-md"/>}<p id="documentation-image-caption" className="text-xs leading-5 text-muted-foreground">{image?.caption}</p></DialogContent></Dialog>
+    <Dialog open={Boolean(image)} onOpenChange={open=>{if(!open)setImage(null);}}><DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto bg-background" aria-describedby="documentation-image-caption"><DialogHeader><DialogTitle>{image?.title}</DialogTitle></DialogHeader>{image?.screenshot && screenshots[image.screenshot] && <img src={screenshots[image.screenshot]} alt={`${image.title} enlarged application screenshot`} className="h-auto w-full rounded-md"/>}<p id="documentation-image-caption" className="text-xs leading-5 text-muted-foreground">{image?.caption}</p></DialogContent></Dialog>
   </div>;
 }
