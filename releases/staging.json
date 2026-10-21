@@ -1,1 +1,6 @@
-{"environment": "staging", "status": "waiting-for-first-release"}
+{
+  "image": "ghcr.io/ahmadmajdi96/mes-command-center@sha256:3e398075e55d0ce8f4d32806096abfe00bcdb74d6c76241bf4679afd42362755",
+  "commit": "05fde98594d4984b2aab2d7c2efe351ab94cd2df",
+  "environment": "staging",
+  "ref": "refs/tags/staging-mes-selfhosted-20261021-1"
+}
