@@ -12,8 +12,10 @@ jobs:
         env:
           PUBLIC_KEY: ${{ vars.MES_PROD_ANON_KEY }}
         run: |
-          curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 5 https://mes.manuqube.com/auth -o /tmp/mes.html
+          # Pin the current DDNS gateway while old MES DNS caches expire; normal TLS/SNI verification remains enabled.
+          GATEWAY_IP=$(python3 -c 'import socket; print(socket.gethostbyname("manuqube.com"))')
+          curl --resolve "mes.manuqube.com:443:$GATEWAY_IP" --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 5 https://mes.manuqube.com/auth -o /tmp/mes.html
           grep -q 'Cortanex MES' /tmp/mes.html
-          if grep -q '/@vite/client' /tmp/mes.html; then echo 'Unexpected development server'; exit 1; fi
-          curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 5 -H "apikey: $PUBLIC_KEY" https://mes.manuqube.com/supabase/auth/v1/health -o /tmp/auth.json
+          if grep -Eq '/@vite/client|virtual:tanstack-start-dev-client-entry' /tmp/mes.html; then echo 'Unexpected development server'; exit 1; fi
+          curl --resolve "mes.manuqube.com:443:$GATEWAY_IP" --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 5 -H "apikey: $PUBLIC_KEY" https://mes.manuqube.com/supabase/auth/v1/health -o /tmp/auth.json
           python3 -c 'import json; d=json.load(open("/tmp/auth.json")); assert d["name"] == "GoTrue"; print("Public HTTPS frontend and self-hosted Auth verified from GitHub runner")'
