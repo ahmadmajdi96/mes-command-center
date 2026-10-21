@@ -29,6 +29,7 @@ jobs:
       - run: bun run build
         env:
           NITRO_PRESET: node-server
+          VITE_SELF_HOSTED_SUPABASE: "true"
           VITE_SUPABASE_URL: ${{ github.ref == 'refs/heads/main' && 'https://mes.manuqube.com/supabase' || startsWith(github.ref, 'refs/tags/staging-') && 'https://mes.apps.staging.cortanexai.com/supabase' || 'https://mes.apps.dev.cortanexai.com/supabase' }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ github.ref == 'refs/heads/main' && vars.MES_PROD_ANON_KEY || startsWith(github.ref, 'refs/tags/staging-') && vars.MES_STAGING_ANON_KEY || vars.MES_DEV_ANON_KEY }}
       - name: Verify Node runtime output
