@@ -77,6 +77,15 @@ https://:8443 {
   reverse_proxy 127.0.0.1:3000
  }
  handle { import api }
+ handle_errors {
+  @pausedAdmin host STUDIO_HOST
+  handle @pausedAdmin {
+   respond "Database administration is paused. Ask your administrator to enable it temporarily." 503
+  }
+  handle {
+   respond "{err.status_text}" {err.status_code}
+  }
+ }
 }
 '''.replace('STUDIO_HOST',studio)
  # Expand inline blocks for Caddy's directive grammar.
@@ -100,6 +109,11 @@ https://:8443 {
  storage=container('storage','supabase/storage-api:v1.81.0',{'PORT':'5000','HOST':'127.0.0.1','POSTGREST_URL':'http://127.0.0.1:3001','DATABASE_URL':'postgres://supabase_storage_admin:'+creds['POSTGRES_PASSWORD']+'@127.0.0.1:5432/postgres','FILE_SIZE_LIMIT':'52428800','STORAGE_BACKEND':'file','GLOBAL_S3_BUCKET':'mes','FILE_STORAGE_BACKEND_PATH':'/var/lib/storage','TENANT_ID':'mes','REGION':'local','ENABLE_IMAGE_TRANSFORMATION':'false','STORAGE_PUBLIC_URL':public,'REQUEST_ALLOW_X_FORWARDED_PATH':'true'},'256Mi',mounts=[mount('storage','/var/lib/storage'),mount('storage-tmp','/tmp')]);storage['env']+=secretrefs({'ANON_KEY':'ANON_KEY','SERVICE_KEY':'SERVICE_ROLE_KEY','AUTH_JWT_SECRET':'JWT_SECRET'})
  meta=container('meta','supabase/postgres-meta:v0.100.0',{'PG_META_PORT':'8080','PG_META_DB_HOST':'127.0.0.1','PG_META_DB_PORT':'5432','PG_META_DB_NAME':'postgres','PG_META_DB_USER':'postgres'},'192Mi');meta['env']+=secretrefs({'PG_META_DB_PASSWORD':'POSTGRES_PASSWORD','CRYPTO_KEY':'PG_META_CRYPTO_KEY'})
  studioct=container('studio','supabase/studio:2026.10.12-sha-3699278',{'HOSTNAME':'127.0.0.1','PORT':'3000','STUDIO_PG_META_URL':'http://127.0.0.1:8080','POSTGRES_HOST':'127.0.0.1','POSTGRES_PORT':'5432','POSTGRES_DB':'postgres','POSTGRES_USER_READ_WRITE':'postgres','PGRST_DB_SCHEMAS':'public,storage,graphql_public','DEFAULT_ORGANIZATION_NAME':'ManuQube','DEFAULT_PROJECT_NAME':'MES '+channel,'SUPABASE_URL':'http://127.0.0.1:8000','SUPABASE_PUBLIC_URL':public,'ENABLED_FEATURES_LOGS_ALL':'false','SNIPPETS_MANAGEMENT_FOLDER':'/tmp/snippets','EDGE_FUNCTIONS_MANAGEMENT_FOLDER':'/tmp/functions'},'512Mi','96Mi',mounts=[mount('studio-tmp','/tmp')]);studioct['env']+=secretrefs({'POSTGRES_PASSWORD':'POSTGRES_PASSWORD','PG_META_CRYPTO_KEY':'PG_META_CRYPTO_KEY','SUPABASE_ANON_KEY':'ANON_KEY','SUPABASE_SERVICE_KEY':'SERVICE_ROLE_KEY','AUTH_JWT_SECRET':'JWT_SECRET'});studioct['securityContext']['readOnlyRootFilesystem']=False
+ o.append(obj('ConfigMap','mes-admin-control',ns,data={'until':'0','supervisor.sh':pathlib.Path(__file__).with_name('admin-supervisor.sh').read_text()}))
+ for ct,args in [(studioct,['node','/app/apps/studio/server.js']),(meta,['node','/usr/src/app/dist/server/server.js'])]:
+  ct['command']=['/bin/sh','/admin-control/supervisor.sh'];ct['args']=args
+  ct['volumeMounts'].append(mount('admin-control','/admin-control',ro=True))
+  ct['resources']['requests']={'cpu':'5m','memory':'8Mi'}
  gw=container('https','caddy:2-alpine',{},'128Mi','32Mi',mounts=[mount('tls','/certs',ro=True),mount('gateway','/etc/caddy',ro=True),mount('caddy-data','/data'),mount('caddy-config','/config')],ports=[{'name':'https','containerPort':8443}],readinessProbe={'httpGet':{'scheme':'HTTPS','port':8443,'path':'/health'},'periodSeconds':10});gw['command']=['/bin/sh','-c'];gw['args']=['caddy run --config /etc/caddy/Caddyfile & pid=$!; trap "kill $pid; wait $pid" TERM INT; while kill -0 "$pid" 2>/dev/null; do sleep 3600 & wait $!; caddy reload --config /etc/caddy/Caddyfile --force; done; wait "$pid"'];gw['securityContext']['capabilities']['add']=['NET_BIND_SERVICE'];gw['env']+=secretrefs({'ANON_KEY':'ANON_KEY','SERVICE_ROLE_KEY':'SERVICE_ROLE_KEY','STUDIO_HASH':'STUDIO_HASH'})
  backup=container('backup','supabase/postgres:17.6.1.136',{'PGHOST':'127.0.0.1','PGUSER':'supabase_admin','PGDATABASE':'postgres'},'192Mi','32Mi',mounts=[mount('backup','/backups'),mount('storage','/source-storage',ro=True),mount('backup-tmp','/tmp')],command=['/bin/bash','-c'],args=['''set -eu
 umask 077
@@ -113,6 +127,7 @@ while true; do
  sleep 86400
 done''']);backup['env']+=secretrefs({'PGPASSWORD':'POSTGRES_PASSWORD'})
  volumes=[{'name':name,'persistentVolumeClaim':{'claimName':'mes-supabase-'+name}} for name in ['database','storage','backup']]+[{'name':'tls','secret':{'secretName':'mes-supabase-tls'}},{'name':'init','configMap':{'name':'mes-supabase-init'}},{'name':'gateway','configMap':{'name':'mes-supabase-gateway'}}]+[{'name':n,'emptyDir':{}} for n in ['pg-run','rt-tmp','storage-tmp','studio-tmp','caddy-data','caddy-config','backup-tmp']]
+ volumes.append({'name':'admin-control','configMap':{'name':'mes-admin-control'}})
  initct=container('prepare-db','supabase/postgres:17.6.1.136',{},'128Mi','32Mi',mounts=[mount('database','/volume')],command=['/bin/bash','-ec'],args=['mkdir -p /volume/data /volume/config; if [ ! -f /volume/config/.prepared ]; then cp -R /etc/postgresql-custom/. /volume/config/; touch /volume/config/.prepared; fi']);initct['securityContext'].update({'runAsUser':100,'readOnlyRootFilesystem':False})
  spec={'serviceName':'mes-supabase','replicas':1,'selector':{'matchLabels':{'app':'mes-supabase'}},'template':{'metadata':{'labels':{'app':'mes-supabase','cortanex.io/component':'mes-backend'}},'spec':{'automountServiceAccountToken':False,'securityContext':{'runAsNonRoot':True,'runAsUser':10001,'runAsGroup':10001,'fsGroup':10001,'seccompProfile':{'type':'RuntimeDefault'}},'terminationGracePeriodSeconds':60,'affinity':{'nodeAffinity':{'preferredDuringSchedulingIgnoredDuringExecution':[{'weight':100,'preference':{'matchExpressions':[{'key':'kubernetes.io/hostname','operator':'In','values':[{'dev':'cortanex-server2','staging':'cortanex-laptop','production':'cortanex-server3'}[channel]]}]}}]}},'initContainers':[initct],'containers':[db,auth,rest,realtime,storage,meta,studioct,gw,backup],'volumes':volumes}}}
  o.append(obj('StatefulSet','mes-supabase',ns,spec,api='apps/v1'))
