@@ -118,7 +118,7 @@ done''']);backup['env']+=secretrefs({'PGPASSWORD':'POSTGRES_PASSWORD'})
  o.append(obj('StatefulSet','mes-supabase',ns,spec,api='apps/v1'))
  o.append(obj('Service','mes-supabase',ns,{'selector':{'app':'mes-supabase'},'ports':[{'name':'https','port':8443,'targetPort':8443}]}))
  o.append(obj('ServersTransport','mes-supabase',ns,{'serverName':svc,'rootCAsSecrets':['mes-supabase-tls']},api='traefik.io/v1alpha1'))
- o.append(obj('Ingress','mes-supabase-studio',ns,{'ingressClassName':'traefik','tls':[{'hosts':[studio],'secretName':'mes-supabase-tls'}],'rules':[{'host':studio,'http':{'paths':[{'path':'/','pathType':'Prefix','backend':{'service':{'name':'mes-supabase','port':{'number':8443}}}}]}}]},api='networking.k8s.io/v1',))
+ o.append(obj('Ingress','mes-supabase-studio',ns,{'ingressClassName':'traefik','tls':[{'hosts':[studio],'secretName':'mes-supabase-tls' if channel=='production' else 'public-apps-tls'}],'rules':[{'host':studio,'http':{'paths':[{'path':'/','pathType':'Prefix','backend':{'service':{'name':'mes-supabase','port':{'number':8443}}}}]}}]},api='networking.k8s.io/v1',))
  o[-1]['metadata']['annotations']={'traefik.ingress.kubernetes.io/router.entrypoints':'websecure','traefik.ingress.kubernetes.io/service.serversscheme':'https','traefik.ingress.kubernetes.io/service.serverstransport':ns+'-mes-supabase@kubernetescrd'}
  # Secrets are not inserted into ConfigMaps; URL passwords remain within this protected manifest only.
  for c in [auth,rest,storage]:
