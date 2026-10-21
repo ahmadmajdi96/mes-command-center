@@ -15,3 +15,7 @@ SMTP requires owner-supplied mail credentials. Signup and email autoconfirm are 
 Deploying this stack does not migrate existing cloud data, auth users or files. Keep cloud untouched until verified exports, imports and acceptance tests succeed. Apply application SQL migrations in filename order, recording checksums. Database changes require explicit operator review and are not applied by arbitrary app commits.
 
 PR Build check validates Node output. dev-* tags publish development; staging-* tags publish staging; main publishes production. Independent release records live on deploy-releases. Preserve Lovable-connected git history.
+
+Certificate SANs must respect the namespace CA's name constraints: use only full *.svc.cluster.local names and names in the environment's permitted domain. Production Studio is mes-studio.manuqube.com and resolves to 10.77.0.1 only via private VPN DNS. No shortened *.svc SANs are issued. The HTTPS sidecar reloads its certificate hourly.
+
+On an empty database, the historical 20260929083647 migration contains only optional mock-machine fixtures referring to three absent demo stations. The runner records that file's checksum with disposition skipped-demo-fixture-missing-parents instead of fabricating production stations or disabling foreign keys. All other 49 files are applied transactionally; all 50 are accounted for. No existing cloud users/data/files were imported.

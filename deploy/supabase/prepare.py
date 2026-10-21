@@ -26,11 +26,11 @@ def secretrefs(mapping):return [secenv(k,v) for k,v in mapping.items()]
 security={'allowPrivilegeEscalation':False,'capabilities':{'drop':['ALL']},'readOnlyRootFilesystem':True}
 up=ROOT/'deploy/supabase/init'
 for channel,ns,suffix,issuer in [('dev','development','apps.dev.cortanexai.com','namespace-dev'),('staging','staging','apps.staging.cortanexai.com','namespace-staging'),('production','manuqube','manuqube.com','namespace-prod-manuqube')]:
- o=[];creds=state[channel];hostname='mes.'+suffix;studio='mes-'+('prod-' if channel=='production' else '')+'studio.apps.'+('staging' if channel=='staging' else 'dev')+'.cortanexai.com';svc='mes-supabase.'+ns+'.svc.cluster.local';public='https://'+hostname+'/supabase'
- data={k:v for k,v in creds.items() if k not in ['ADMIN_PASSWORD','STUDIO_PASSWORD']}
+ o=[];creds=state[channel];hostname='mes.'+suffix;studio='mes-studio.manuqube.com' if channel=='production' else 'mes-studio.apps.'+('staging' if channel=='staging' else 'dev')+'.cortanexai.com';svc='mes-supabase.'+ns+'.svc.cluster.local';public='https://'+hostname+'/supabase'
+ data={k:v for k,v in creds.items() if k not in ['ADMIN_PASSWORD','STUDIO_PASSWORD','TEST_PASSWORD']}
  data['STUDIO_HASH']=bcrypt.hashpw(creds['STUDIO_PASSWORD'].encode(),bcrypt.gensalt()).decode()
  o.append(obj('Secret','mes-supabase',ns,type='Opaque',stringData=data))
- o.append(obj('Certificate','mes-supabase-tls',ns,{'secretName':'mes-supabase-tls','duration':'2160h','renewBefore':'720h','issuerRef':{'name':issuer,'kind':'ClusterIssuer'},'dnsNames':[svc,'mes-supabase.'+ns+'.svc',studio]},api='cert-manager.io/v1'))
+ o.append(obj('Certificate','mes-supabase-tls',ns,{'secretName':'mes-supabase-tls','duration':'2160h','renewBefore':'720h','issuerRef':{'name':issuer,'kind':'ClusterIssuer'},'dnsNames':[svc,studio]},api='cert-manager.io/v1'))
  for name,size in [('database','32Gi' if channel=='production' else '16Gi'),('storage','8Gi' if channel=='production' else '4Gi'),('backup','32Gi' if channel=='production' else '16Gi')]:
   o.append(obj('PersistentVolumeClaim','mes-supabase-'+name,ns,{'accessModes':['ReadWriteOnce'],'storageClassName':'longhorn','resources':{'requests':{'storage':size}}}))
  init={name:(up/name).read_text() for name in ['roles.sql','jwt.sql','realtime.sql','_supabase.sql','webhooks.sql']}
