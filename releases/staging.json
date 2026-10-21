@@ -1,6 +1,6 @@
 {
-  "image": "ghcr.io/ahmadmajdi96/mes-command-center@sha256:3e398075e55d0ce8f4d32806096abfe00bcdb74d6c76241bf4679afd42362755",
-  "commit": "05fde98594d4984b2aab2d7c2efe351ab94cd2df",
+  "image": "ghcr.io/ahmadmajdi96/mes-command-center@sha256:e8b4803e1ed36419155f476fb9b409b86305fc0487869665d21869cbf89e1820",
+  "commit": "55d947a2dee2638257f61733d44aa22cc1241e93",
   "environment": "staging",
-  "ref": "refs/tags/staging-mes-selfhosted-20261021-1"
+  "ref": "refs/tags/staging-mes-selfhosted-20261021-2"
 }
