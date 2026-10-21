@@ -1,1 +1,6 @@
-{"environment": "production", "status": "waiting-for-first-release"}
+{
+  "image": "ghcr.io/ahmadmajdi96/mes-command-center@sha256:e640a94fd284ca9a3331c9b20232d0c5afa35303bf48f475d6229934e9690a9f",
+  "commit": "05fde98594d4984b2aab2d7c2efe351ab94cd2df",
+  "environment": "production",
+  "ref": "refs/heads/main"
+}
