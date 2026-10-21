@@ -1,1 +1,6 @@
-{"environment": "dev", "status": "waiting-for-first-release"}
+{
+  "image": "ghcr.io/ahmadmajdi96/mes-command-center@sha256:1fec074161cd1f2f31a28e9c9f896946734a91b3c24d6f26b894a448acb97411",
+  "commit": "05fde98594d4984b2aab2d7c2efe351ab94cd2df",
+  "environment": "dev",
+  "ref": "refs/tags/dev-mes-selfhosted-20261021-1"
+}
