@@ -101,7 +101,8 @@ function DocumentationPage() {
     <header className="doc-header mb-8 border-b border-border pb-6">
       <div className="mb-3 flex items-center gap-2 text-xs text-primary"><BookOpen className="size-4"/><span className="font-mono uppercase">Engineering & operations reference</span></div>
       <div className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-semibold">Cortanex MES Documentation</h1><p className="mt-3 text-sm text-muted-foreground">Architecture, workflows, integration contracts and operating procedures.</p></div><Button onClick={()=>window.print()} variant="outline" className="print:hidden"><Printer/>Print / PDF</Button></div>
-      <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-muted-foreground"><span>Reviewed 12 Oct 2026</span><span>{documentation.length} chapters</span><span>12 actual screenshots</span><span className="text-warning">Implementation reference · not a commissioning certificate</span></div>
+      <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-muted-foreground"><span>Scope updated 25 Oct 2026</span><span>{documentation.length} chapters</span><span>12 historical screenshots</span><span className="text-warning">Implementation reference · not a commissioning certificate</span></div>
+      <p className="mt-4 border-l-2 border-warning pl-3 text-sm text-muted-foreground">Planning and Workforce screens are retired. Earlier workflows and screenshots remain historical references; shared data and PMS services are preserved.</p>
     </header>
     <div className="grid min-w-0 gap-8 lg:grid-cols-[250px_minmax(0,1fr)] xl:gap-12">
       <aside className="doc-navigation min-w-0 print:hidden"><div className="lg:sticky lg:top-20">
