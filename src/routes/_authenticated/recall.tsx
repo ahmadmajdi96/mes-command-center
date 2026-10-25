@@ -99,7 +99,7 @@ function RecallPage() {
           </div>
           <section><h3 className="text-sm font-semibold">Where it came from</h3><Table rows={trace.back} empty="Received from a supplier — no earlier lots." /></section>
           <section><h3 className="text-sm font-semibold">Orders that used it</h3>
-            <ul className="mt-2 space-y-1 text-xs">{trace.fwdOrders.map(([id, qty]) => <li key={id} className="flex justify-between rounded-lg border border-border/40 px-3 py-1.5"><Link to="/production-orders/$poId" params={{ poId: id }} className="text-primary">{orderNo(id)}</Link><span className="font-mono">{qty} used (incl. downstream)</span></li>)}
+            <ul className="mt-2 space-y-1 text-xs">{trace.fwdOrders.map(([id, qty]) => <li key={id} className="flex justify-between rounded-lg border border-border/40 px-3 py-1.5"><Link to="/record/$kind/$id" params={{ kind: "trace", id: id }} className="text-primary">{orderNo(id)}</Link><span className="font-mono">{qty} used (incl. downstream)</span></li>)}
               {trace.fwdOrders.length === 0 && <li className="text-muted-foreground">Not used in any order yet.</li>}</ul></section>
           <section><h3 className="text-sm font-semibold">Where it went</h3><Table rows={trace.fwdLots} empty="No lots made from it yet." /></section>
         </div>

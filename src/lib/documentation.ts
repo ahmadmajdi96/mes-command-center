@@ -11,12 +11,11 @@ export const documentation: DocSection[] = [
   {
     id: "overview", title: "System overview & boundaries", category: "Foundations",
     summary: "Cortanex MES connects planning, execution, inventory, people and production evidence in a company-scoped manufacturing workspace.",
-    paragraphs: ["This guide describes the application as implemented on 12 October 2026. Screenshots are actual captures of the existing demonstration environment; their quantities, dates, alerts and equipment statuses are examples, not recommended production settings. A screen capture demonstrates presentation, not a completed acceptance test.", "The MES manages production execution and records quality evidence. Maintenance work management and QA disposition remain in external portals. The MES exchanges requests and results with those portals; it is not a replacement for either system.", "Use the production-order detail page as the authoritative path for an order’s operations, materials, confirmations and reports. The Operator Console also presents work-order recipe execution. These views are related but are not interchangeable records."],
+    paragraphs: ["Scope update — 25 October 2026: Planning and Workforce pages and navigation have been removed. Their products, recipes, orders, inventory, people, assignments, certifications and shift data, shared services and integration contracts remain available to PMS. Earlier screenshots and workflows describing those management screens are historical references, not currently available pages.", "Screenshots are actual captures of the demonstration environment; their quantities, dates, alerts and equipment statuses are examples, not recommended production settings. A screen capture demonstrates presentation, not a completed acceptance test.", "The MES manages production execution and records quality evidence. Maintenance work management and QA disposition remain in external portals. The MES exchanges requests and results with those portals; it is not a replacement for either system.", "Use the retained Work Orders, Operator Apps and HMI screens for execution, and Product Tracking and order trace records for production evidence. Work-order recipe execution and production-order operations are related but are not interchangeable records."],
     flow: ["ERP / master data", "Plan & release", "Station execution", "Materials & output", "Reports / ERP results"],
     tables: [{ title: "Primary audiences", columns: ["Audience", "Responsibility", "Starting pages"], rows: [
-      ["Planner", "Prepare orders, batches, line allocation and dates", "Products · Master Data · Production Orders · Planner · Scheduling & Capacity"],
       ["Operator", "Run assigned steps, record readings, quantities, waste and help requests", "Operator Apps · HMI Runtime · Operator App (mobile)"],
-      ["Supervisor", "Resolve operational blockers and review requests and output", "Production Lines · Andon / Downtime · Approvals · Reports"],
+      ["Supervisor", "Resolve operational blockers and review requests and output", "Production Lines · Andon / Downtime · Approvals · Traceability"],
       ["Administrator", "Manage access, equipment configuration and integrations", "People & Access · Roles & Permissions · Machines · Integration Health"],
       ["QA / Maintenance partner", "Return signed inspection, disposition and hold-release events", "External portal → signed inbound endpoint"],
     ] }],
@@ -54,18 +53,12 @@ export const documentation: DocSection[] = [
     id: "page-reference", title: "Complete page reference", category: "Foundations",
     flow:["Sign in", "Pick a menu section", "Open a list", "Open a record detail", "Act or export"],
     summary: "A page-by-page map of navigation, responsibilities and related detail views.",
-    tables: [{title:"Overview & planning",columns:["Page / URL","Purpose","Related workflow"],rows:[
+    tables: [{title:"Overview",columns:["Page / URL","Purpose","Related workflow"],rows:[
       ["Control Center · /", "Plant/shift/time filters, OEE, trends, live activity", "Drill into a line, order or analytics view"],
       ["Production Lines · /lines", "Filter, create/export lines, view station flow and staffing", "/lines/{lineId} → station / current work order"],
       ["Stations · /stations · Live Shop Floor · /live", "Station context, live progress and activity", "/stations/{stationId} → operator / HMI"],
-      ["Products · /products", "Product parameters, cost, price and batching setup", "/products/{productId} → recipes / orders"],
-      ["Recipes · /recipes · Step Templates · /step-templates", "Step definitions and validated reading variables", "Use configured requirements in execution"],
-      ["Production Orders · /production-orders", "Order quantities, versions, dates, line and status", "/production-orders/{poId} → execution / batches / materials"],
-      ["Planner · /planner", "Batch timeline and scheduling placement", "Schedule / return to unscheduled; guarded deletion"],
-      ["Scheduling & Capacity · /scheduling", "Shift-based load, line conflicts, changeovers, auto-schedule", "Review proposals before production release"],
-      ["Inventory · /inventory", "Stock overview and record details", "Material lot receipt and actual consumption"],
-      ["Reports & Compliance · /reports", "Batch record, lot report and audit export", "Print/PDF · JSON · CSV"],
-    ]},{title:"Execution, monitoring & workforce",columns:["Page / URL","Purpose","Related workflow"],rows:[
+      ["Step Templates · /step-templates", "Step definitions and validated reading variables", "Use configured requirements in execution"],
+    ]},{title:"Execution & monitoring",columns:["Page / URL","Purpose","Related workflow"],rows:[
       ["Work Orders · /work-orders · Operator Console · /execution", "Work-order recipe steps and progress", "/work-orders/{woId} → controlled execution"],
       ["Operator Apps · /operator · HMI Runtime · /hmi", "Station-specific floor experiences", "/operator/{stationId} · /hmi/{stationId}"],
       ["Operator App (mobile) · /mobile", "Station selection, step status and machine commands", "Shared safety and permission checks"],
@@ -81,15 +74,13 @@ export const documentation: DocSection[] = [
       ["Quality Holds · /quality · Nonconformance · /nonconformance", "Production blockers and QA handoff", "/nonconformance/{ncId} → decision/evidence"],
       ["Inspection Plans · /inspection-plans · Routing Rules · /routing-rules", "Step sampling and conditional routing", "Inspection results / rework / holds / skip rules"],
       ["Waste Reasons · /waste-reasons", "Selectable classification of losses", "Waste recording in execution"],
-      ["Users · /users · Assignments · /assignments", "People and active station staffing", "/users/{userId} → role/assignment context"],
-      ["Skills & Certifications · /skills · Shifts · /shifts", "Qualification validity and shared shift planning", "Starting-step checks and capacity inputs"],
     ]},{title:"Platform",columns:["Page / URL","Purpose","Related workflow"],rows:[
       ["Master Data · /master-data", "Materials, work centers, BOMs, routings and versions", "Draft / activate controlled masters; MES override"],
       ["ERP Contract · /erp-contract", "Inbound/outbound contract and manual JSON/CSV import", "Per-record import results and sync log"],
       ["Machines · /machines", "Configuration, protocol mappings and safety status", "/machines/{machineId} → test / sign-off / commands"],
       ["Maintenance & QA Portals · /integrations", "Connections, outgoing events and mock replies", "Signed requests and inbound decisions"],
       ["Integration Health · /integration-health", "Last success, failed deliveries, retry and key expiry", "Diagnose ERP/portal connectivity"],
-      ["Audit Log · /audit · Admin Activity · /admin-log", "Production and access-change history", "Reports audit export"],
+      ["Audit Log · /audit · Admin Activity · /admin-log", "Production and access-change history", "Traceability export"],
       ["People & Access · /access · Roles & Permissions · /roles", "Scoped grants and flexible permission sets", "Server-enforced authorization"],
       ["Notifications · /notifications", "Alerts, read state, preferences and filters", "Open alert → related record"],
       ["Settings · /settings · Profile · /profile", "Environment information, identity and personal PIN", "Sign-in and operator switching"],
@@ -363,7 +354,7 @@ export const documentation: DocSection[] = [
     id:"notifications",title:"Search, notifications & realtime",category:"Technical reference",
     flow:["Production event", "Database trigger", "Scope recipients", "Alert delivered live", "Open related record"],
     summary:"Find records with company-scoped search and use database-generated alerts to navigate back to actionable production context.",
-    paragraphs:["The search palette opens from Search everything or Ctrl/⌘+K. It includes navigation pages and browser-client table searches for orders, products, lines, stations, machines, lots, nonconformances, downtime, tools, approvals, people and skills. Record searches respect RLS; a result’s absence can reflect access scope rather than missing data.","The bell and Notifications page show unread counts, read/unread state, filtering, deletion and preferences. Database triggers—not browser calls to notification helpers—create alerts for production and access events. Recipients are selected by action and scope; changing a role can change which alerts a person receives.","Realtime subscriptions and query invalidation update supported views. They are not a guarantee that every screen is a continuously refreshed industrial signal. If a screen becomes stale, check connection/session and read the underlying record again. Hourly reminders may arrive up to roughly one job interval later."],
+    paragraphs:["The search palette opens from Search everything or Ctrl/⌘+K. It includes active navigation pages and browser-client table searches for lines, stations, machines, lots, nonconformances, downtime, tools and approvals. Planning and Workforce destinations are excluded. Record searches respect RLS; a result’s absence can reflect access scope rather than missing data.","The bell and Notifications page show unread counts, read/unread state, filtering, deletion and preferences. Database triggers—not browser calls to notification helpers—create alerts for production and access events. Recipients are selected by action and scope; changing a role can change which alerts a person receives. Alerts pointing to retired screens keep their content but no longer offer stale navigation.","Realtime subscriptions and query invalidation update supported views. They are not a guarantee that every screen is a continuously refreshed industrial signal. If a screen becomes stale, check connection/session and read the underlying record again. Hourly reminders may arrive up to roughly one job interval later."],
     steps:[{title:"Search by context",body:"Search an order/lot/machine identifier, select the matching record and inspect its detail/history. List pages also offer search, date range, sizes 50/75/100/150/200 and CSV/Excel exports where those controls are implemented."},{title:"Follow an alert",body:"Open the bell or Notifications, inspect type and severity, open the related record and resolve the actual issue. Marking an alert read does not release a hold or approve a request."},{title:"Review delivery limitations",body:"Email delivery of critical alerts, quiet hours and configurable escalation chains remain roadmap work. Current in-app delivery must not be treated as a guaranteed paging system."}],
   },
   {

@@ -18,7 +18,6 @@ import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAdminLogRouteImport } from './routes/_authenticated/admin-log'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
-import { Route as AuthenticatedAssignmentsRouteImport } from './routes/_authenticated/assignments'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
 import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
@@ -26,22 +25,16 @@ import { Route as AuthenticatedExecutionRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
 import { Route as AuthenticatedIntegrationHealthRouteImport } from './routes/_authenticated/integration-health'
 import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
-import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
 import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedMobileRouteImport } from './routes/_authenticated/mobile'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
-import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
 import { Route as AuthenticatedRecallRouteImport } from './routes/_authenticated/recall'
-import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
-import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
-import { Route as AuthenticatedSchedulingRouteImport } from './routes/_authenticated/scheduling'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedStepTemplatesRouteImport } from './routes/_authenticated/step-templates'
 import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authenticated/telemetry'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
@@ -65,19 +58,11 @@ import { Route as AuthenticatedNonconformanceIndexRouteImport } from './routes/_
 import { Route as AuthenticatedNonconformanceNcIdRouteImport } from './routes/_authenticated/nonconformance.$ncId'
 import { Route as AuthenticatedOperatorIndexRouteImport } from './routes/_authenticated/operator.index'
 import { Route as AuthenticatedOperatorStationIdRouteImport } from './routes/_authenticated/operator.$stationId'
-import { Route as AuthenticatedProductionOrdersIndexRouteImport } from './routes/_authenticated/production-orders.index'
-import { Route as AuthenticatedProductionOrdersPoIdRouteImport } from './routes/_authenticated/production-orders.$poId'
-import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products.index'
-import { Route as AuthenticatedProductsProductIdRouteImport } from './routes/_authenticated/products.$productId'
 import { Route as AuthenticatedRoutingRulesIndexRouteImport } from './routes/_authenticated/routing-rules.index'
 import { Route as AuthenticatedRoutingRulesRuleIdRouteImport } from './routes/_authenticated/routing-rules.$ruleId'
-import { Route as AuthenticatedSkillsIndexRouteImport } from './routes/_authenticated/skills.index'
-import { Route as AuthenticatedSkillsSkillIdRouteImport } from './routes/_authenticated/skills.$skillId'
 import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
 import { Route as AuthenticatedStationsStationIdRouteImport } from './routes/_authenticated/stations.$stationId'
 import { Route as AuthenticatedUnitsUidRouteImport } from './routes/_authenticated/units.$uid'
-import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users.index'
-import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users.$userId'
 import { Route as AuthenticatedWorkOrdersIndexRouteImport } from './routes/_authenticated/work-orders.index'
 import { Route as AuthenticatedWorkOrdersWoIdRouteImport } from './routes/_authenticated/work-orders.$woId'
 import { Route as AuthenticatedRecordKindIdRouteImport } from './routes/_authenticated/record.$kind.$id'
@@ -136,12 +121,6 @@ const AuthenticatedApprovalsRoute = AuthenticatedApprovalsRouteImport.update({
   path: '/approvals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAssignmentsRoute =
-  AuthenticatedAssignmentsRouteImport.update({
-    id: '/assignments',
-    path: '/assignments',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -180,11 +159,6 @@ const AuthenticatedIntegrationsRoute =
     path: '/integrations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
-  id: '/inventory',
-  path: '/inventory',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedLiveRoute = AuthenticatedLiveRouteImport.update({
   id: '/live',
   path: '/live',
@@ -206,11 +180,6 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedPlannerRoute = AuthenticatedPlannerRouteImport.update({
-  id: '/planner',
-  path: '/planner',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -226,16 +195,6 @@ const AuthenticatedRecallRoute = AuthenticatedRecallRouteImport.update({
   path: '/recall',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
-  id: '/recipes',
-  path: '/recipes',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedReworkRoute = AuthenticatedReworkRouteImport.update({
   id: '/rework',
   path: '/rework',
@@ -246,19 +205,9 @@ const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSchedulingRoute = AuthenticatedSchedulingRouteImport.update({
-  id: '/scheduling',
-  path: '/scheduling',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
-  id: '/shifts',
-  path: '/shifts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStepTemplatesRoute =
@@ -393,30 +342,6 @@ const AuthenticatedOperatorStationIdRoute =
     path: '/operator/$stationId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedProductionOrdersIndexRoute =
-  AuthenticatedProductionOrdersIndexRouteImport.update({
-    id: '/production-orders/',
-    path: '/production-orders/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedProductionOrdersPoIdRoute =
-  AuthenticatedProductionOrdersPoIdRouteImport.update({
-    id: '/production-orders/$poId',
-    path: '/production-orders/$poId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedProductsIndexRoute =
-  AuthenticatedProductsIndexRouteImport.update({
-    id: '/products/',
-    path: '/products/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedProductsProductIdRoute =
-  AuthenticatedProductsProductIdRouteImport.update({
-    id: '/products/$productId',
-    path: '/products/$productId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedRoutingRulesIndexRoute =
   AuthenticatedRoutingRulesIndexRouteImport.update({
     id: '/routing-rules/',
@@ -427,18 +352,6 @@ const AuthenticatedRoutingRulesRuleIdRoute =
   AuthenticatedRoutingRulesRuleIdRouteImport.update({
     id: '/routing-rules/$ruleId',
     path: '/routing-rules/$ruleId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSkillsIndexRoute =
-  AuthenticatedSkillsIndexRouteImport.update({
-    id: '/skills/',
-    path: '/skills/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSkillsSkillIdRoute =
-  AuthenticatedSkillsSkillIdRouteImport.update({
-    id: '/skills/$skillId',
-    path: '/skills/$skillId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStationsIndexRoute =
@@ -458,17 +371,6 @@ const AuthenticatedUnitsUidRoute = AuthenticatedUnitsUidRouteImport.update({
   path: '/units/$uid',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
-  id: '/users/',
-  path: '/users/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedUsersUserIdRoute =
-  AuthenticatedUsersUserIdRouteImport.update({
-    id: '/users/$userId',
-    path: '/users/$userId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedWorkOrdersIndexRoute =
   AuthenticatedWorkOrdersIndexRouteImport.update({
     id: '/work-orders/',
@@ -549,7 +451,6 @@ export interface FileRoutesByFullPath {
   '/admin-log': typeof AuthenticatedAdminLogRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/approvals': typeof AuthenticatedApprovalsRoute
-  '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/erp-contract': typeof AuthenticatedErpContractRoute
@@ -557,22 +458,16 @@ export interface FileRoutesByFullPath {
   '/genealogy': typeof AuthenticatedGenealogyRoute
   '/integration-health': typeof AuthenticatedIntegrationHealthRoute
   '/integrations': typeof AuthenticatedIntegrationsRoute
-  '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/mobile': typeof AuthenticatedMobileRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recall': typeof AuthenticatedRecallRoute
-  '/recipes': typeof AuthenticatedRecipesRoute
-  '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
   '/roles': typeof AuthenticatedRolesRoute
-  '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/tools': typeof AuthenticatedToolsRoute
@@ -589,13 +484,9 @@ export interface FileRoutesByFullPath {
   '/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
   '/nonconformance/$ncId': typeof AuthenticatedNonconformanceNcIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
-  '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
-  '/products/$productId': typeof AuthenticatedProductsProductIdRoute
   '/routing-rules/$ruleId': typeof AuthenticatedRoutingRulesRuleIdRoute
-  '/skills/$skillId': typeof AuthenticatedSkillsSkillIdRoute
   '/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
   '/units/$uid': typeof AuthenticatedUnitsUidRoute
-  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/hmi/': typeof AuthenticatedHmiIndexRoute
   '/inspection-plans/': typeof AuthenticatedInspectionPlansIndexRoute
@@ -604,12 +495,8 @@ export interface FileRoutesByFullPath {
   '/material-lots/': typeof AuthenticatedMaterialLotsIndexRoute
   '/nonconformance/': typeof AuthenticatedNonconformanceIndexRoute
   '/operator/': typeof AuthenticatedOperatorIndexRoute
-  '/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
-  '/products/': typeof AuthenticatedProductsIndexRoute
   '/routing-rules/': typeof AuthenticatedRoutingRulesIndexRoute
-  '/skills/': typeof AuthenticatedSkillsIndexRoute
   '/stations/': typeof AuthenticatedStationsIndexRoute
-  '/users/': typeof AuthenticatedUsersIndexRoute
   '/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
   '/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
@@ -631,7 +518,6 @@ export interface FileRoutesByTo {
   '/admin-log': typeof AuthenticatedAdminLogRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/approvals': typeof AuthenticatedApprovalsRoute
-  '/assignments': typeof AuthenticatedAssignmentsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
   '/erp-contract': typeof AuthenticatedErpContractRoute
@@ -639,22 +525,16 @@ export interface FileRoutesByTo {
   '/genealogy': typeof AuthenticatedGenealogyRoute
   '/integration-health': typeof AuthenticatedIntegrationHealthRoute
   '/integrations': typeof AuthenticatedIntegrationsRoute
-  '/inventory': typeof AuthenticatedInventoryRoute
   '/live': typeof AuthenticatedLiveRoute
   '/master-data': typeof AuthenticatedMasterDataRoute
   '/mobile': typeof AuthenticatedMobileRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recall': typeof AuthenticatedRecallRoute
-  '/recipes': typeof AuthenticatedRecipesRoute
-  '/reports': typeof AuthenticatedReportsRoute
   '/rework': typeof AuthenticatedReworkRoute
   '/roles': typeof AuthenticatedRolesRoute
-  '/scheduling': typeof AuthenticatedSchedulingRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/shifts': typeof AuthenticatedShiftsRoute
   '/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/tools': typeof AuthenticatedToolsRoute
@@ -672,13 +552,9 @@ export interface FileRoutesByTo {
   '/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
   '/nonconformance/$ncId': typeof AuthenticatedNonconformanceNcIdRoute
   '/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
-  '/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
-  '/products/$productId': typeof AuthenticatedProductsProductIdRoute
   '/routing-rules/$ruleId': typeof AuthenticatedRoutingRulesRuleIdRoute
-  '/skills/$skillId': typeof AuthenticatedSkillsSkillIdRoute
   '/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
   '/units/$uid': typeof AuthenticatedUnitsUidRoute
-  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/hmi': typeof AuthenticatedHmiIndexRoute
   '/inspection-plans': typeof AuthenticatedInspectionPlansIndexRoute
@@ -687,12 +563,8 @@ export interface FileRoutesByTo {
   '/material-lots': typeof AuthenticatedMaterialLotsIndexRoute
   '/nonconformance': typeof AuthenticatedNonconformanceIndexRoute
   '/operator': typeof AuthenticatedOperatorIndexRoute
-  '/production-orders': typeof AuthenticatedProductionOrdersIndexRoute
-  '/products': typeof AuthenticatedProductsIndexRoute
   '/routing-rules': typeof AuthenticatedRoutingRulesIndexRoute
-  '/skills': typeof AuthenticatedSkillsIndexRoute
   '/stations': typeof AuthenticatedStationsIndexRoute
-  '/users': typeof AuthenticatedUsersIndexRoute
   '/work-orders': typeof AuthenticatedWorkOrdersIndexRoute
   '/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
@@ -716,7 +588,6 @@ export interface FileRoutesById {
   '/_authenticated/admin-log': typeof AuthenticatedAdminLogRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
-  '/_authenticated/assignments': typeof AuthenticatedAssignmentsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
   '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
@@ -724,22 +595,16 @@ export interface FileRoutesById {
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
   '/_authenticated/integration-health': typeof AuthenticatedIntegrationHealthRoute
   '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
-  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
   '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/mobile': typeof AuthenticatedMobileRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
-  '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recall': typeof AuthenticatedRecallRoute
-  '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
-  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rework': typeof AuthenticatedReworkRoute
   '/_authenticated/roles': typeof AuthenticatedRolesRoute
-  '/_authenticated/scheduling': typeof AuthenticatedSchedulingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
-  '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/step-templates': typeof AuthenticatedStepTemplatesRoute
   '/_authenticated/telemetry': typeof AuthenticatedTelemetryRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
@@ -757,13 +622,9 @@ export interface FileRoutesById {
   '/_authenticated/material-lots/$lotId': typeof AuthenticatedMaterialLotsLotIdRoute
   '/_authenticated/nonconformance/$ncId': typeof AuthenticatedNonconformanceNcIdRoute
   '/_authenticated/operator/$stationId': typeof AuthenticatedOperatorStationIdRoute
-  '/_authenticated/production-orders/$poId': typeof AuthenticatedProductionOrdersPoIdRoute
-  '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRoute
   '/_authenticated/routing-rules/$ruleId': typeof AuthenticatedRoutingRulesRuleIdRoute
-  '/_authenticated/skills/$skillId': typeof AuthenticatedSkillsSkillIdRoute
   '/_authenticated/stations/$stationId': typeof AuthenticatedStationsStationIdRoute
   '/_authenticated/units/$uid': typeof AuthenticatedUnitsUidRoute
-  '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/work-orders/$woId': typeof AuthenticatedWorkOrdersWoIdRoute
   '/_authenticated/hmi/': typeof AuthenticatedHmiIndexRoute
   '/_authenticated/inspection-plans/': typeof AuthenticatedInspectionPlansIndexRoute
@@ -772,12 +633,8 @@ export interface FileRoutesById {
   '/_authenticated/material-lots/': typeof AuthenticatedMaterialLotsIndexRoute
   '/_authenticated/nonconformance/': typeof AuthenticatedNonconformanceIndexRoute
   '/_authenticated/operator/': typeof AuthenticatedOperatorIndexRoute
-  '/_authenticated/production-orders/': typeof AuthenticatedProductionOrdersIndexRoute
-  '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
   '/_authenticated/routing-rules/': typeof AuthenticatedRoutingRulesIndexRoute
-  '/_authenticated/skills/': typeof AuthenticatedSkillsIndexRoute
   '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
-  '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/work-orders/': typeof AuthenticatedWorkOrdersIndexRoute
   '/_authenticated/record/$kind/$id': typeof AuthenticatedRecordKindIdRoute
   '/api/mes/v1/downtime': typeof ApiMesV1DowntimeRoute
@@ -802,7 +659,6 @@ export interface FileRouteTypes {
     | '/admin-log'
     | '/analytics'
     | '/approvals'
-    | '/assignments'
     | '/audit'
     | '/downtime'
     | '/erp-contract'
@@ -810,22 +666,16 @@ export interface FileRouteTypes {
     | '/genealogy'
     | '/integration-health'
     | '/integrations'
-    | '/inventory'
     | '/live'
     | '/master-data'
     | '/mobile'
     | '/notifications'
-    | '/planner'
     | '/profile'
     | '/quality'
     | '/recall'
-    | '/recipes'
-    | '/reports'
     | '/rework'
     | '/roles'
-    | '/scheduling'
     | '/settings'
-    | '/shifts'
     | '/step-templates'
     | '/telemetry'
     | '/tools'
@@ -842,13 +692,9 @@ export interface FileRouteTypes {
     | '/material-lots/$lotId'
     | '/nonconformance/$ncId'
     | '/operator/$stationId'
-    | '/production-orders/$poId'
-    | '/products/$productId'
     | '/routing-rules/$ruleId'
-    | '/skills/$skillId'
     | '/stations/$stationId'
     | '/units/$uid'
-    | '/users/$userId'
     | '/work-orders/$woId'
     | '/hmi/'
     | '/inspection-plans/'
@@ -857,12 +703,8 @@ export interface FileRouteTypes {
     | '/material-lots/'
     | '/nonconformance/'
     | '/operator/'
-    | '/production-orders/'
-    | '/products/'
     | '/routing-rules/'
-    | '/skills/'
     | '/stations/'
-    | '/users/'
     | '/work-orders/'
     | '/record/$kind/$id'
     | '/api/mes/v1/downtime'
@@ -884,7 +726,6 @@ export interface FileRouteTypes {
     | '/admin-log'
     | '/analytics'
     | '/approvals'
-    | '/assignments'
     | '/audit'
     | '/downtime'
     | '/erp-contract'
@@ -892,22 +733,16 @@ export interface FileRouteTypes {
     | '/genealogy'
     | '/integration-health'
     | '/integrations'
-    | '/inventory'
     | '/live'
     | '/master-data'
     | '/mobile'
     | '/notifications'
-    | '/planner'
     | '/profile'
     | '/quality'
     | '/recall'
-    | '/recipes'
-    | '/reports'
     | '/rework'
     | '/roles'
-    | '/scheduling'
     | '/settings'
-    | '/shifts'
     | '/step-templates'
     | '/telemetry'
     | '/tools'
@@ -925,13 +760,9 @@ export interface FileRouteTypes {
     | '/material-lots/$lotId'
     | '/nonconformance/$ncId'
     | '/operator/$stationId'
-    | '/production-orders/$poId'
-    | '/products/$productId'
     | '/routing-rules/$ruleId'
-    | '/skills/$skillId'
     | '/stations/$stationId'
     | '/units/$uid'
-    | '/users/$userId'
     | '/work-orders/$woId'
     | '/hmi'
     | '/inspection-plans'
@@ -940,12 +771,8 @@ export interface FileRouteTypes {
     | '/material-lots'
     | '/nonconformance'
     | '/operator'
-    | '/production-orders'
-    | '/products'
     | '/routing-rules'
-    | '/skills'
     | '/stations'
-    | '/users'
     | '/work-orders'
     | '/record/$kind/$id'
     | '/api/mes/v1/downtime'
@@ -968,7 +795,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-log'
     | '/_authenticated/analytics'
     | '/_authenticated/approvals'
-    | '/_authenticated/assignments'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
     | '/_authenticated/erp-contract'
@@ -976,22 +802,16 @@ export interface FileRouteTypes {
     | '/_authenticated/genealogy'
     | '/_authenticated/integration-health'
     | '/_authenticated/integrations'
-    | '/_authenticated/inventory'
     | '/_authenticated/live'
     | '/_authenticated/master-data'
     | '/_authenticated/mobile'
     | '/_authenticated/notifications'
-    | '/_authenticated/planner'
     | '/_authenticated/profile'
     | '/_authenticated/quality'
     | '/_authenticated/recall'
-    | '/_authenticated/recipes'
-    | '/_authenticated/reports'
     | '/_authenticated/rework'
     | '/_authenticated/roles'
-    | '/_authenticated/scheduling'
     | '/_authenticated/settings'
-    | '/_authenticated/shifts'
     | '/_authenticated/step-templates'
     | '/_authenticated/telemetry'
     | '/_authenticated/tools'
@@ -1009,13 +829,9 @@ export interface FileRouteTypes {
     | '/_authenticated/material-lots/$lotId'
     | '/_authenticated/nonconformance/$ncId'
     | '/_authenticated/operator/$stationId'
-    | '/_authenticated/production-orders/$poId'
-    | '/_authenticated/products/$productId'
     | '/_authenticated/routing-rules/$ruleId'
-    | '/_authenticated/skills/$skillId'
     | '/_authenticated/stations/$stationId'
     | '/_authenticated/units/$uid'
-    | '/_authenticated/users/$userId'
     | '/_authenticated/work-orders/$woId'
     | '/_authenticated/hmi/'
     | '/_authenticated/inspection-plans/'
@@ -1024,12 +840,8 @@ export interface FileRouteTypes {
     | '/_authenticated/material-lots/'
     | '/_authenticated/nonconformance/'
     | '/_authenticated/operator/'
-    | '/_authenticated/production-orders/'
-    | '/_authenticated/products/'
     | '/_authenticated/routing-rules/'
-    | '/_authenticated/skills/'
     | '/_authenticated/stations/'
-    | '/_authenticated/users/'
     | '/_authenticated/work-orders/'
     | '/_authenticated/record/$kind/$id'
     | '/api/mes/v1/downtime'
@@ -1126,13 +938,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedApprovalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/assignments': {
-      id: '/_authenticated/assignments'
-      path: '/assignments'
-      fullPath: '/assignments'
-      preLoaderRoute: typeof AuthenticatedAssignmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
@@ -1182,13 +987,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/inventory': {
-      id: '/_authenticated/inventory'
-      path: '/inventory'
-      fullPath: '/inventory'
-      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/live': {
       id: '/_authenticated/live'
       path: '/live'
@@ -1217,13 +1015,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/planner': {
-      id: '/_authenticated/planner'
-      path: '/planner'
-      fullPath: '/planner'
-      preLoaderRoute: typeof AuthenticatedPlannerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -1245,20 +1036,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRecallRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/recipes': {
-      id: '/_authenticated/recipes'
-      path: '/recipes'
-      fullPath: '/recipes'
-      preLoaderRoute: typeof AuthenticatedRecipesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports': {
-      id: '/_authenticated/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof AuthenticatedReportsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/rework': {
       id: '/_authenticated/rework'
       path: '/rework'
@@ -1273,25 +1050,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRolesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/scheduling': {
-      id: '/_authenticated/scheduling'
-      path: '/scheduling'
-      fullPath: '/scheduling'
-      preLoaderRoute: typeof AuthenticatedSchedulingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/shifts': {
-      id: '/_authenticated/shifts'
-      path: '/shifts'
-      fullPath: '/shifts'
-      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/step-templates': {
@@ -1455,34 +1218,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOperatorStationIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/production-orders/': {
-      id: '/_authenticated/production-orders/'
-      path: '/production-orders'
-      fullPath: '/production-orders/'
-      preLoaderRoute: typeof AuthenticatedProductionOrdersIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/production-orders/$poId': {
-      id: '/_authenticated/production-orders/$poId'
-      path: '/production-orders/$poId'
-      fullPath: '/production-orders/$poId'
-      preLoaderRoute: typeof AuthenticatedProductionOrdersPoIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/products/': {
-      id: '/_authenticated/products/'
-      path: '/products'
-      fullPath: '/products/'
-      preLoaderRoute: typeof AuthenticatedProductsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/products/$productId': {
-      id: '/_authenticated/products/$productId'
-      path: '/products/$productId'
-      fullPath: '/products/$productId'
-      preLoaderRoute: typeof AuthenticatedProductsProductIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/routing-rules/': {
       id: '/_authenticated/routing-rules/'
       path: '/routing-rules'
@@ -1495,20 +1230,6 @@ declare module '@tanstack/react-router' {
       path: '/routing-rules/$ruleId'
       fullPath: '/routing-rules/$ruleId'
       preLoaderRoute: typeof AuthenticatedRoutingRulesRuleIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/skills/': {
-      id: '/_authenticated/skills/'
-      path: '/skills'
-      fullPath: '/skills/'
-      preLoaderRoute: typeof AuthenticatedSkillsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/skills/$skillId': {
-      id: '/_authenticated/skills/$skillId'
-      path: '/skills/$skillId'
-      fullPath: '/skills/$skillId'
-      preLoaderRoute: typeof AuthenticatedSkillsSkillIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/stations/': {
@@ -1530,20 +1251,6 @@ declare module '@tanstack/react-router' {
       path: '/units/$uid'
       fullPath: '/units/$uid'
       preLoaderRoute: typeof AuthenticatedUnitsUidRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/users/': {
-      id: '/_authenticated/users/'
-      path: '/users'
-      fullPath: '/users/'
-      preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/users/$userId': {
-      id: '/_authenticated/users/$userId'
-      path: '/users/$userId'
-      fullPath: '/users/$userId'
-      preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/work-orders/': {
@@ -1645,7 +1352,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminLogRoute: typeof AuthenticatedAdminLogRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
-  AuthenticatedAssignmentsRoute: typeof AuthenticatedAssignmentsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
   AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
@@ -1653,22 +1359,16 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
   AuthenticatedIntegrationHealthRoute: typeof AuthenticatedIntegrationHealthRoute
   AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
-  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
   AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedMobileRoute: typeof AuthenticatedMobileRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
-  AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecallRoute: typeof AuthenticatedRecallRoute
-  AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
-  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
-  AuthenticatedSchedulingRoute: typeof AuthenticatedSchedulingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStepTemplatesRoute: typeof AuthenticatedStepTemplatesRoute
   AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
@@ -1686,13 +1386,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaterialLotsLotIdRoute: typeof AuthenticatedMaterialLotsLotIdRoute
   AuthenticatedNonconformanceNcIdRoute: typeof AuthenticatedNonconformanceNcIdRoute
   AuthenticatedOperatorStationIdRoute: typeof AuthenticatedOperatorStationIdRoute
-  AuthenticatedProductionOrdersPoIdRoute: typeof AuthenticatedProductionOrdersPoIdRoute
-  AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
   AuthenticatedRoutingRulesRuleIdRoute: typeof AuthenticatedRoutingRulesRuleIdRoute
-  AuthenticatedSkillsSkillIdRoute: typeof AuthenticatedSkillsSkillIdRoute
   AuthenticatedStationsStationIdRoute: typeof AuthenticatedStationsStationIdRoute
   AuthenticatedUnitsUidRoute: typeof AuthenticatedUnitsUidRoute
-  AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
   AuthenticatedWorkOrdersWoIdRoute: typeof AuthenticatedWorkOrdersWoIdRoute
   AuthenticatedHmiIndexRoute: typeof AuthenticatedHmiIndexRoute
   AuthenticatedInspectionPlansIndexRoute: typeof AuthenticatedInspectionPlansIndexRoute
@@ -1701,12 +1397,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaterialLotsIndexRoute: typeof AuthenticatedMaterialLotsIndexRoute
   AuthenticatedNonconformanceIndexRoute: typeof AuthenticatedNonconformanceIndexRoute
   AuthenticatedOperatorIndexRoute: typeof AuthenticatedOperatorIndexRoute
-  AuthenticatedProductionOrdersIndexRoute: typeof AuthenticatedProductionOrdersIndexRoute
-  AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
   AuthenticatedRoutingRulesIndexRoute: typeof AuthenticatedRoutingRulesIndexRoute
-  AuthenticatedSkillsIndexRoute: typeof AuthenticatedSkillsIndexRoute
   AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
-  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWorkOrdersIndexRoute: typeof AuthenticatedWorkOrdersIndexRoute
   AuthenticatedRecordKindIdRoute: typeof AuthenticatedRecordKindIdRoute
 }
@@ -1716,7 +1408,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminLogRoute: AuthenticatedAdminLogRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
-  AuthenticatedAssignmentsRoute: AuthenticatedAssignmentsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
   AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
@@ -1724,22 +1415,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
   AuthenticatedIntegrationHealthRoute: AuthenticatedIntegrationHealthRoute,
   AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
-  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
   AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedMobileRoute: AuthenticatedMobileRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
-  AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecallRoute: AuthenticatedRecallRoute,
-  AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
-  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedReworkRoute: AuthenticatedReworkRoute,
   AuthenticatedRolesRoute: AuthenticatedRolesRoute,
-  AuthenticatedSchedulingRoute: AuthenticatedSchedulingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
-  AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStepTemplatesRoute: AuthenticatedStepTemplatesRoute,
   AuthenticatedTelemetryRoute: AuthenticatedTelemetryRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
@@ -1758,14 +1443,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaterialLotsLotIdRoute: AuthenticatedMaterialLotsLotIdRoute,
   AuthenticatedNonconformanceNcIdRoute: AuthenticatedNonconformanceNcIdRoute,
   AuthenticatedOperatorStationIdRoute: AuthenticatedOperatorStationIdRoute,
-  AuthenticatedProductionOrdersPoIdRoute:
-    AuthenticatedProductionOrdersPoIdRoute,
-  AuthenticatedProductsProductIdRoute: AuthenticatedProductsProductIdRoute,
   AuthenticatedRoutingRulesRuleIdRoute: AuthenticatedRoutingRulesRuleIdRoute,
-  AuthenticatedSkillsSkillIdRoute: AuthenticatedSkillsSkillIdRoute,
   AuthenticatedStationsStationIdRoute: AuthenticatedStationsStationIdRoute,
   AuthenticatedUnitsUidRoute: AuthenticatedUnitsUidRoute,
-  AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
   AuthenticatedWorkOrdersWoIdRoute: AuthenticatedWorkOrdersWoIdRoute,
   AuthenticatedHmiIndexRoute: AuthenticatedHmiIndexRoute,
   AuthenticatedInspectionPlansIndexRoute:
@@ -1775,13 +1455,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaterialLotsIndexRoute: AuthenticatedMaterialLotsIndexRoute,
   AuthenticatedNonconformanceIndexRoute: AuthenticatedNonconformanceIndexRoute,
   AuthenticatedOperatorIndexRoute: AuthenticatedOperatorIndexRoute,
-  AuthenticatedProductionOrdersIndexRoute:
-    AuthenticatedProductionOrdersIndexRoute,
-  AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
   AuthenticatedRoutingRulesIndexRoute: AuthenticatedRoutingRulesIndexRoute,
-  AuthenticatedSkillsIndexRoute: AuthenticatedSkillsIndexRoute,
   AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
-  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWorkOrdersIndexRoute: AuthenticatedWorkOrdersIndexRoute,
   AuthenticatedRecordKindIdRoute: AuthenticatedRecordKindIdRoute,
 }

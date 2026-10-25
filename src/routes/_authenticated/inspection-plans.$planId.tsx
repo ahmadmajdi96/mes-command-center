@@ -74,7 +74,7 @@ function PlanDetail() {
           <tbody>{lc.visible.map((r) => (
             <tr key={r.id} className="border-t border-border/40">
               <td className="py-2">{fmt(r.created_at)}</td>
-              <td><Link to="/production-orders/$poId" params={{ poId: r.production_order_id }} className="font-mono text-primary">{r.production_order_id}</Link></td>
+              <td><Link to="/record/$kind/$id" params={{ kind: "trace", id: r.production_order_id }} className="font-mono text-primary">{r.production_order_id}</Link></td>
               <td>#{r.sample_no}</td><td>{Object.entries(r.values ?? {}).map(([k, v]) => `${k}=${v}`).join(", ") || "—"}{r.failed_checks?.length ? <div className="text-destructive">{r.failed_checks.join("; ")}</div> : null}</td>
               <td className={r.result === "pass" ? "text-success" : "text-destructive"}>{r.result.toUpperCase()}</td>
               <td>{r.inspector_name} · {r.source === "qa_portal" ? "QA portal" : "line"}</td>

@@ -126,7 +126,7 @@ function WipPage() {
                 {lcW.visible.map((b) => (
                   <tr key={b.id} className="border-t border-border/40 hover:bg-card/40">
                     <td className="py-2"><Link to="/batches/$batchId" params={{ batchId: b.id }} className="font-mono text-primary">{b.number}</Link>{b.parent_batch_id && <div className="text-[10px] text-muted-foreground">split from {b.parent_batch_id}</div>}</td>
-                    <td><Link to="/production-orders/$poId" params={{ poId: b.production_order_id }} className="font-mono text-primary">{b.production_order_id}</Link></td>
+                    <td><Link to="/record/$kind/$id" params={{ kind: "trace", id: b.production_order_id }} className="font-mono text-primary">{b.production_order_id}</Link></td>
                     <td>{b.product_name}</td>
                     <td>{b.location}</td>
                     <td className="text-right font-mono">{b.wip_qty.toLocaleString()} {b.uom}</td>

@@ -37,7 +37,7 @@ function NcPage() {
           <tbody>{lc.visible.map((n) => (
             <tr key={n.id} className="cursor-pointer border-t border-border/40 align-top hover:bg-muted/30" onClick={() => nav({ to: "/nonconformance/$ncId", params: { ncId: n.id } })}>
               <td className="py-2 font-mono text-primary">{n.id}</td><td>{fmt(n.created_at)}</td>
-              <td onClick={(e) => e.stopPropagation()}><Link to="/production-orders/$poId" params={{ poId: n.production_order_id }} className="font-mono text-primary">{n.production_order_id}</Link></td>
+              <td onClick={(e) => e.stopPropagation()}><Link to="/record/$kind/$id" params={{ kind: "trace", id: n.production_order_id }} className="font-mono text-primary">{n.production_order_id}</Link></td>
               <td>{n.description}</td><td className={n.severity === "critical" ? "text-destructive" : n.severity === "major" ? "text-warning" : ""}>{n.severity}</td>
               <td className="text-right font-mono">{Number(n.qty)} {n.uom}</td><td>{n.status === "open" ? "Waiting for QA" : n.status}</td><td>{n.decision_label || "—"}{n.decided_by_name ? ` · ${n.decided_by_name}` : ""}</td>
             </tr>))}

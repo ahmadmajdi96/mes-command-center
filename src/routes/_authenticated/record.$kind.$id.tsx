@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { FileText, Printer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,7 @@ import { PageHead, Field, ghost } from "@/components/qp-ui";
 import { useMes } from "@/lib/mes-store";
 
 export const Route = createFileRoute("/_authenticated/record/$kind/$id")({
+  beforeLoad: ({ params }) => { if (!KINDS[params.kind]) throw notFound(); },
   head: ({ params }) => ({
     meta: [
       { title: `${KINDS[params.kind]?.title ?? "Record"} ${params.id} · Cortanex MES` },
@@ -32,7 +33,6 @@ const show = (v: unknown) => {
 
 function RecordPage() {
   const { kind, id } = Route.useParams();
-  if (kind === "assignment") return <AssignmentDetail id={id} />;
   return <GenericRecord kind={kind} id={id} />;
 }
 
@@ -95,27 +95,3 @@ function RelatedTable({ r, value }: { r: { title: string; table: string; fk: str
   );
 }
 
-function AssignmentDetail({ id }: { id: string }) {
-  const store = useMes();
-  const a = store.assignments.find((x) => x.id === id);
-  const u = a ? store.users.find((x) => x.id === a.userId) : undefined;
-  const dt = store.downtime.filter((d) => d.assignmentId === id);
-  return (
-    <div className="space-y-5">
-      <PageHead back="/assignments" backLabel="Assignments" icon={<FileText className="h-5 w-5 text-primary" />} title={`Assignment ${id}`} desc="Who works where, and what happened during the assignment." />
-      {!a ? <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Assignment not found.</div> : (
-        <>
-          <div className="glass-panel grid gap-2 rounded-2xl p-4 sm:grid-cols-3">
-            {Object.entries(a).map(([k, v]) => <Field key={k} l={label(k)} v={show(v)} />)}
-            <Field l="Person" v={u?.name} />
-          </div>
-          <div className="glass-panel rounded-2xl p-4 text-xs">
-            <h2 className="mb-2 text-sm font-semibold">Downtime during this assignment ({dt.length})</h2>
-            {dt.map((d) => <div key={d.id} className="border-t border-border/40 py-2"><Link to="/record/$kind/$id" params={{ kind: "downtime", id: d.id }} className="text-primary">{d.id}</Link> · {d.reasonCode} · {d.durationMin}m · {d.status}</div>)}
-            {dt.length === 0 && <p className="text-muted-foreground">None.</p>}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}

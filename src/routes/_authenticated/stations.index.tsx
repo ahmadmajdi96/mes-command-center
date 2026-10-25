@@ -301,7 +301,7 @@ function StationsPage() {
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {op ? (
-                        <Link to="/users/$userId" params={{ userId: op.id }} className="hover:text-primary">{op.name}</Link>
+                        <span className="hover:text-primary">{op.name}</span>
                       ) : <span className="text-warning">unassigned</span>}
                     </td>
                     <td className="px-4 py-3">

@@ -12,7 +12,6 @@ import {
 
 
   Boxes,
-  Users,
   UserCog,
   ListChecks,
   History,
@@ -47,16 +46,6 @@ export const overview = [
   { title: "Live Shop Floor", url: "/live", icon: Radio },
 ];
 
-export const planning = [
-  { title: "Products", url: "/products", icon: Package },
-  { title: "Recipes", url: "/recipes", icon: ClipboardCheck },
-  { title: "Production Orders", url: "/production-orders", icon: ClipboardList },
-  { title: "Planner", url: "/planner", icon: CalendarDays },
-  { title: "Scheduling & Capacity", url: "/scheduling", icon: CalendarDays },
-  { title: "Reports & Compliance", url: "/reports", icon: ClipboardCheck },
-  { title: "Inventory", url: "/inventory", icon: Package },
-];
-
 export const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
@@ -84,13 +73,6 @@ export const monitoring = [
   { title: "Nonconformance", url: "/nonconformance", icon: AlertOctagon },
   { title: "Routing Rules", url: "/routing-rules", icon: GitBranch },
   { title: "Waste Reasons", url: "/waste-reasons", icon: Trash2 },
-];
-
-export const workforce = [
-  { title: "Users", url: "/users", icon: Users },
-  { title: "Assignments", url: "/assignments", icon: UserCog },
-  { title: "Skills & Certifications", url: "/skills", icon: ListChecks },
-  { title: "Shifts", url: "/shifts", icon: CalendarDays },
 ];
 
 export const platform = [
@@ -160,10 +142,8 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="px-2">
         {renderGroup("Overview", overview)}
-        {renderGroup("Planning", planning)}
         {renderGroup("Execution", execution)}
         {renderGroup("Monitoring", monitoring)}
-        {renderGroup("Workforce", workforce)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
       <SidebarFooter className="p-3">

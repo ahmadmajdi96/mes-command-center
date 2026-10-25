@@ -227,7 +227,7 @@ function HmiStation() {
           {variables.length === 0 ? (
             <div className="mt-2 rounded-lg border border-dashed border-border/60 p-3 text-xs text-muted-foreground">
               No recipe configured for this product+station.{" "}
-              <Link to="/recipes" className="text-primary hover:underline">Configure now</Link>
+              
             </div>
           ) : (
             <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3">

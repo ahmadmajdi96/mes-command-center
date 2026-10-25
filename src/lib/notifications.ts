@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { activeNotificationLink } from "@/lib/page-retirement";
 
 export type Notification = {
   id: string;
@@ -37,7 +38,7 @@ export function useNotifications(userId: string, limit = 500) {
         .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []) as Notification[];
+      return ((data ?? []) as Notification[]).map((n) => ({ ...n, link: activeNotificationLink(n.link) }));
     },
   });
 
