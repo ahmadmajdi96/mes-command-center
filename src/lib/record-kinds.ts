@@ -17,11 +17,6 @@ export const KINDS: Record<string, Kind> = {
     { title: "Messages", table: "portal_events", fk: "connection_id", cols: ["created_at", "direction", "event_type", "ref_id", "status", "attempts", "last_error"] },
   ] },
   portal_event: { table: "portal_events", key: "id", back: "/integrations", backLabel: "Integrations", title: "Portal message", related: [] },
-  stock: { table: "stock_on_hand", key: "sku", back: "/inventory", backLabel: "Inventory", title: "Stock item", related: [
-    { title: "Goods receipts", table: "goods_receipts", fk: "sku", cols: ["created_at", "production_order_id", "receipt_type", "qty", "uom", "lot_number", "actor_name"] },
-    { title: "Consumption", table: "material_consumptions", fk: "component_sku", cols: ["created_at", "production_order_id", "qty", "uom", "input_lot", "actor_name"] },
-  ] },
-  receipt: { table: "goods_receipts", key: "id", back: "/inventory", backLabel: "Inventory", title: "Goods receipt", related: [] },
   work_center: { table: "work_centers", key: "id", back: "/master-data", backLabel: "Master Data", title: "Work center", related: [
     { title: "Routing steps here", table: "routing_operations", fk: "work_center_id", cols: ["routing_id", "sequence", "name", "setup_min", "run_min_per_unit"] },
   ] },
