@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Package, Plus } from "lucide-react";
+import { Package, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { useListControls } from "@/components/list-controls";
@@ -45,7 +45,6 @@ function LotsPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/inventory" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft className="h-3.5 w-3.5" /> Inventory</Link>
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-semibold tracking-tight"><Package className="h-5 w-5 text-primary" />Material lots</h1>
         <p className="text-sm text-muted-foreground">Every received or produced lot, what is left, and where it was used. Finished and by-product output becomes a lot automatically.</p>
@@ -85,7 +84,7 @@ function LotsPage() {
               <td className="text-right font-mono">{Number(l.qty_received).toLocaleString()} {l.uom}</td>
               <td className="text-right font-mono">{Number(l.qty_remaining).toLocaleString()} <span className="text-muted-foreground">({100 - l.used_pct}%)</span></td>
               <td className={l.expired ? "text-destructive" : ""}>{l.expiry_date ?? "—"}</td>
-              <td>{l.source_order_id ? <Link to="/production-orders/$poId" params={{ poId: l.source_order_id }} className="font-mono text-primary">{l.source_order_id}</Link> : l.supplier ?? "—"}</td>
+              <td>{l.source_order_id ? <Link to="/record/$kind/$id" params={{ kind: "trace", id: l.source_order_id }} className="font-mono text-primary">{l.source_order_id}</Link> : l.supplier ?? "—"}</td>
               <td><span className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] uppercase">{l.status}</span></td>
             </tr>))}
             {lc.visible.length === 0 && <tr><td colSpan={8} className="py-6 text-center text-muted-foreground">No lots match.</td></tr>}

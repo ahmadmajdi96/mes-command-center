@@ -105,7 +105,7 @@ function ApprovalsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHead back="/production-orders" backLabel="Production orders" icon={<ShieldCheck className="h-5 w-5 text-primary" />} title="Approvals & electronic signatures"
+      <PageHead back="/" backLabel="Control Center" icon={<ShieldCheck className="h-5 w-5 text-primary" />} title="Approvals & electronic signatures"
         desc="Order releases, scrap over the limit, skipped steps and production-version changes only go through after a signed approval. Signing needs your password and a reason." />
 
       <div className="glass-panel grid gap-3 rounded-2xl p-5 sm:grid-cols-6">

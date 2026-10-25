@@ -54,7 +54,7 @@ function LotDetail() {
               <div key={k} className="rounded-xl border border-border/40 bg-card/40 p-3"><div className="text-[10px] uppercase text-muted-foreground">{k}</div><div className="mt-1 font-mono text-sm">{v}</div></div>
             ))}
           </div>
-          {lot.source_order_id && <p className="mt-3 text-xs">Produced by order <Link to="/production-orders/$poId" params={{ poId: lot.source_order_id }} className="font-mono text-primary">{lot.source_order_id}</Link></p>}
+          {lot.source_order_id && <p className="mt-3 text-xs">Produced by order <Link to="/record/$kind/$id" params={{ kind: "trace", id: lot.source_order_id }} className="font-mono text-primary">{lot.source_order_id}</Link></p>}
           {canHandle && <div className="mt-4 flex gap-2">
             {lot.status === "available" && <button className="rounded-lg border border-warning/40 px-3 py-1.5 text-xs text-warning" onClick={() => setStatus("quarantine")}>Quarantine</button>}
             {lot.status === "available" && <button className="rounded-lg border border-destructive/40 px-3 py-1.5 text-xs text-destructive" onClick={() => setStatus("blocked")}>Block</button>}
@@ -78,7 +78,7 @@ function LotDetail() {
       <div className="glass-panel rounded-2xl p-5">
         <h2 className="text-sm font-semibold">Usage history</h2>
         <table className="mt-3 w-full text-xs"><thead className="text-[10px] uppercase text-muted-foreground"><tr><th className="py-2 text-left">When</th><th className="text-left">Order</th><th className="text-right">Used</th><th className="text-right">Planned</th><th className="text-left">How</th><th className="text-left">By</th></tr></thead>
-          <tbody>{uses.map((u) => <tr key={u.id} className="border-t border-border/40"><td className="py-2">{new Date(u.created_at).toLocaleString()}</td><td><Link to="/production-orders/$poId" params={{ poId: u.production_order_id }} className="font-mono text-primary">{u.production_order_id}</Link></td><td className="text-right font-mono">{Number(u.qty)} {u.uom}</td><td className="text-right font-mono">{u.planned_qty ?? "—"}</td><td>{u.backflush ? "Backflush" : "Scanned"}</td><td>{u.actor_name}</td></tr>)}
+          <tbody>{uses.map((u) => <tr key={u.id} className="border-t border-border/40"><td className="py-2">{new Date(u.created_at).toLocaleString()}</td><td><Link to="/record/$kind/$id" params={{ kind: "trace", id: u.production_order_id }} className="font-mono text-primary">{u.production_order_id}</Link></td><td className="text-right font-mono">{Number(u.qty)} {u.uom}</td><td className="text-right font-mono">{u.planned_qty ?? "—"}</td><td>{u.backflush ? "Backflush" : "Scanned"}</td><td>{u.actor_name}</td></tr>)}
             {uses.length === 0 && <tr><td colSpan={6} className="py-6 text-center text-muted-foreground">Not used yet.</td></tr>}</tbody></table>
       </div>
     </div>
@@ -88,6 +88,6 @@ function LotDetail() {
 function Gen({ rows, lotCol, skuCol }: { rows: any[]; lotCol: string; skuCol: string }) {
   if (!rows.length) return <p className="mt-3 text-xs text-muted-foreground">No linked lots.</p>;
   return <ul className="mt-3 space-y-1 text-xs">{rows.map((r, i) => (
-    <li key={i} className="flex justify-between rounded-lg border border-border/40 px-3 py-2"><span><b className="font-mono">{r[lotCol]}</b> · {r[skuCol]}</span><span className="font-mono">{Number(r.qty_used)} {r.uom} · <Link to="/production-orders/$poId" params={{ poId: r.production_order_id }} className="text-primary">{r.production_order_id}</Link></span></li>
+    <li key={i} className="flex justify-between rounded-lg border border-border/40 px-3 py-2"><span><b className="font-mono">{r[lotCol]}</b> · {r[skuCol]}</span><span className="font-mono">{Number(r.qty_used)} {r.uom} · <Link to="/record/$kind/$id" params={{ kind: "trace", id: r.production_order_id }} className="text-primary">{r.production_order_id}</Link></span></li>
   ))}</ul>;
 }

@@ -31,7 +31,7 @@ function NcDetail() {
         <Field l="Status" v={nc.status === "open" ? "Waiting for QA decision" : nc.status} />
         <Field l="Severity" v={nc.severity} />
         <Field l="Quantity" v={`${Number(nc.qty)} ${nc.uom ?? ""}`} />
-        <Field l="Order" v={<Link to="/production-orders/$poId" params={{ poId: nc.production_order_id }} className="font-mono text-primary">{nc.production_order_id}</Link>} />
+        <Field l="Order" v={<Link to="/record/$kind/$id" params={{ kind: "trace", id: nc.production_order_id }} className="font-mono text-primary">{nc.production_order_id}</Link>} />
         <Field l="Step" v={ops[0] ? `${ops[0].sequence} · ${ops[0].name}` : "—"} />
         <Field l="Batch" v={nc.batch_id} />
         <Field l="Raised" v={`${fmt(nc.created_at)} · ${nc.raised_by_name ?? ""}`} />

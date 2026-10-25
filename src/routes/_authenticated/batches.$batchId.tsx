@@ -49,7 +49,7 @@ function BatchDetail() {
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (!batch) return (
     <div className="glass-panel rounded-2xl p-8 text-center text-sm text-muted-foreground">
-      Batch not found. <Link to="/production-orders" className="text-primary">Back</Link>
+      Batch not found. <Link to="/tracking" className="text-primary">Back</Link>
     </div>
   );
 
@@ -59,7 +59,7 @@ function BatchDetail() {
   return (
     <div className="space-y-6 print:space-y-3">
       <div className="print:hidden">
-        <Link to="/production-orders/$poId" params={{ poId: batch.production_order_id }} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+        <Link to="/record/$kind/$id" params={{ kind: "trace", id: batch.production_order_id }} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Order {po?.number ?? batch.production_order_id}
         </Link>
       </div>

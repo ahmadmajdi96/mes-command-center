@@ -206,9 +206,9 @@ function LivePage() {
                                 {initials(user.name)}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <Link to="/users/$userId" params={{ userId: user.id }} className="block truncate text-xs font-medium hover:text-primary">
+                                <span className="block truncate text-xs font-medium hover:text-primary">
                                   {user.name}
-                                </Link>
+                                </span>
                                 <div className="truncate font-mono text-[10px] text-muted-foreground">
                                   {st ? `${st.id} · ${st.name}` : asmt.targetId}
                                 </div>

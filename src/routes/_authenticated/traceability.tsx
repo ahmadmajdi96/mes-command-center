@@ -110,9 +110,9 @@ function entityLinkFor(e: AuditEntry): { to: string; params?: any } | null {
   switch (e.entity) {
     case "line": return { to: "/lines/$lineId", params: { lineId: e.entityId } };
     case "station": return { to: "/stations/$stationId", params: { stationId: e.entityId } };
-    case "user": return { to: "/users/$userId", params: { userId: e.entityId } };
+    case "user": return null;
     case "work_order": return { to: "/work-orders/$woId", params: { woId: e.entityId } };
-    case "assignment": return { to: "/assignments" };
+    case "assignment": return null;
     case "downtime": return { to: "/downtime" };
     case "hold": return { to: "/quality" };
     case "genealogy": return { to: "/genealogy" };
@@ -705,10 +705,10 @@ function AuditRow({ e }: { e: AuditEntry }) {
           <div className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-primary to-info text-[9px] font-bold text-primary-foreground print:hidden">
             {e.actorName.split(" ").map((p) => p[0]).join("").slice(0, 2)}
           </div>
-          <Link to="/users/$userId" params={{ userId: e.actorId }} className="text-muted-foreground hover:text-foreground">
+          <span className="text-muted-foreground hover:text-foreground">
             by <span className="font-medium text-foreground">{e.actorName}</span>
             <span className="ml-1 font-mono text-[10px] text-muted-foreground">{e.actorId}</span>
-          </Link>
+          </span>
         </div>
       </div>
     </li>

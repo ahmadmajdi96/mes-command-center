@@ -54,7 +54,7 @@ function RulesPage() {
   return (
     <div className="space-y-6">
       <StepNames />
-      <PageHead back="/production-orders" backLabel="Production orders" icon={<Waypoints className="h-5 w-5 text-primary" />} title="Routing rules"
+      <PageHead back="/" backLabel="Control Center" icon={<Waypoints className="h-5 w-5 text-primary" />} title="Routing rules"
         desc="Change an order's path automatically: send a step to rework or hold when an inspection fails or a value is out of range, or skip a step for a certain product (applied when the order is released)." />
       {canEdit && (
         <div className="glass-panel grid gap-3 rounded-2xl p-5 sm:grid-cols-5">

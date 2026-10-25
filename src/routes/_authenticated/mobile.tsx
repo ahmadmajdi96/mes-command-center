@@ -97,7 +97,7 @@ function MobileApp() {
                 {["ready", "pending", "planned"].includes(p.status) && <button disabled={busy} className={`${b} bg-success text-success-foreground`} onClick={() => run(() => start({ data: { operationId: p.id, inputQty: Number(o?.qty ?? 0), stationId } }), "Step started")}><Play className="h-4 w-4" />Start</button>}
                 {p.status === "running" && <button disabled={busy} className={`${b} bg-warning text-warning-foreground`} onClick={() => { const r = prompt("Why are you pausing?"); if (r) run(() => status({ data: { operationId: p.id, action: "hold", reason: r } }), "Step on hold"); }}><Pause className="h-4 w-4" />Hold</button>}
                 {p.status === "on_hold" && <button disabled={busy} className={`${b} bg-primary text-primary-foreground`} onClick={() => run(() => status({ data: { operationId: p.id, action: "resume" } }), "Step resumed")}><RotateCcw className="h-4 w-4" />Resume</button>}
-                <Link to="/production-orders/$poId" params={{ poId: p.production_order_id }} className={`${b} border border-border/60`}><ExternalLink className="h-4 w-4" />Record / finish</Link>
+                <Link to="/operator/$stationId" params={{ stationId }} className={`${b} border border-border/60`}><ExternalLink className="h-4 w-4" />Record / finish</Link>
               </div>
             </div>
           );

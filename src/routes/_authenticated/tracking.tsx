@@ -184,7 +184,7 @@ function Tracking() {
         <h2 className="text-sm font-semibold">By production order</h2>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {pos.slice(0, 12).map((o) => (
-            <Link key={o.id} to="/production-orders/$poId" params={{ poId: o.id }}
+            <Link key={o.id} to="/record/$kind/$id" params={{ kind: "trace", id: o.id }}
               className="rounded-lg border border-border/60 bg-card/60 p-3 hover:border-primary/40">
               <div className="font-mono text-[10px] text-muted-foreground">{o.number} · lot {o.lot_number}</div>
               <div className="text-sm">{o.product_name}</div>
