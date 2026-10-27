@@ -10,23 +10,20 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
-import { overview, planning, execution, monitoring, workforce, platform } from "@/components/app-sidebar";
+import { overview, execution, monitoring, platform } from "@/components/app-sidebar";
 import { Search as SearchIcon, Plus, ArrowRight } from "lucide-react";
 
 type Hit = { id: string; group: string; title: string; subtitle?: string; path: string };
 
 const PAGES = [
   ...overview.map((p) => ({ ...p, group: "Overview" })),
-  ...planning.map((p) => ({ ...p, group: "Planning" })),
   ...execution.map((p) => ({ ...p, group: "Execution" })),
   ...monitoring.map((p) => ({ ...p, group: "Monitoring" })),
-  ...workforce.map((p) => ({ ...p, group: "Workforce" })),
   ...platform.map((p) => ({ ...p, group: "Platform" })),
   { title: "My profile", url: "/profile", icon: ArrowRight, group: "Account" },
 ];
 
 const QUICK = [
-  { label: "New production order", path: "/production-orders" },
   { label: "Log downtime event", path: "/downtime" },
   { label: "Request an approval", path: "/approvals" },
   { label: "Assign a role", path: "/access" },
@@ -44,8 +41,6 @@ type Src = {
 };
 
 const SOURCES: Src[] = [
-  { group: "Production orders", table: "production_orders", cols: "id,number,product_name,status,lot_number", search: ["id", "number", "product_name", "lot_number"], title: (r) => `${r.number ?? r.id} · ${r.product_name ?? ""}`, sub: (r) => r.status, path: (r) => `/production-orders/${r.id}` },
-  { group: "Products", table: "products", cols: "id,sku,name,type", search: ["id", "sku", "name"], title: (r) => `${r.sku} · ${r.name}`, sub: (r) => r.type, path: (r) => `/products/${r.id}` },
   { group: "Lines", table: "lines", cols: "id,name,plant,status", search: ["id", "name"], title: (r) => `${r.id} · ${r.name}`, sub: (r) => `${r.plant ?? ""} · ${r.status}`, path: (r) => `/lines/${r.id}` },
   { group: "Stations", table: "stations", cols: "id,name,line_id,status", search: ["id", "name"], title: (r) => `${r.id} · ${r.name}`, sub: (r) => `${r.line_id} · ${r.status}`, path: (r) => `/stations/${r.id}` },
   { group: "Machines", table: "machines", cols: "id,name,protocol,status", search: ["id", "name"], title: (r) => `${r.id} · ${r.name}`, sub: (r) => `${r.protocol} · ${r.status}`, path: (r) => `/machines/${r.id}` },
@@ -54,8 +49,6 @@ const SOURCES: Src[] = [
   { group: "Downtime", table: "downtime_events", cols: "id,line_name,reason_code,status", search: ["id", "reason_code", "line_name"], title: (r) => `${r.id} · ${r.reason_code}`, sub: (r) => `${r.line_name} · ${r.status}`, path: (r) => `/record/downtime/${r.id}` },
   { group: "Tools", table: "tools", cols: "id,code,name,status", search: ["id", "code", "name"], title: (r) => `${r.code} · ${r.name}`, sub: (r) => r.status, path: (r) => `/record/tool/${r.id}` },
   { group: "Approvals", table: "approval_requests", cols: "id,kind,summary,status", search: ["summary", "ref_id"], title: (r) => r.summary ?? r.id, sub: (r) => `${r.kind} · ${r.status}`, path: (r) => `/record/approval/${r.id}` },
-  { group: "People", table: "mes_users", cols: "id,name,email,role", search: ["name", "email", "id"], title: (r) => r.name, sub: (r) => `${r.role ?? ""} ${r.email ?? ""}`, path: (r) => `/users/${r.id}` },
-  { group: "Skills", table: "skills", cols: "id,code,name", search: ["code", "name"], title: (r) => `${r.code} · ${r.name}`, path: (r) => `/skills/${r.id}` },
 ];
 
 export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
@@ -111,7 +104,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput
-        placeholder="Search orders, lots, lines, stations, machines, people, pages…"
+        placeholder="Search lots, lines, stations, machines, pages…"
         value={query}
         onValueChange={setQuery}
       />

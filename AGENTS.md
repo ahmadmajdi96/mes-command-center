@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Line staffing is derived from active station assignments, so line views aggregate existing assignment records instead of storing a separate line-operator relation.
+- Planning and Workforce are retired UI domains: remove their routes, sidebar/search entries and stale alert destinations, but preserve all database records, permissions, API handlers and shared order/product/recipe/assignment/skill/shift services because PMS execution still depends on them. Order evidence links use the retained generic trace record; MES operator IDs are not profile IDs, so operator names are not linked to profile records.
 
 - Maintenance and QA live in external portals; this app only exchanges events via portal_events (outbox, DB triggers) and the HMAC-signed /api/public/portals/$connectionId endpoint — never build maintenance/QA workflows here.
 - WIP split/merge/move are SECURITY DEFINER RPCs with in-function permission checks; material lot deduction happens in the consume_from_lot trigger so every consumption path enforces lot limits.

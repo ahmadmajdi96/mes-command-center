@@ -221,9 +221,9 @@ function StationProfile() {
                   {op.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <Link to="/users/$userId" params={{ userId: op.id }} className="block truncate text-sm font-semibold hover:text-primary">
+                  <span className="block truncate text-sm font-semibold hover:text-primary">
                     {op.name}
-                  </Link>
+                  </span>
                   <div className="truncate text-[11px] text-muted-foreground">{op.role.replace("_", " ")} · Shift {op.shift}</div>
                   <div className="truncate font-mono text-[11px] text-muted-foreground">{op.mobile}</div>
                 </div>
@@ -504,9 +504,9 @@ function StationProfile() {
                 <li key={e.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/40 bg-background/40 p-2 text-xs">
                   <span className={`rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase ${tone}`}>{label}</span>
                   {user ? (
-                    <Link to="/users/$userId" params={{ userId: user.id }} className="font-medium hover:text-primary">
+                    <span className="font-medium hover:text-primary">
                       {user.name}
-                    </Link>
+                    </span>
                   ) : (
                     <span className="font-mono text-muted-foreground">{uid ?? "—"}</span>
                   )}

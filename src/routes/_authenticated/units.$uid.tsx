@@ -87,7 +87,7 @@ function UnitDetail() {
                 ) : "—"
               } />
               <Info label="Production order" value={
-                <Link to="/production-orders/$poId" params={{ poId: unit.production_order_id ?? "" }} className="text-primary">
+                <Link to="/record/$kind/$id" params={{ kind: "trace", id: unit.production_order_id ?? "" }} className="text-primary">
                   {unit.production_order_id ?? "—"}
                 </Link>
               } />

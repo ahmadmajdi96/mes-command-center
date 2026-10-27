@@ -40,7 +40,7 @@ function ReworkPage() {
           <tbody>{lc.visible.map((t) => (
             <tr key={t.id} className="border-t border-border/40 align-top">
               <td className="py-2">{new Date(t.created_at).toLocaleString()}</td>
-              <td><Link to="/production-orders/$poId" params={{ poId: t.production_order_id }} className="font-mono text-primary">{t.production_order_id}</Link>{t.batch_id && <div className="font-mono text-[10px]">{t.batch_id}</div>}</td>
+              <td><Link to="/record/$kind/$id" params={{ kind: "trace", id: t.production_order_id }} className="font-mono text-primary">{t.production_order_id}</Link>{t.batch_id && <div className="font-mono text-[10px]">{t.batch_id}</div>}</td>
               <td className="text-right font-mono">{Number(t.qty)} {t.uom}</td>
               <td>{t.reason}{t.instructions && <div className="text-muted-foreground">{t.instructions}</div>}</td>
               <td>#{t.attempts}</td>

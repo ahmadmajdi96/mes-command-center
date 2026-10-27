@@ -130,7 +130,7 @@ function WorkOrderProfile() {
             <ul className="mt-2 space-y-1.5">
               {operators.map(({ station, user }) => (
                 <li key={station.id} className="rounded-md border border-border/40 bg-background/40 p-2">
-                  <Link to="/users/$userId" params={{ userId: user.id }} className="block text-sm font-medium hover:text-primary">{user.name}</Link>
+                  <span className="block text-sm font-medium hover:text-primary">{user.name}</span>
                   <div className="font-mono text-[10px] text-muted-foreground">{station.id} · {station.name}</div>
                 </li>
               ))}

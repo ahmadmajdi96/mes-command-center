@@ -49,7 +49,7 @@ function RuleDetail() {
         <table className="mt-3 w-full text-xs"><thead className="text-[10px] uppercase text-muted-foreground"><tr><th className={th}>When</th><th className="text-left">Order</th><th className="text-left">Action</th><th className="text-left">Detail</th></tr></thead>
           <tbody>{lc.visible.map((h) => (
             <tr key={h.id} className="border-t border-border/40"><td className="py-2">{fmt(h.created_at)}</td>
-              <td><Link to="/production-orders/$poId" params={{ poId: h.production_order_id }} className="font-mono text-primary">{h.production_order_id}</Link></td>
+              <td><Link to="/record/$kind/$id" params={{ kind: "trace", id: h.production_order_id }} className="font-mono text-primary">{h.production_order_id}</Link></td>
               <td>{ACTION[h.action]}</td><td>{h.detail}</td></tr>))}
             {lc.visible.length === 0 && <tr><td colSpan={4} className="py-4 text-center text-muted-foreground">Not applied yet.</td></tr>}
           </tbody></table>
