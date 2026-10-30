@@ -10,7 +10,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
-import { overview, execution, monitoring, platform } from "@/components/app-sidebar";
+import { overview, execution, monitoring, platform, engineering } from "@/components/app-sidebar";
 import { Search as SearchIcon, Plus, ArrowRight } from "lucide-react";
 
 type Hit = { id: string; group: string; title: string; subtitle?: string; path: string };
@@ -18,6 +18,7 @@ type Hit = { id: string; group: string; title: string; subtitle?: string; path: 
 const PAGES = [
   ...overview.map((p) => ({ ...p, group: "Overview" })),
   ...execution.map((p) => ({ ...p, group: "Execution" })),
+  ...engineering.map((p) => ({ ...p, group: "Engineering" })),
   ...monitoring.map((p) => ({ ...p, group: "Monitoring" })),
   ...platform.map((p) => ({ ...p, group: "Platform" })),
   { title: "My profile", url: "/profile", icon: ArrowRight, group: "Account" },
