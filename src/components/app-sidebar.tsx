@@ -25,6 +25,7 @@ import {
   ClipboardCheck,
   Trash2,
   BookOpen,
+  Wrench,
 } from "lucide-react";
 import {
   Sidebar,
@@ -41,25 +42,32 @@ import {
 
 export const overview = [
   { title: "Control Center", url: "/", icon: LayoutDashboard },
-  { title: "Production Lines", url: "/lines", icon: Factory },
-  { title: "Stations", url: "/stations", icon: Cpu },
   { title: "Live Shop Floor", url: "/live", icon: Radio },
+];
+
+export const engineering = [
+  { title: "Engineering Portal", url: "/engineering", icon: Wrench },
+  { title: "Production Lines", url: "/lines", icon: Factory },
+  { title: "Workstations", url: "/stations", icon: Cpu },
+  { title: "Machines", url: "/machines", icon: Activity },
+  { title: "Operator App Config", url: "/operator", icon: HardHat },
+  { title: "HMI Runtime Config", url: "/hmi", icon: MonitorCog },
+  { title: "Step Templates", url: "/step-templates", icon: ListChecks },
+  { title: "Work Instructions", url: "/work-instructions", icon: ListChecks },
+  { title: "Routing Rules", url: "/routing-rules", icon: GitBranch },
+  { title: "Change Management", url: "/master-data", icon: Boxes },
 ];
 
 export const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
   { title: "Operator Console", url: "/execution", icon: PlayCircle },
   { title: "Operator App (mobile)", url: "/mobile", icon: PlayCircle },
-  { title: "HMI Runtime", url: "/hmi", icon: MonitorCog },
-  { title: "Operator Apps", url: "/operator", icon: HardHat },
-  { title: "Step Templates", url: "/step-templates", icon: ListChecks },
   { title: "Product Tracking", url: "/tracking", icon: ScanLine },
   { title: "Genealogy", url: "/genealogy", icon: GitBranch },
   { title: "Work in Progress", url: "/wip", icon: Boxes },
   { title: "Material Lots", url: "/material-lots", icon: Boxes },
   { title: "Recall Report", url: "/recall", icon: AlertOctagon },
   { title: "Rework Tasks", url: "/rework", icon: GitBranch },
-  { title: "Work Instructions", url: "/work-instructions", icon: ListChecks },
   { title: "Approvals & Signatures", url: "/approvals", icon: ShieldCheck },
   { title: "Tools", url: "/tools", icon: Settings },
 ];
@@ -71,14 +79,11 @@ export const monitoring = [
   { title: "Quality Holds", url: "/quality", icon: ShieldCheck },
   { title: "Inspection Plans", url: "/inspection-plans", icon: ListChecks },
   { title: "Nonconformance", url: "/nonconformance", icon: AlertOctagon },
-  { title: "Routing Rules", url: "/routing-rules", icon: GitBranch },
   { title: "Waste Reasons", url: "/waste-reasons", icon: Trash2 },
 ];
 
 export const platform = [
-  { title: "Master Data", url: "/master-data", icon: Boxes },
   { title: "ERP Contract", url: "/erp-contract", icon: Boxes },
-  { title: "Machines", url: "/machines", icon: Activity },
   { title: "Maintenance & QA Portals", url: "/integrations", icon: Radio },
   { title: "Integration Health", url: "/integration-health", icon: Activity },
   { title: "Traceability", url: "/traceability", icon: Activity },
@@ -143,6 +148,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2">
         {renderGroup("Overview", overview)}
         {renderGroup("Execution", execution)}
+        {renderGroup("Engineering", engineering)}
         {renderGroup("Monitoring", monitoring)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
