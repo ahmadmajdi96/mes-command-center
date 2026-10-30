@@ -20,6 +20,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
+import { Route as AuthenticatedEngineeringRouteImport } from './routes/_authenticated/engineering'
 import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
 import { Route as AuthenticatedExecutionRouteImport } from './routes/_authenticated/execution'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
@@ -131,6 +132,12 @@ const AuthenticatedDowntimeRoute = AuthenticatedDowntimeRouteImport.update({
   path: '/downtime',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEngineeringRoute =
+  AuthenticatedEngineeringRouteImport.update({
+    id: '/engineering',
+    path: '/engineering',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErpContractRoute =
   AuthenticatedErpContractRouteImport.update({
     id: '/erp-contract',
@@ -453,6 +460,7 @@ export interface FileRoutesByFullPath {
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
+  '/engineering': typeof AuthenticatedEngineeringRoute
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
@@ -520,6 +528,7 @@ export interface FileRoutesByTo {
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
+  '/engineering': typeof AuthenticatedEngineeringRoute
   '/erp-contract': typeof AuthenticatedErpContractRoute
   '/execution': typeof AuthenticatedExecutionRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
@@ -590,6 +599,7 @@ export interface FileRoutesById {
   '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
+  '/_authenticated/engineering': typeof AuthenticatedEngineeringRoute
   '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
   '/_authenticated/execution': typeof AuthenticatedExecutionRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
@@ -661,6 +671,7 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/audit'
     | '/downtime'
+    | '/engineering'
     | '/erp-contract'
     | '/execution'
     | '/genealogy'
@@ -728,6 +739,7 @@ export interface FileRouteTypes {
     | '/approvals'
     | '/audit'
     | '/downtime'
+    | '/engineering'
     | '/erp-contract'
     | '/execution'
     | '/genealogy'
@@ -797,6 +809,7 @@ export interface FileRouteTypes {
     | '/_authenticated/approvals'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
+    | '/_authenticated/engineering'
     | '/_authenticated/erp-contract'
     | '/_authenticated/execution'
     | '/_authenticated/genealogy'
@@ -950,6 +963,13 @@ declare module '@tanstack/react-router' {
       path: '/downtime'
       fullPath: '/downtime'
       preLoaderRoute: typeof AuthenticatedDowntimeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/engineering': {
+      id: '/_authenticated/engineering'
+      path: '/engineering'
+      fullPath: '/engineering'
+      preLoaderRoute: typeof AuthenticatedEngineeringRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/erp-contract': {
@@ -1354,6 +1374,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
+  AuthenticatedEngineeringRoute: typeof AuthenticatedEngineeringRoute
   AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
   AuthenticatedExecutionRoute: typeof AuthenticatedExecutionRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
@@ -1410,6 +1431,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
+  AuthenticatedEngineeringRoute: AuthenticatedEngineeringRoute,
   AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
   AuthenticatedExecutionRoute: AuthenticatedExecutionRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
