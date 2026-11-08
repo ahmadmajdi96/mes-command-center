@@ -51,7 +51,6 @@ function NcDetail() {
             <tr key={m.id} className="border-t border-border/40"><td className="py-2">{fmt(m.created_at)}</td><td>{m.direction === "out" ? "Sent to QA" : "From QA"}</td><td>{m.event_type}</td><td>{m.status}</td><td>{m.last_error ?? ""}</td></tr>))}
             {msgs.length === 0 && <tr><td colSpan={5} className="py-4 text-center text-muted-foreground">No messages yet.</td></tr>}
           </tbody></table>
-        <Link to="/integrations" className="mt-2 inline-block text-xs text-primary">Open Maintenance & QA portals</Link>
       </div>
     </div>
   );

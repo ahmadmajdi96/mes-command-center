@@ -11,7 +11,6 @@ import {
 
 
   Boxes,
-  UserCog,
   ListChecks,
   History,
   Radio,
@@ -68,15 +67,9 @@ export const monitoring = [
 ];
 
 export const platform = [
-  { title: "Master Data", url: "/master-data", icon: Boxes },
-  { title: "ERP Contract", url: "/erp-contract", icon: Boxes },
   { title: "Machines", url: "/machines", icon: Activity },
-  { title: "Maintenance & QA Portals", url: "/integrations", icon: Radio },
-  { title: "Integration Health", url: "/integration-health", icon: Activity },
   { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
-  { title: "People & Access", url: "/access", icon: ShieldCheck },
-  { title: "Roles & Permissions", url: "/roles", icon: UserCog },
   { title: "Admin Activity", url: "/admin-log", icon: History },
   { title: "Notifications", url: "/notifications", icon: Radio },
   { title: "Settings", url: "/settings", icon: Settings },

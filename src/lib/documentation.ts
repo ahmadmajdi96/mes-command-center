@@ -10,13 +10,13 @@ export type DocSection = {
 export const documentation: DocSection[] = [
   {
     id: "overview", title: "System overview & boundaries", category: "Foundations",
-    summary: "Cortanex MES connects planning, execution, inventory, people and production evidence in a company-scoped manufacturing workspace.",
+    summary: "Cortanex MES connects production execution and evidence in a company-scoped manufacturing workspace. Master Data, ERP Contract, Maintenance & QA Portals, Integration Health, People & Access and Roles & Permissions management pages are retired as of 8 November 2026. Their data, integration services and access enforcement remain intact; earlier workflows and screenshots for these pages are historical references.",
     paragraphs: ["Scope update — 8 November 2026: Operator Console, Operator App (mobile), HMI Runtime, Operator Apps and Step Templates pages have been removed, including station-specific runtime pages. Their data, shared execution services, permissions and integration contracts remain intact. Earlier screenshots and workflows for these screens are historical references, not currently available pages.", "Scope update — 25 October 2026: Planning and Workforce pages and navigation have been removed. Their products, recipes, orders, inventory, people, assignments, certifications and shift data, shared services and integration contracts remain available to PMS. Earlier screenshots and workflows describing those management screens are historical references, not currently available pages.", "Screenshots are actual captures of the demonstration environment; their quantities, dates, alerts and equipment statuses are examples, not recommended production settings. A screen capture demonstrates presentation, not a completed acceptance test.", "The MES manages production execution and records quality evidence. Maintenance work management and QA disposition remain in external portals. The MES exchanges requests and results with those portals; it is not a replacement for either system.", "Use the retained Work Orders screens for execution, and Product Tracking and order trace records for production evidence. Work-order recipe execution and production-order operations are related but are not interchangeable records."],
     flow: ["ERP / master data", "Plan & release", "Station execution", "Materials & output", "Reports / ERP results"],
     tables: [{ title: "Primary audiences", columns: ["Audience", "Responsibility", "Starting pages"], rows: [
       ["Operator", "Run assigned work-order steps and review station context", "Work Orders · Stations"],
       ["Supervisor", "Resolve operational blockers and review requests and output", "Production Lines · Andon / Downtime · Approvals · Traceability"],
-      ["Administrator", "Manage access, equipment configuration and integrations", "People & Access · Roles & Permissions · Machines · Integration Health"],
+      ["Administrator", "Review equipment configuration and access-change evidence", "Machines · Admin Activity"],
       ["QA / Maintenance partner", "Return signed inspection, disposition and hold-release events", "External portal → signed inbound endpoint"],
     ] }],
   },
@@ -72,13 +72,8 @@ export const documentation: DocSection[] = [
       ["Inspection Plans · /inspection-plans · Routing Rules · /routing-rules", "Step sampling and conditional routing", "Inspection results / rework / holds / skip rules"],
       ["Waste Reasons · /waste-reasons", "Selectable classification of losses", "Waste recording in execution"],
     ]},{title:"Platform",columns:["Page / URL","Purpose","Related workflow"],rows:[
-      ["Master Data · /master-data", "Materials, work centers, BOMs, routings and versions", "Draft / activate controlled masters; MES override"],
-      ["ERP Contract · /erp-contract", "Inbound/outbound contract and manual JSON/CSV import", "Per-record import results and sync log"],
       ["Machines · /machines", "Configuration, protocol mappings and safety status", "/machines/{machineId} → test / sign-off / commands"],
-      ["Maintenance & QA Portals · /integrations", "Connections, outgoing events and mock replies", "Signed requests and inbound decisions"],
-      ["Integration Health · /integration-health", "Last success, failed deliveries, retry and key expiry", "Diagnose ERP/portal connectivity"],
       ["Audit Log · /audit · Admin Activity · /admin-log", "Production and access-change history", "Traceability export"],
-      ["People & Access · /access · Roles & Permissions · /roles", "Scoped grants and flexible permission sets", "Server-enforced authorization"],
       ["Notifications · /notifications", "Alerts, read state, preferences and filters", "Open alert → related record"],
       ["Settings · /settings · Profile · /profile", "Environment information, identity and personal PIN", "Sign-in and operator switching"],
       ["Technical Documentation · /documentation", "This guide, screenshot gallery and workflow reference", "Search topics, view diagrams, print the guide"],

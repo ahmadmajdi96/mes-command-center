@@ -26,8 +26,6 @@ const PAGES = [
 const QUICK = [
   { label: "Log downtime event", path: "/downtime" },
   { label: "Request an approval", path: "/approvals" },
-  { label: "Assign a role", path: "/access" },
-  { label: "Create a role", path: "/roles" },
 ];
 
 type Src = {
