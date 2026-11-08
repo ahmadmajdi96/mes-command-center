@@ -14,24 +14,18 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DocumentationRouteImport } from './routes/documentation'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedAccessRouteImport } from './routes/_authenticated/access'
 import { Route as AuthenticatedAdminLogRouteImport } from './routes/_authenticated/admin-log'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedDowntimeRouteImport } from './routes/_authenticated/downtime'
-import { Route as AuthenticatedErpContractRouteImport } from './routes/_authenticated/erp-contract'
 import { Route as AuthenticatedGenealogyRouteImport } from './routes/_authenticated/genealogy'
-import { Route as AuthenticatedIntegrationHealthRouteImport } from './routes/_authenticated/integration-health'
-import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedLiveRouteImport } from './routes/_authenticated/live'
-import { Route as AuthenticatedMasterDataRouteImport } from './routes/_authenticated/master-data'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedQualityRouteImport } from './routes/_authenticated/quality'
 import { Route as AuthenticatedRecallRouteImport } from './routes/_authenticated/recall'
 import { Route as AuthenticatedReworkRouteImport } from './routes/_authenticated/rework'
-import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedTelemetryRouteImport } from './routes/_authenticated/telemetry'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
@@ -94,11 +88,6 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAccessRoute = AuthenticatedAccessRouteImport.update({
-  id: '/access',
-  path: '/access',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAdminLogRoute = AuthenticatedAdminLogRouteImport.update({
   id: '/admin-log',
   path: '/admin-log',
@@ -124,37 +113,14 @@ const AuthenticatedDowntimeRoute = AuthenticatedDowntimeRouteImport.update({
   path: '/downtime',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedErpContractRoute =
-  AuthenticatedErpContractRouteImport.update({
-    id: '/erp-contract',
-    path: '/erp-contract',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedGenealogyRoute = AuthenticatedGenealogyRouteImport.update({
   id: '/genealogy',
   path: '/genealogy',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedIntegrationHealthRoute =
-  AuthenticatedIntegrationHealthRouteImport.update({
-    id: '/integration-health',
-    path: '/integration-health',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedIntegrationsRoute =
-  AuthenticatedIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedLiveRoute = AuthenticatedLiveRouteImport.update({
   id: '/live',
   path: '/live',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedMasterDataRoute = AuthenticatedMasterDataRouteImport.update({
-  id: '/master-data',
-  path: '/master-data',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNotificationsRoute =
@@ -181,11 +147,6 @@ const AuthenticatedRecallRoute = AuthenticatedRecallRouteImport.update({
 const AuthenticatedReworkRoute = AuthenticatedReworkRouteImport.update({
   id: '/rework',
   path: '/rework',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
@@ -401,24 +362,18 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/documentation': typeof DocumentationRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/access': typeof AuthenticatedAccessRoute
   '/admin-log': typeof AuthenticatedAdminLogRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
-  '/erp-contract': typeof AuthenticatedErpContractRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
-  '/integration-health': typeof AuthenticatedIntegrationHealthRoute
-  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/live': typeof AuthenticatedLiveRoute
-  '/master-data': typeof AuthenticatedMasterDataRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recall': typeof AuthenticatedRecallRoute
   '/rework': typeof AuthenticatedReworkRoute
-  '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/tools': typeof AuthenticatedToolsRoute
@@ -461,24 +416,18 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/documentation': typeof DocumentationRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/access': typeof AuthenticatedAccessRoute
   '/admin-log': typeof AuthenticatedAdminLogRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/approvals': typeof AuthenticatedApprovalsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/downtime': typeof AuthenticatedDowntimeRoute
-  '/erp-contract': typeof AuthenticatedErpContractRoute
   '/genealogy': typeof AuthenticatedGenealogyRoute
-  '/integration-health': typeof AuthenticatedIntegrationHealthRoute
-  '/integrations': typeof AuthenticatedIntegrationsRoute
   '/live': typeof AuthenticatedLiveRoute
-  '/master-data': typeof AuthenticatedMasterDataRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/quality': typeof AuthenticatedQualityRoute
   '/recall': typeof AuthenticatedRecallRoute
   '/rework': typeof AuthenticatedReworkRoute
-  '/roles': typeof AuthenticatedRolesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/telemetry': typeof AuthenticatedTelemetryRoute
   '/tools': typeof AuthenticatedToolsRoute
@@ -524,24 +473,18 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/documentation': typeof DocumentationRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/access': typeof AuthenticatedAccessRoute
   '/_authenticated/admin-log': typeof AuthenticatedAdminLogRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/downtime': typeof AuthenticatedDowntimeRoute
-  '/_authenticated/erp-contract': typeof AuthenticatedErpContractRoute
   '/_authenticated/genealogy': typeof AuthenticatedGenealogyRoute
-  '/_authenticated/integration-health': typeof AuthenticatedIntegrationHealthRoute
-  '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
   '/_authenticated/live': typeof AuthenticatedLiveRoute
-  '/_authenticated/master-data': typeof AuthenticatedMasterDataRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/quality': typeof AuthenticatedQualityRoute
   '/_authenticated/recall': typeof AuthenticatedRecallRoute
   '/_authenticated/rework': typeof AuthenticatedReworkRoute
-  '/_authenticated/roles': typeof AuthenticatedRolesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/telemetry': typeof AuthenticatedTelemetryRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
@@ -588,24 +531,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/documentation'
     | '/reset-password'
-    | '/access'
     | '/admin-log'
     | '/analytics'
     | '/approvals'
     | '/audit'
     | '/downtime'
-    | '/erp-contract'
     | '/genealogy'
-    | '/integration-health'
-    | '/integrations'
     | '/live'
-    | '/master-data'
     | '/notifications'
     | '/profile'
     | '/quality'
     | '/recall'
     | '/rework'
-    | '/roles'
     | '/settings'
     | '/telemetry'
     | '/tools'
@@ -648,24 +585,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/documentation'
     | '/reset-password'
-    | '/access'
     | '/admin-log'
     | '/analytics'
     | '/approvals'
     | '/audit'
     | '/downtime'
-    | '/erp-contract'
     | '/genealogy'
-    | '/integration-health'
-    | '/integrations'
     | '/live'
-    | '/master-data'
     | '/notifications'
     | '/profile'
     | '/quality'
     | '/recall'
     | '/rework'
-    | '/roles'
     | '/settings'
     | '/telemetry'
     | '/tools'
@@ -710,24 +641,18 @@ export interface FileRouteTypes {
     | '/auth'
     | '/documentation'
     | '/reset-password'
-    | '/_authenticated/access'
     | '/_authenticated/admin-log'
     | '/_authenticated/analytics'
     | '/_authenticated/approvals'
     | '/_authenticated/audit'
     | '/_authenticated/downtime'
-    | '/_authenticated/erp-contract'
     | '/_authenticated/genealogy'
-    | '/_authenticated/integration-health'
-    | '/_authenticated/integrations'
     | '/_authenticated/live'
-    | '/_authenticated/master-data'
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/quality'
     | '/_authenticated/recall'
     | '/_authenticated/rework'
-    | '/_authenticated/roles'
     | '/_authenticated/settings'
     | '/_authenticated/telemetry'
     | '/_authenticated/tools'
@@ -822,13 +747,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/access': {
-      id: '/_authenticated/access'
-      path: '/access'
-      fullPath: '/access'
-      preLoaderRoute: typeof AuthenticatedAccessRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin-log': {
       id: '/_authenticated/admin-log'
       path: '/admin-log'
@@ -864,13 +782,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDowntimeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/erp-contract': {
-      id: '/_authenticated/erp-contract'
-      path: '/erp-contract'
-      fullPath: '/erp-contract'
-      preLoaderRoute: typeof AuthenticatedErpContractRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/genealogy': {
       id: '/_authenticated/genealogy'
       path: '/genealogy'
@@ -878,32 +789,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGenealogyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/integration-health': {
-      id: '/_authenticated/integration-health'
-      path: '/integration-health'
-      fullPath: '/integration-health'
-      preLoaderRoute: typeof AuthenticatedIntegrationHealthRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/integrations': {
-      id: '/_authenticated/integrations'
-      path: '/integrations'
-      fullPath: '/integrations'
-      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/live': {
       id: '/_authenticated/live'
       path: '/live'
       fullPath: '/live'
       preLoaderRoute: typeof AuthenticatedLiveRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/master-data': {
-      id: '/_authenticated/master-data'
-      path: '/master-data'
-      fullPath: '/master-data'
-      preLoaderRoute: typeof AuthenticatedMasterDataRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/notifications': {
@@ -939,13 +829,6 @@ declare module '@tanstack/react-router' {
       path: '/rework'
       fullPath: '/rework'
       preLoaderRoute: typeof AuthenticatedReworkRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/roles': {
-      id: '/_authenticated/roles'
-      path: '/roles'
-      fullPath: '/roles'
-      preLoaderRoute: typeof AuthenticatedRolesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings': {
@@ -1211,24 +1094,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAccessRoute: typeof AuthenticatedAccessRoute
   AuthenticatedAdminLogRoute: typeof AuthenticatedAdminLogRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedDowntimeRoute: typeof AuthenticatedDowntimeRoute
-  AuthenticatedErpContractRoute: typeof AuthenticatedErpContractRoute
   AuthenticatedGenealogyRoute: typeof AuthenticatedGenealogyRoute
-  AuthenticatedIntegrationHealthRoute: typeof AuthenticatedIntegrationHealthRoute
-  AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
   AuthenticatedLiveRoute: typeof AuthenticatedLiveRoute
-  AuthenticatedMasterDataRoute: typeof AuthenticatedMasterDataRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedQualityRoute: typeof AuthenticatedQualityRoute
   AuthenticatedRecallRoute: typeof AuthenticatedRecallRoute
   AuthenticatedReworkRoute: typeof AuthenticatedReworkRoute
-  AuthenticatedRolesRoute: typeof AuthenticatedRolesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTelemetryRoute: typeof AuthenticatedTelemetryRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
@@ -1260,24 +1137,18 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAccessRoute: AuthenticatedAccessRoute,
   AuthenticatedAdminLogRoute: AuthenticatedAdminLogRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedDowntimeRoute: AuthenticatedDowntimeRoute,
-  AuthenticatedErpContractRoute: AuthenticatedErpContractRoute,
   AuthenticatedGenealogyRoute: AuthenticatedGenealogyRoute,
-  AuthenticatedIntegrationHealthRoute: AuthenticatedIntegrationHealthRoute,
-  AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
   AuthenticatedLiveRoute: AuthenticatedLiveRoute,
-  AuthenticatedMasterDataRoute: AuthenticatedMasterDataRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedQualityRoute: AuthenticatedQualityRoute,
   AuthenticatedRecallRoute: AuthenticatedRecallRoute,
   AuthenticatedReworkRoute: AuthenticatedReworkRoute,
-  AuthenticatedRolesRoute: AuthenticatedRolesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTelemetryRoute: AuthenticatedTelemetryRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
