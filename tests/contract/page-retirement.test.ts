@@ -3,7 +3,7 @@ import { activeNotificationLink, RETIRED_PAGE_ROOTS } from "../../src/lib/page-r
 import { KINDS } from "../../src/lib/record-kinds";
 import { existsSync } from "node:fs";
 
-describe("Planning and Workforce page retirement", () => {
+describe("Retired UI pages", () => {
   it.each(RETIRED_PAGE_ROOTS)("does not navigate to retired %s alerts", (root) => {
     expect(activeNotificationLink(`/${root}`)).toBeNull();
     expect(activeNotificationLink(`/${root}/example?tab=details#record`)).toBeNull();
@@ -12,7 +12,7 @@ describe("Planning and Workforce page retirement", () => {
     }
   });
   it("keeps retained execution and trace destinations", () => {
-    for (const path of ["/work-orders/WO-1", "/record/trace/PO-1", "/material-lots/LOT-1", "/access", "/operator/ST-1"]) {
+    for (const path of ["/work-orders/WO-1", "/record/trace/PO-1", "/material-lots/LOT-1", "/access", "/stations/ST-1"]) {
       expect(activeNotificationLink(path)).toBe(path);
     }
     expect(activeNotificationLink("/users-extra")).toBe("/users-extra");
@@ -28,6 +28,15 @@ describe("Planning and Workforce page retirement", () => {
   it("preserves shared PMS services", () => {
     for (const file of ["production-orders-db.ts", "products-db.ts", "batches-db.ts", "shifts-store.ts", "mes-store.tsx", "hmi-db.ts", "mes/orders.functions.ts", "mes/operations.functions.ts"]) {
       expect(existsSync(`src/lib/${file}`)).toBe(true);
+    }
+  });
+  it.each(["execution", "mobile", "hmi", "operator", "step-templates"])("removes %s UI routes including station subpages", (root) => {
+    expect(activeNotificationLink(`/${root}/ST-1`)).toBeNull();
+    expect(existsSync(`src/routes/_authenticated/${root}.$stationId.tsx`)).toBe(false);
+  });
+  it("keeps runtime, template and offline execution dependencies available", () => {
+    for (const file of ["src/lib/offline-queue.ts", "src/lib/mes-data.ts", "src/lib/mes/execution.functions.ts", "src/components/operation-execution.tsx", "src/components/evidence-uploader.tsx"]) {
+      expect(existsSync(file)).toBe(true);
     }
   });
 });

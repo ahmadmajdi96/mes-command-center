@@ -66,7 +66,7 @@ function InstructionsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHead back="/step-templates" backLabel="Step templates" icon={<ListChecks className="h-5 w-5 text-primary" />} title="Work instructions"
+      <PageHead back="/" backLabel="Control Center" icon={<ListChecks className="h-5 w-5 text-primary" />} title="Work instructions"
         desc="Numbered instructions for each production step. Operators only see the approved version and must confirm each required one before the step can be completed. Changing an approved instruction means creating a new version." />
       <StepNames />
       {canEdit && (

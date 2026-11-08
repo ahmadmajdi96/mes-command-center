@@ -56,12 +56,9 @@ export const documentation: DocSection[] = [
     tables: [{title:"Overview",columns:["Page / URL","Purpose","Related workflow"],rows:[
       ["Control Center · /", "Plant/shift/time filters, OEE, trends, live activity", "Drill into a line, order or analytics view"],
       ["Production Lines · /lines", "Filter, create/export lines, view station flow and staffing", "/lines/{lineId} → station / current work order"],
-      ["Stations · /stations · Live Shop Floor · /live", "Station context, live progress and activity", "/stations/{stationId} → operator / HMI"],
-      ["Step Templates · /step-templates", "Step definitions and validated reading variables", "Use configured requirements in execution"],
+      ["Stations · /stations · Live Shop Floor · /live", "Station context, live progress and activity", "/stations/{stationId} → station details"],
     ]},{title:"Execution & monitoring",columns:["Page / URL","Purpose","Related workflow"],rows:[
-      ["Work Orders · /work-orders · Operator Console · /execution", "Work-order recipe steps and progress", "/work-orders/{woId} → controlled execution"],
-      ["Operator Apps · /operator · HMI Runtime · /hmi", "Station-specific floor experiences", "/operator/{stationId} · /hmi/{stationId}"],
-      ["Operator App (mobile) · /mobile", "Station selection, step status and machine commands", "Shared safety and permission checks"],
+      ["Work Orders · /work-orders", "Work-order recipe steps and progress", "/work-orders/{woId} → controlled execution"],
       ["Product Tracking · /tracking · Traceability · /traceability", "Unit history and record lookup", "/units/{uid} → events / readings"],
       ["Genealogy · /genealogy · Material Lots · /material-lots", "Input/output lineage and lot quantities", "/material-lots/{lotId} → consumption and history"],
       ["Work in Progress · /wip", "Locations, age, move, split, merge and reconciliation", "Batch lineage and movement history"],

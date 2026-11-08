@@ -2,6 +2,7 @@
 export const RETIRED_PAGE_ROOTS = [
   "products", "recipes", "production-orders", "planner", "scheduling", "reports", "inventory",
   "users", "assignments", "skills", "shifts",
+  "execution", "mobile", "hmi", "operator", "step-templates",
 ] as const;
 
 /** Stored alerts can outlive their destination screens. Do not expose stale navigation. */
