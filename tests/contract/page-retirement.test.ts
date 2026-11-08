@@ -40,7 +40,7 @@ describe("Retired UI pages", () => {
     }
   });
   it("preserves authorization and ERP/portal services after retiring their management pages", () => {
-    for (const file of ["src/lib/access.tsx", "src/lib/mes/authz.functions.ts", "src/lib/mes/auth.functions.ts", "src/lib/mes/erp.functions.ts", "src/lib/mes/erp-ingest.server.ts", "src/lib/mes/portals.functions.ts", "src/lib/mes/portals.server.ts", "src/routes/api/public/portals.$connectionId.ts", "src/routes/api/mes/v1/erp/$entity.ts"]) {
+    for (const file of ["src/lib/access.tsx", "src/lib/mes/authz.functions.ts", "src/lib/mes/auth.functions.ts", "src/lib/mes/erp.functions.ts", "src/lib/mes/erp-ingest.server.ts", "src/lib/mes/portals.functions.ts", "src/lib/mes/portals.server.ts", "src/routes/api/public/portals.$connectionId.ts", "src/routes/api/mes/v1/erp.$entity.ts"]) {
       expect(existsSync(file)).toBe(true);
     }
   });
