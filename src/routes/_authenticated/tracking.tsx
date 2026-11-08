@@ -126,7 +126,7 @@ function Tracking() {
           })}
           {openVisits.length === 0 && (
             <p className="col-span-full py-4 text-xs text-muted-foreground">
-              No unit is inside a station right now. Enter a unit at a station from a <Link to="/hmi" className="text-primary">station HMI</Link> or <Link to="/tracking" className="text-primary">unit page</Link>.
+              No unit is inside a station right now.
             </p>
           )}
         </div>

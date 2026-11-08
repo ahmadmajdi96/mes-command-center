@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Factory,
   ClipboardList,
-  PlayCircle,
   GitBranch,
   AlertOctagon,
   Activity,
@@ -20,8 +19,6 @@ import {
   Package,
   CalendarDays,
   ScanLine,
-  MonitorCog,
-  HardHat,
   ClipboardCheck,
   Trash2,
   BookOpen,
@@ -48,11 +45,6 @@ export const overview = [
 
 export const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
-  { title: "Operator Console", url: "/execution", icon: PlayCircle },
-  { title: "Operator App (mobile)", url: "/mobile", icon: PlayCircle },
-  { title: "HMI Runtime", url: "/hmi", icon: MonitorCog },
-  { title: "Operator Apps", url: "/operator", icon: HardHat },
-  { title: "Step Templates", url: "/step-templates", icon: ListChecks },
   { title: "Product Tracking", url: "/tracking", icon: ScanLine },
   { title: "Genealogy", url: "/genealogy", icon: GitBranch },
   { title: "Work in Progress", url: "/wip", icon: Boxes },

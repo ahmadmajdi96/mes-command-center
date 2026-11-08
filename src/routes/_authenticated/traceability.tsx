@@ -116,7 +116,7 @@ function entityLinkFor(e: AuditEntry): { to: string; params?: any } | null {
     case "downtime": return { to: "/downtime" };
     case "hold": return { to: "/quality" };
     case "genealogy": return { to: "/genealogy" };
-    case "step_template": return { to: "/step-templates" };
+    case "step_template": return null;
     default: return null;
   }
 }
