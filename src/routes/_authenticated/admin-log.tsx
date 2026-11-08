@@ -28,7 +28,7 @@ function AdminLog() {
   const ls = useListControls(rows as any[], { searchKeys: ["actor_name", "entity", "entity_id", "action", "summary"], dateKey: "at", exportName: "admin-activity" });
   return (
     <div className="space-y-6">
-      <PageHead back="/roles" backLabel="Roles & permissions" icon={<History className="h-5 w-5 text-primary" />} title="Admin activity"
+      <PageHead back="/" backLabel="Control Center" icon={<History className="h-5 w-5 text-primary" />} title="Admin activity"
         desc="Every change to roles, permissions and who holds which role is recorded here automatically and cannot be edited." />
       <div className="glass-panel rounded-2xl p-5">
         {ls.toolbar}

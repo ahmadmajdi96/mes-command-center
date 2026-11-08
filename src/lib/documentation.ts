@@ -16,7 +16,7 @@ export const documentation: DocSection[] = [
     tables: [{ title: "Primary audiences", columns: ["Audience", "Responsibility", "Starting pages"], rows: [
       ["Operator", "Run assigned work-order steps and review station context", "Work Orders · Stations"],
       ["Supervisor", "Resolve operational blockers and review requests and output", "Production Lines · Andon / Downtime · Approvals · Traceability"],
-      ["Administrator", "Manage access, equipment configuration and integrations", "People & Access · Roles & Permissions · Machines · Integration Health"],
+      ["Administrator", "Review equipment configuration and access-change evidence", "Machines · Admin Activity"],
       ["QA / Maintenance partner", "Return signed inspection, disposition and hold-release events", "External portal → signed inbound endpoint"],
     ] }],
   },
@@ -72,13 +72,8 @@ export const documentation: DocSection[] = [
       ["Inspection Plans · /inspection-plans · Routing Rules · /routing-rules", "Step sampling and conditional routing", "Inspection results / rework / holds / skip rules"],
       ["Waste Reasons · /waste-reasons", "Selectable classification of losses", "Waste recording in execution"],
     ]},{title:"Platform",columns:["Page / URL","Purpose","Related workflow"],rows:[
-      ["Master Data · /master-data", "Materials, work centers, BOMs, routings and versions", "Draft / activate controlled masters; MES override"],
-      ["ERP Contract · /erp-contract", "Inbound/outbound contract and manual JSON/CSV import", "Per-record import results and sync log"],
       ["Machines · /machines", "Configuration, protocol mappings and safety status", "/machines/{machineId} → test / sign-off / commands"],
-      ["Maintenance & QA Portals · /integrations", "Connections, outgoing events and mock replies", "Signed requests and inbound decisions"],
-      ["Integration Health · /integration-health", "Last success, failed deliveries, retry and key expiry", "Diagnose ERP/portal connectivity"],
       ["Audit Log · /audit · Admin Activity · /admin-log", "Production and access-change history", "Traceability export"],
-      ["People & Access · /access · Roles & Permissions · /roles", "Scoped grants and flexible permission sets", "Server-enforced authorization"],
       ["Notifications · /notifications", "Alerts, read state, preferences and filters", "Open alert → related record"],
       ["Settings · /settings · Profile · /profile", "Environment information, identity and personal PIN", "Sign-in and operator switching"],
       ["Technical Documentation · /documentation", "This guide, screenshot gallery and workflow reference", "Search topics, view diagrams, print the guide"],
