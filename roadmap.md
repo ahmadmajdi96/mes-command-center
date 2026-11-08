@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Safely remove Operator Console, mobile Operator App, HMI Runtime, Operator Apps and Step Templates pages and links; preserve shared production services/data.
+- [x] Safely remove Operator Console, mobile Operator App, HMI Runtime, Operator Apps and Step Templates pages and links; shared production services/data preserved; 25 targeted tests and signed-in page/menu/search checks passed.
 - [x] Remove Planning and Workforce screens and navigation; preserve shared PMS data/functions; 14 targeted tests and signed-in retained-page/link checks passed (43 total tests passed, 28 credential-dependent tests skipped)
 - [x] Technical documentation page: 24 chapters, page reference, detailed workflow diagrams, 12 real screenshots, integration/security/operations guide; signed-in browser verification
 - [x] Wheat Flour T55 master data + full test order (fixed triple material deduction)
