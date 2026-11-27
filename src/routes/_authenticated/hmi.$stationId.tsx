@@ -1,11 +1,12 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft, ScanLine, Cpu, Hand, Zap, ShieldAlert, Wrench, Trash2,
   Play, Check, X, AlertOctagon, Pause, RotateCw, ClipboardList,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useMes } from "@/lib/mes-store";
+import { useRuntimeStation, type RuntimeLine, type RuntimeStation } from "@/lib/station-runtime";
+import { RecordLookupState } from "@/components/qp-ui";
 import { useUnit, useProcessUnitAtStation } from "@/lib/units-db";
 import { useProductionOrder } from "@/lib/production-orders-db";
 import { useProduct } from "@/lib/products-db";
@@ -18,7 +19,6 @@ import {
 } from "@/lib/hmi-db";
 import { EvidenceUploader } from "@/components/evidence-uploader";
 import { supabase } from "@/integrations/supabase/client";
-import { OperatorSwitch } from "@/components/operator-switch";
 import { FloorModeToggle } from "@/components/floor-mode";
 import { AndonCallButton } from "@/components/andon-call";
 
@@ -35,10 +35,15 @@ export const Route = createFileRoute("/_authenticated/hmi/$stationId")({
 
 function HmiStation() {
   const { stationId } = Route.useParams();
-  const store = useMes();
-  const station = store.stations.find((s) => s.id === stationId);
-  if (!station) throw notFound();
-  const line = store.lines.find((l) => l.id === station.lineId);
+  const lookup = useRuntimeStation(stationId);
+  if (!lookup.data) {
+    return <RecordLookupState label="Station" back="/hmi" pending={lookup.isPending} failed={lookup.isError} retry={() => lookup.refetch()} />;
+  }
+  return <StationScreen key={stationId} {...lookup.data} />;
+}
+
+function StationScreen({ station, line }: { station: RuntimeStation; line: RuntimeLine | null }) {
+  const stationId = station.id;
   useHmiRealtime(stationId);
 
   const isSemi = (station.type as string) === "semi_auto";
@@ -68,7 +73,7 @@ function HmiStation() {
     const seed: Record<string, string | number | boolean> = {};
     for (const v of variables) {
       if (v.direction === "input" || v.direction === "reading") {
-        seed[v.key] = (v.default ?? (v.type === "boolean" ? false : v.type === "number" ? 0 : "")) as never;
+        seed[v.key] = (v.direction === "reading" ? "" : v.default ?? (v.type === "boolean" ? false : v.type === "number" ? 0 : "")) as never;
       }
     }
     setValues(seed);
@@ -87,7 +92,7 @@ function HmiStation() {
       unit_uid: activeUid, station_id: stationId, station_name: station!.name, line_id: line?.id,
       event: "started",
     });
-    toast.success("Operation started");
+    toast.success("Unit started at this station");
   }
 
   async function completeOp() {
@@ -131,7 +136,6 @@ function HmiStation() {
           <ArrowLeft className="h-3 w-3" /> All stations
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <OperatorSwitch />
           <FloorModeToggle />
           <AndonCallButton stationId={station.id} stationName={station.name} />
         </div>
@@ -177,11 +181,12 @@ function HmiStation() {
         <div className="flex flex-wrap items-center gap-2">
           <ScanLine className="h-4 w-4 text-primary" />
           <input
+            aria-label="Unit identifier"
             value={uidInput}
             onChange={(e) => setUidInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && scan()}
             placeholder="Scan or type Unit UID (e.g. LOT-…-U00001)"
-            className="flex-1 min-w-[220px] rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-mono text-sm"
+            className="flex-1 min-w-0 basis-48 rounded-lg border border-border/60 bg-background/60 px-3 py-2 font-mono text-sm"
             autoFocus
           />
           <button onClick={scan} className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/20">
@@ -215,7 +220,7 @@ function HmiStation() {
       {/* Dynamic recipe form */}
       {activeUid && unit && (
         <div className="glass-panel rounded-2xl p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
               <ClipboardList className="h-3 w-3" /> Recipe · {variables.length} variable(s)
               {isSemi && <span className="ml-2 text-warning">mode: {mode}</span>}
@@ -376,7 +381,7 @@ function WasteButton({
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4 backdrop-blur">
           <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card p-4 shadow-xl">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-display text-lg font-semibold">Waste unit {unitUid}</h3>
               <button onClick={() => setOpen(false)}><X className="h-4 w-4" /></button>
             </div>
@@ -505,7 +510,7 @@ function ReasonsAdmin({
   const toggle = (id: string) => setIds((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
   return (
     <div className="glass-panel rounded-2xl p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
           <ShieldAlert className="h-3 w-3" /> Waste reasons allowed here
         </div>

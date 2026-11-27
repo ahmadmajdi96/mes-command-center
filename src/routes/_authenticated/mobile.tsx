@@ -8,8 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRows } from "@/lib/execution-db";
 import { startOperation, changeOperationStatus } from "@/lib/mes/operations.functions";
 import { sendMachineCommand } from "@/lib/mes/machines.functions";
-import { OperatorSwitch } from "@/components/operator-switch";
 import { FloorModeToggle } from "@/components/floor-mode";
+import { useAccess, useCan } from "@/lib/access";
 import { AndonCallButton } from "@/components/andon-call";
 
 export const Route = createFileRoute("/_authenticated/mobile")({
@@ -31,6 +31,9 @@ const TONE: Record<string, string> = { running: "bg-success/20 text-success", re
 
 function MobileApp() {
   const qc = useQueryClient();
+  const { userId } = useAccess();
+  const stationKey = `mobile-station:${userId}`;
+  const canRecord = useCan("execution.record");
   const { data: stations = [] } = useRows<any>("stations", { order: "sequence", asc: true });
   const [stationId, setStationId] = useState("");
   const station = stations.find((s) => s.id === stationId);
@@ -44,7 +47,7 @@ function MobileApp() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("mobile-station");
+    const saved = localStorage.getItem(stationKey);
     if (saved) setStationId(saved);
     const ch = supabase.channel("rt-mobile")
       .on("postgres_changes", { event: "*", schema: "public", table: "order_operations" }, () => qc.invalidateQueries({ queryKey: ["exec", "order_operations"] }))
@@ -52,9 +55,9 @@ function MobileApp() {
       .on("postgres_changes", { event: "*", schema: "public", table: "machines" }, () => qc.invalidateQueries({ queryKey: ["exec", "machines"] }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [qc]);
+  }, [qc, stationKey]);
 
-  const pick = (id: string) => { setStationId(id); localStorage.setItem("mobile-station", id); };
+  const pick = (id: string) => { setStationId(id); localStorage.setItem(stationKey, id); };
   const openOrders = orders.filter((o) => !["completed", "closed", "cancelled"].includes(o.status) && (!station || o.line_id === station.line_id));
   const mySteps = ops.filter((p) => openOrders.some((o) => o.id === p.production_order_id) && p.status !== "completed" && (!p.station_id || p.station_id === stationId));
   const myMachines = machines.filter((m) => m.station_id === stationId);
@@ -68,11 +71,9 @@ function MobileApp() {
   return (
     <div className="mx-auto max-w-md space-y-4 pb-10">
       <div className="flex items-center justify-between">
-        <h1 className="flex items-center gap-2 font-display text-xl font-semibold"><Smartphone className="h-5 w-5 text-primary" />Operator App</h1>
-        <span className="flex items-center gap-1 text-[10px] text-success"><span className="h-2 w-2 animate-pulse rounded-full bg-success" />Live</span>
+        <h1 className="flex items-center gap-2 font-display text-xl font-semibold"><Smartphone className="h-5 w-5 text-primary" />Station Execution</h1>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <OperatorSwitch />
         <FloorModeToggle />
         {stationId && <AndonCallButton stationId={stationId} stationName={stations.find((s) => s.id === stationId)?.name} />}
       </div>
@@ -92,12 +93,14 @@ function MobileApp() {
                 <div><div className="font-semibold">{p.sequence}. {p.name}</div><div className="text-xs text-muted-foreground">{o?.id} · {o?.product_name} · {o?.qty} {o?.uom}</div></div>
                 <span className={`rounded-md px-2 py-0.5 text-[10px] uppercase ${TONE[p.status] ?? "bg-muted text-muted-foreground"}`}>{p.status}</span>
               </div>
+              {o && <Link to="/work-orders/$woId" params={{ woId: o.id }} className="text-xs text-primary underline">View work order</Link>}
+              {o?.status === "scheduled" && <p className="text-xs text-muted-foreground">Release the work order before starting this operation.</p>}
               {p.status_reason && <p className="text-xs text-warning">{p.status_reason}</p>}
-              <div className="flex gap-2">
-                {["ready", "pending", "planned"].includes(p.status) && <button disabled={busy} className={`${b} bg-success text-success-foreground`} onClick={() => run(() => start({ data: { operationId: p.id, inputQty: Number(o?.qty ?? 0), stationId } }), "Step started")}><Play className="h-4 w-4" />Start</button>}
-                {p.status === "running" && <button disabled={busy} className={`${b} bg-warning text-warning-foreground`} onClick={() => { const r = prompt("Why are you pausing?"); if (r) run(() => status({ data: { operationId: p.id, action: "hold", reason: r } }), "Step on hold"); }}><Pause className="h-4 w-4" />Hold</button>}
-                {p.status === "on_hold" && <button disabled={busy} className={`${b} bg-primary text-primary-foreground`} onClick={() => run(() => status({ data: { operationId: p.id, action: "resume" } }), "Step resumed")}><RotateCcw className="h-4 w-4" />Resume</button>}
-                <Link to="/operator/$stationId" params={{ stationId }} className={`${b} border border-border/60`}><ExternalLink className="h-4 w-4" />Record / finish</Link>
+              <div className="flex flex-wrap gap-2">
+                {["ready", "pending", "planned"].includes(p.status) && <button disabled={busy || !canRecord || !["released", "running"].includes(o?.status)} className={`${b} bg-success text-success-foreground`} onClick={() => run(() => start({ data: { operationId: p.id, inputQty: Number(o?.qty ?? 0), stationId } }), "Step started")}><Play className="h-4 w-4" />Start</button>}
+                {p.status === "running" && <button disabled={busy || !canRecord} className={`${b} bg-warning text-warning-foreground`} onClick={() => { const r = prompt("Why are you pausing?"); if (r) run(() => status({ data: { operationId: p.id, action: "hold", reason: r } }), "Step on hold"); }}><Pause className="h-4 w-4" />Hold</button>}
+                {p.status === "on_hold" && <button disabled={busy || !canRecord} className={`${b} bg-primary text-primary-foreground`} onClick={() => run(() => status({ data: { operationId: p.id, action: "resume" } }), "Step resumed")}><RotateCcw className="h-4 w-4" />Resume</button>}
+                <Link to="/operator/$stationId" params={{ stationId }} className={`${b} border border-border/60`}><ExternalLink className="h-4 w-4" />Station recording</Link>
               </div>
             </div>
           );
@@ -115,7 +118,7 @@ function MobileApp() {
               <div className="grid grid-cols-2 gap-2">
                 {(m.commands ?? []).map((c: any) => (
                   <button key={c.name} disabled={busy || !signed} className="h-11 rounded-xl border border-border/60 bg-card/60 text-sm disabled:opacity-40"
-                    onClick={() => { const reason = c.safety ? prompt(`"${c.name}" is safety-relevant. Reason?`) ?? "" : undefined; if (c.safety && !reason) return; run(() => send({ data: { machineId: m.id, command: c.name, reason } }), `${c.name} sent`); }}>{c.name}</button>
+                    onClick={() => { const reason = c.safety ? prompt(`"${c.name}" is safety-relevant. Reason?`) ?? "" : undefined; if (c.safety && !reason) return; run(() => send({ data: { machineId: m.id, command: c.name, reason } }), `${c.name} requested`); }}>{c.name}</button>
                 ))}
               </div>
               {last.map((c) => <div key={c.id} className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleTimeString()} · {c.command} · {c.status}</div>)}

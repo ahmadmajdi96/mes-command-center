@@ -1,160 +1,217 @@
-import { useListControls } from "@/components/list-controls";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Plus } from "lucide-react";
 import { useState } from "react";
-import { useMes } from "@/lib/mes-store";
-import type { WorkOrder, WOStatus } from "@/lib/mes-data";
-import { StatusPill } from "@/components/status-pill";
-import { Plus, Filter, Pencil, ArrowRight } from "lucide-react";
 import { EntityFormDialog, type Field } from "@/components/crud/entity-form-dialog";
-import { ConfirmDelete } from "@/components/crud/confirm-delete";
+import { useListControls } from "@/components/list-controls";
+import { StatusPill } from "@/components/status-pill";
+import type { Database } from "@/integrations/supabase/types";
+import { useCan } from "@/lib/access";
+import { useRows } from "@/lib/execution-db";
+import { useCreatePo, useProductionOrders } from "@/lib/production-orders-db";
 
 export const Route = createFileRoute("/_authenticated/work-orders/")({
-  head: () => ({
-    meta: [
-      { title: "Work Orders · Cortanex MES" },
-      { name: "description", content: "Create, schedule, edit and complete shop-floor work orders synced with ERP production orders." },
-    ],
-  }),
-  component: WorkOrdersPage,
+  head: () => ({ meta: [{ title: "Work Orders · Cortanex MES" }] }),
+  component: WorkOrders,
 });
 
-const filters: (WOStatus | "all")[] = ["all", "running", "scheduled", "hold", "paused", "completed"];
+type Line = Database["public"]["Tables"]["lines"]["Row"];
+type Product = Database["public"]["Tables"]["products"]["Row"];
+type NewOrder = {
+  number: string;
+  lot_number: string;
+  line_id: string;
+  product_id: string;
+  qty: number;
+};
 
-function woFields(lines: { id: string; name: string }[]): Field[] {
-  return [
-    { name: "productionOrderId", label: "ERP Production Order", type: "text", placeholder: "PO-99820", required: true },
-    { name: "lineId", label: "Line", type: "select", options: lines.map((l) => ({ value: l.id, label: `${l.id} · ${l.name}` })), required: true },
-    { name: "product", label: "Product", type: "text", placeholder: "Granola Bar 60g", required: true, span: 2 },
-    { name: "sku", label: "SKU", type: "text", placeholder: "GRA-060", required: true },
-    { name: "uom", label: "Unit", type: "select", options: [{ value: "ea", label: "each" }, { value: "kg", label: "kg" }, { value: "L", label: "L" }, { value: "btl", label: "bottle" }, { value: "ctn", label: "carton" }, { value: "jar", label: "jar" }], required: true },
-    { name: "qtyTarget", label: "Target Qty", type: "number", required: true },
-    { name: "qtyProduced", label: "Produced Qty", type: "number" },
-    { name: "startedAt", label: "Start", type: "text", placeholder: "06:00" },
-    { name: "endsAt", label: "End", type: "text", placeholder: "14:00" },
-    { name: "operator", label: "Operator", type: "text" },
-    { name: "shift", label: "Shift", type: "select", options: [{ value: "A", label: "A" }, { value: "B", label: "B" }, { value: "C", label: "C" }] },
-    { name: "status", label: "Status", type: "select", options: filters.filter(f => f !== "all").map(s => ({ value: s, label: s })), required: true, span: 2 },
+function WorkOrders() {
+  const orders = useProductionOrders();
+  const canWrite = useCan("orders.write");
+  const lines = useRows<Line>("lines", { enabled: canWrite, order: "name", asc: true });
+  const products = useRows<Product>("products", { enabled: canWrite, order: "name", asc: true });
+  const create = useCreatePo();
+  const [status, setStatus] = useState("all");
+  const rows = orders.data ?? [];
+  const statuses = [...new Set(rows.map((row) => row.status))].sort();
+  const list = useListControls(
+    rows.filter((row) => status === "all" || row.status === status),
+    {
+      exportName: "work-orders",
+      searchKeys: ["id", "number", "sku", "product_name", "lot_number", "line_id"],
+      dateKey: "planned_start",
+    },
+  );
+  const fields: Field[] = [
+    { name: "number", label: "Work order number", type: "text", required: true },
+    { name: "lot_number", label: "Lot number", type: "text", required: true },
+    {
+      name: "line_id",
+      label: "Line",
+      type: "select",
+      required: true,
+      options: (lines.data ?? []).map((line) => ({ value: line.id, label: line.name })),
+    },
+    {
+      name: "product_id",
+      label: "Product",
+      type: "select",
+      required: true,
+      options: (products.data ?? []).map((product) => ({
+        value: product.id,
+        label: `${product.sku} · ${product.name}`,
+      })),
+    },
+    { name: "qty", label: "Target quantity", type: "number", required: true, min: 0.000001 },
   ];
-}
 
-function WorkOrdersPage() {
-  const store = useMes();
-  const [f, setF] = useState<WOStatus | "all">("all");
-  const list = f === "all" ? store.workOrders : store.workOrders.filter((w) => w.status === f);
+  async function save(values: NewOrder) {
+    const line = lines.data?.find((row) => row.id === values.line_id);
+    const product = products.data?.find((row) => row.id === values.product_id);
+    if (!line || !product || line.organization_id !== product.organization_id) {
+      throw new Error("Choose a line and product from the same organization.");
+    }
+    const number = values.number.trim();
+    const lot = values.lot_number.trim();
+    if (!number || !lot) throw new Error("Enter a work order number and lot number.");
+    await create.mutateAsync({
+      id: number,
+      number,
+      lot_number: lot,
+      line_id: line.id,
+      product_id: product.id,
+      product_name: product.name,
+      sku: product.sku,
+      qty: values.qty,
+      uom: product.uom,
+      organization_id: line.organization_id,
+      tracking_mode: line.tracking_mode,
+      status: "scheduled",
+    });
+  }
 
-  const lc = useListControls(list, { exportName: "work-orders", dateKey: "started_at" as never });
   return (
-    <div className="space-y-6">
-      {lc.toolbar}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="min-w-0 space-y-5">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Work Orders</h1>
-          <p className="text-sm text-muted-foreground">{store.workOrders.length} orders · synced with ERP production orders</p>
+          <h1 className="font-display text-2xl font-semibold">Work Orders</h1>
+          <p className="text-sm text-muted-foreground">
+            Production orders available within your access scope.
+          </p>
         </div>
-        <div className="flex gap-2">
-          <button className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">
-            <Filter className="h-3.5 w-3.5" /> Shift A
-          </button>
-          <EntityFormDialog<Omit<WorkOrder, "id" | "progress" | "qtyProduced"> & { qtyProduced?: number }>
+        {canWrite && !!lines.data?.length && !!products.data?.length && (
+          <EntityFormDialog<NewOrder>
             title="New Work Order"
-            description="Create a new shop-floor work order linked to an ERP production order."
-            fields={woFields(store.lines)}
-            initial={{ status: "scheduled", shift: "A", uom: "ea" } as any}
-            onSubmit={(v) => store.createWorkOrder(v as any)}
+            description="Create a scheduled MES order. Release follows the order's readiness and approval rules."
+            fields={fields}
+            onSubmit={save}
             trigger={
-              <button className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary to-info px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-glow)]">
-                <Plus className="h-3.5 w-3.5" /> New WO
+              <button className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm text-primary-foreground">
+                <Plus size={16} />
+                New work order
               </button>
             }
           />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        {filters.map((s) => (
-          <button
-            key={s}
-            onClick={() => setF(s)}
-            className={`rounded-full border px-3 py-1 text-xs capitalize transition ${
-              f === s ? "border-primary/60 bg-primary/10 text-primary" : "border-border/60 bg-card/60 text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {s} {s !== "all" && <span className="ml-1 font-mono opacity-60">{store.workOrders.filter(w => w.status === s).length}</span>}
+        )}
+      </header>
+      {orders.isPending && <p role="status">Loading work orders…</p>}
+      {orders.isError && (
+        <p role="alert">
+          Work orders could not be loaded.{" "}
+          <button className="text-primary underline" onClick={() => orders.refetch()}>
+            Retry
           </button>
-        ))}
-      </div>
-
-      <div className="glass-panel overflow-hidden rounded-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-card/60 text-[11px] uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">Work Order</th>
-                <th className="px-4 py-3 text-left font-medium">Product</th>
-                <th className="px-4 py-3 text-left font-medium">Line</th>
-                <th className="px-4 py-3 text-left font-medium">Shift</th>
-                <th className="px-4 py-3 text-left font-medium">Window</th>
-                <th className="px-4 py-3 text-left font-medium">Operator</th>
-                <th className="px-4 py-3 text-left font-medium">Progress</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lc.visible.map((w) => (
-                <tr key={w.id} className="border-t border-border/40 hover:bg-card/40">
-                  <td className="px-4 py-3">
-                    <Link to="/work-orders/$woId" params={{ woId: w.id }} className="font-mono text-xs hover:text-primary">{w.id}</Link>
-                    <div className="text-[10px] text-muted-foreground">{w.productionOrderId}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{w.product}</div>
-                    <div className="text-[10px] text-muted-foreground">{w.sku}</div>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs">{w.lineId}</td>
-                  <td className="px-4 py-3 text-xs">{w.shift}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{w.startedAt} → {w.endsAt}</td>
-                  <td className="px-4 py-3 text-xs">{w.operator}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-28 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full rounded-full bg-gradient-to-r from-primary to-info" style={{ width: `${w.progress}%` }} />
-                      </div>
-                      <span className="font-mono text-[11px]">{w.progress}%</span>
-                    </div>
-                    <div className="mt-1 font-mono text-[10px] text-muted-foreground">{w.qtyProduced.toLocaleString()} / {w.qtyTarget.toLocaleString()} {w.uom}</div>
-                  </td>
-                  <td className="px-4 py-3"><StatusPill status={w.status} /></td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1.5">
-                      <Link to="/work-orders/$woId" params={{ woId: w.id }} className="inline-flex h-8 items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2 text-[11px] text-primary hover:bg-primary/20">
-                        Open <ArrowRight className="h-3 w-3" />
-                      </Link>
-                      <EntityFormDialog<WorkOrder>
-                        title="Edit Work Order"
-                        fields={woFields(store.lines)}
-                        initial={w}
-                        onSubmit={(v) => store.updateWorkOrder(w.id, v)}
-                        trigger={
-                          <button className="grid h-8 w-8 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground hover:text-primary hover:border-primary/40">
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                        }
-                      />
-                      <ConfirmDelete
-                        label={`Delete ${w.id}`}
-                        description="The work order and its progress will be removed."
-                        onConfirm={() => store.deleteWorkOrder(w.id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
+        </p>
+      )}
+      {canWrite && (lines.isError || products.isError) && (
+        <p role="alert">Order setup data could not be loaded.</p>
+      )}
+      {canWrite &&
+        lines.isSuccess &&
+        products.isSuccess &&
+        (!lines.data.length || !products.data.length) && (
+          <p className="text-sm text-muted-foreground">
+            Order creation requires an available line and product.
+          </p>
+        )}
+      {orders.isSuccess && (
+        <>
+          <label className="inline-flex items-center gap-2 text-sm">
+            Status
+            <select
+              className="rounded-lg border bg-card px-2 py-1"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
+              <option value="all">All statuses</option>
+              {statuses.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {lc.pager}
+            </select>
+          </label>
+          {list.toolbar}
+          <div className="overflow-x-auto rounded-xl border border-border/60">
+            <table className="w-full text-sm">
+              <thead className="bg-card text-left text-xs text-muted-foreground">
+                <tr>
+                  {[
+                    "Order",
+                    "Product",
+                    "Line",
+                    "Lot",
+                    "Produced / target",
+                    "Status",
+                    "Details",
+                  ].map((label) => (
+                    <th key={label} scope="col" className="p-3">
+                      {label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {list.visible.map((order) => (
+                  <tr key={order.id} className="border-t border-border/50">
+                    <td className="p-3 font-mono">{order.number}</td>
+                    <td className="p-3">
+                      {order.product_name}
+                      <small className="block text-muted-foreground">{order.sku}</small>
+                    </td>
+                    <td className="p-3">{order.line_id ?? "Unassigned"}</td>
+                    <td className="p-3 font-mono">{order.lot_number}</td>
+                    <td className="p-3 whitespace-nowrap">
+                      {order.qty_produced.toLocaleString()} / {order.qty.toLocaleString()}{" "}
+                      {order.uom}
+                    </td>
+                    <td className="p-3">
+                      <StatusPill status={order.status} />
+                    </td>
+                    <td className="p-3">
+                      <Link
+                        to="/work-orders/$woId"
+                        params={{ woId: order.id }}
+                        aria-label={`Open work order ${order.number}`}
+                        className="inline-flex items-center gap-1 text-primary"
+                      >
+                        Open <ArrowRight size={14} aria-hidden="true" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+                {!list.visible.length && (
+                  <tr>
+                    <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                      No work orders match.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {list.pager}
+        </>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { HeartPulse, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { useRows, errMsg } from "@/lib/execution-db";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHead } from "@/components/qp-ui";
 import { useCanAny } from "@/lib/access";
+import { PortalConnections } from "@/components/portal-connections";
 
 export const Route = createFileRoute("/_authenticated/integration-health")({
   head: () => ({ meta: [
@@ -15,11 +16,27 @@ export const Route = createFileRoute("/_authenticated/integration-health")({
     { property: "og:title", content: "Integration health · Cortanex MES" },
     { property: "og:description", content: "Last success, failures and retry for every connection." },
   ] }),
-  component: HealthPage,
+  validateSearch: (search: Record<string, unknown>) => ({ view: search.view === "connections" ? "connections" as const : undefined }),
+  component: Integrations,
 });
 
 const fmt = (d?: string | null) => (d ? new Date(d).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "never");
 const ago = (d?: string | null) => (d ? (Date.now() - new Date(d).getTime()) / 3600_000 : Infinity);
+
+function Integrations() {
+  const { view } = Route.useSearch();
+  return (
+    <div className="space-y-5">
+      <PageHead back="/" backLabel="Control Center" icon={<HeartPulse className="h-5 w-5 text-primary" />} title="Integrations"
+        desc="Review delivery health, connections, API credentials and message history." />
+      <nav aria-label="Integration views" className="flex flex-wrap gap-3">
+        <Link className="rounded-md border px-3 py-1.5 text-sm" activeProps={{ "aria-current": "page" }} to="/integration-health" search={{ view: undefined }}>Health and API keys</Link>
+        <Link className="rounded-md border px-3 py-1.5 text-sm" activeProps={{ "aria-current": "page" }} to="/integration-health" search={{ view: "connections" }}>Portal connections and messages</Link>
+      </nav>
+      {view === "connections" ? <PortalConnections /> : <HealthPage />}
+    </div>
+  );
+}
 
 function HealthPage() {
   const qc = useQueryClient();
@@ -56,8 +73,7 @@ function HealthPage() {
 
   return (
     <div className="space-y-6">
-      <PageHead back="/integrations" backLabel="Portals" icon={<HeartPulse className="h-5 w-5 text-primary" />} title="Integration health"
-        desc="Green = worked in the last 24 hours, amber = quiet for 1–3 days, red = messages are failing." />
+      <h2 className="text-lg font-semibold">Integration health</h2>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <div className="glass-panel rounded-2xl p-5">
           <div className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${light(ago(cards.erp.lastOk), cards.erp.fails.length)}`} /><h2 className="font-semibold">ERP</h2></div>

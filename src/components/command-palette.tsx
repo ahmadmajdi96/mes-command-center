@@ -41,6 +41,7 @@ type Src = {
 };
 
 const SOURCES: Src[] = [
+  { group: "Work orders", table: "production_orders", cols: "id,number,product_name,sku", search: ["id", "number", "product_name", "sku"], title: (r) => r.number, sub: (r) => r.product_name, path: (r) => `/work-orders/${encodeURIComponent(r.id)}` },
   { group: "Lines", table: "lines", cols: "id,name,plant,status", search: ["id", "name"], title: (r) => `${r.id} · ${r.name}`, sub: (r) => `${r.plant ?? ""} · ${r.status}`, path: (r) => `/lines/${r.id}` },
   { group: "Stations", table: "stations", cols: "id,name,line_id,status", search: ["id", "name"], title: (r) => `${r.id} · ${r.name}`, sub: (r) => `${r.line_id} · ${r.status}`, path: (r) => `/stations/${r.id}` },
   { group: "Machines", table: "machines", cols: "id,name,protocol,status", search: ["id", "name"], title: (r) => `${r.id} · ${r.name}`, sub: (r) => `${r.protocol} · ${r.status}`, path: (r) => `/machines/${r.id}` },

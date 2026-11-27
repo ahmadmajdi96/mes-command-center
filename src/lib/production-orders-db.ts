@@ -75,7 +75,12 @@ export function useCreatePo() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: productionOrdersKey }),
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: productionOrdersKey }),
+        qc.invalidateQueries({ queryKey: ["exec", "production_orders"] }),
+      ]);
+    },
   });
 }
 

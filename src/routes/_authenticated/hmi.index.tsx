@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { Cpu, Hand, Zap, ArrowRight } from "lucide-react";
-import { useMes } from "@/lib/mes-store";
+import { useRows } from "@/lib/execution-db";
+import type { RuntimeLine, RuntimeStation } from "@/lib/station-runtime";
 
 export const Route = createFileRoute("/_authenticated/hmi/")({
   head: () => ({
@@ -14,31 +15,35 @@ export const Route = createFileRoute("/_authenticated/hmi/")({
 });
 
 function HmiIndex() {
-  const store = useMes();
+  const lookup = useRows<RuntimeStation>("stations", { order: "sequence", asc: true });
+  const { data: lines } = useRows<RuntimeLine>("lines", { order: "name", asc: true });
   const grouped = useMemo(() => {
-    const byLine = new Map<string, typeof store.stations>();
-    for (const s of store.stations) {
-      if (!byLine.has(s.lineId)) byLine.set(s.lineId, []);
-      byLine.get(s.lineId)!.push(s);
+    const byLine = new Map<string, RuntimeStation[]>();
+    for (const s of (lookup.data ?? [])) {
+      if (!byLine.has(s.line_id)) byLine.set(s.line_id, []);
+      byLine.get(s.line_id)!.push(s);
     }
     return Array.from(byLine.entries()).map(([lineId, ss]) => ({
-      line: store.lines.find((l) => l.id === lineId),
+      lineId,
+      line: lines?.find((l) => l.id === lineId),
       stations: ss.slice().sort((a, b) => a.sequence - b.sequence),
     }));
-  }, [store.stations, store.lines]);
+  }, [lookup.data, lines]);
 
   return (
     <div className="space-y-5">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">HMI · Station Runtime</h1>
         <p className="text-xs text-muted-foreground">
-          Launch the dynamic Human-Machine Interface for any station. Auto stations run headless with variable readings;
-          semi-auto stations combine auto + manual operations; manual stations require operator input.
+          Open the MES station interface for a station available in your access scope.
         </p>
       </div>
 
-      {grouped.map(({ line, stations }) => (
-        <div key={line?.id ?? "unknown"} className="glass-panel rounded-2xl p-4">
+      {lookup.isPending && <p role="status">Loading stations…</p>}
+      {lookup.isError && <p role="alert">Stations could not be loaded.</p>}
+      {lookup.isSuccess && !lookup.data.length && <p className="text-muted-foreground">No stations are available in your scope.</p>}
+      {grouped.map(({ lineId, line, stations }) => (
+        <div key={lineId} className="glass-panel rounded-2xl p-4">
           <div className="mb-2 flex items-center justify-between">
             <div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Line</div>

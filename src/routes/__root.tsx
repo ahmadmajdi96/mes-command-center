@@ -12,7 +12,6 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
-import { MesStoreProvider } from "@/lib/mes-store";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -96,20 +95,23 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    let owner: string | null | undefined;
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      const userId = session?.user.id ?? null;
+      const changed = owner !== undefined && owner !== userId;
+      owner = userId;
+      if (changed || event === "SIGNED_OUT") queryClient.clear();
+      if (changed || event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        void router.invalidate();
+      }
     });
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MesStoreProvider>
-        <Outlet />
-        <Toaster theme="dark" position="bottom-right" richColors />
-      </MesStoreProvider>
+      <Outlet />
+      <Toaster theme="dark" position="bottom-right" richColors />
     </QueryClientProvider>
   );
 }

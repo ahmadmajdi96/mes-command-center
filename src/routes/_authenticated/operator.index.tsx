@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Hand, Zap, Cpu, ArrowRight } from "lucide-react";
-import { useMes } from "@/lib/mes-store";
+import { useRows } from "@/lib/execution-db";
+import type { RuntimeLine, RuntimeStation } from "@/lib/station-runtime";
 
 export const Route = createFileRoute("/_authenticated/operator/")({
   head: () => ({
@@ -13,15 +14,18 @@ export const Route = createFileRoute("/_authenticated/operator/")({
 });
 
 function OperatorIndex() {
-  const store = useMes();
+  const lookup = useRows<RuntimeStation>("stations", { order: "sequence", asc: true });
   return (
     <div className="space-y-4">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">Operator Apps</h1>
         <p className="text-xs text-muted-foreground">Big-button, scan-first UI for the shop floor. Uses the same recipe / waste / hold engine as the HMI.</p>
       </div>
+      {lookup.isPending && <p role="status">Loading stations…</p>}
+      {lookup.isError && <p role="alert">Stations could not be loaded.</p>}
+      {lookup.isSuccess && !lookup.data.length && <p className="text-muted-foreground">No stations are available in your scope.</p>}
       <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-        {store.stations.map((s) => {
+        {(lookup.data ?? []).map((s) => {
           const auto = s.type === "automatic";
           const semi = (s.type as string) === "semi_auto";
           const Icon = auto ? Cpu : semi ? Zap : Hand;

@@ -57,10 +57,10 @@ function Page() {
     } catch (e) { setErr(errMsg(e)); }
   };
   return (
-    <div className="space-y-4 p-6">
-      <div className="flex items-center gap-3">
+    <div className="min-w-0 space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
         <Link to="/" className="rounded-lg border border-border/60 p-2" aria-label="Back"><ArrowLeft className="h-4 w-4" /></Link>
-        <div className="flex-1"><h1 className="text-2xl font-semibold">Machines</h1><p className="text-sm text-muted-foreground">Read values from and send commands to line machines. Simulated or manual until an edge box is connected.</p></div>
+        <div className="min-w-0 flex-1 basis-56"><h1 className="text-2xl font-semibold">Machines</h1><p className="text-sm text-muted-foreground">Read values from and send commands to line machines. Simulated or manual until an edge box is connected.</p></div>
         <button onClick={() => setImp(!imp)} className="rounded-lg border border-border/60 px-3 py-2 text-sm">Import machine list</button>
         <button onClick={() => setOpen(!open)} className="flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"><Plus className="h-4 w-4" />Add machine</button>
       </div>
@@ -91,7 +91,7 @@ function Page() {
         </div>
       )}
       <input aria-label="Search" placeholder="Search machines…" value={q} onChange={(e) => setQ(e.target.value)} className="w-full max-w-sm rounded-lg border border-border/60 bg-background px-3 py-2 text-sm" />
-      <div className="glass-panel overflow-x-auto rounded-2xl">
+      <div className="glass-panel max-w-full overflow-x-auto rounded-2xl">
         <table className="w-full text-sm">
           <thead><tr className="text-left text-muted-foreground"><th className="p-3">Machine</th><th>Protocol</th><th>Station</th><th>Mode</th><th>Status</th><th>Safety</th><th>Last seen</th></tr></thead>
           <tbody>

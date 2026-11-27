@@ -1,8 +1,9 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ScanLine, Check, Trash2, Pause, Zap, Cpu, Hand } from "lucide-react";
 import { toast } from "sonner";
-import { useMes } from "@/lib/mes-store";
+import { useRuntimeStation, type RuntimeLine, type RuntimeStation } from "@/lib/station-runtime";
+import { RecordLookupState } from "@/components/qp-ui";
 import { useUnit, useProcessUnitAtStation } from "@/lib/units-db";
 import { useProductionOrder } from "@/lib/production-orders-db";
 import {
@@ -17,7 +18,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { submitOrQueue } from "@/lib/offline-queue";
 import { OfflineQueuePanel } from "@/components/offline-queue-panel";
 import { TroubleshootPanel } from "@/components/troubleshoot-panel";
-import { OperatorSwitch } from "@/components/operator-switch";
 import { FloorModeToggle } from "@/components/floor-mode";
 import { AndonCallButton } from "@/components/andon-call";
 
@@ -30,12 +30,17 @@ export const Route = createFileRoute("/_authenticated/operator/$stationId")({
 
 function OperatorApp() {
   const { stationId } = Route.useParams();
-  const store = useMes();
-  const station = store.stations.find((s) => s.id === stationId);
-  if (!station) throw notFound();
-  const line = store.lines.find((l) => l.id === station.lineId);
+  const lookup = useRuntimeStation(stationId);
+  if (!lookup.data) {
+    return <RecordLookupState label="Station" back="/operator" pending={lookup.isPending} failed={lookup.isError} retry={() => lookup.refetch()} />;
+  }
+  return <StationScreen key={stationId} {...lookup.data} />;
+}
+
+function StationScreen({ station, line }: { station: RuntimeStation; line: RuntimeLine | null }) {
+  const stationId = station.id;
   useHmiRealtime(stationId);
-  const { data: lineRules } = useLineRules(station.lineId);
+  const { data: lineRules } = useLineRules(station.line_id);
   const lotMode = lineRules?.tracking_mode === "lot";
 
 
@@ -51,7 +56,7 @@ function OperatorApp() {
   const [values, setValues] = useState<Record<string, string | number | boolean>>({});
   useEffect(() => {
     const s: Record<string, string | number | boolean> = {};
-    for (const v of vars) if (v.direction !== "output") s[v.key] = v.default ?? (v.type === "number" ? 0 : v.type === "boolean" ? false : "");
+    for (const v of vars) if (v.direction !== "output") s[v.key] = v.direction === "reading" ? "" : v.default ?? (v.type === "number" ? 0 : v.type === "boolean" ? false : "");
     setValues(s);
   }, [vars]);
 
@@ -135,12 +140,11 @@ function OperatorApp() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <OfflineQueuePanel />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link to="/operator" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> Stations
         </Link>
         <div className="flex flex-wrap items-center gap-2">
-          <OperatorSwitch />
           <FloorModeToggle />
           <AndonCallButton stationId={station.id} stationName={station.name} />
         </div>
@@ -167,10 +171,11 @@ function OperatorApp() {
 
           <ScanLine className="h-5 w-5 text-primary" />
           <input
+            aria-label="Unit identifier"
             value={uidInput} onChange={(e) => setUidInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && scan()}
             placeholder="Scan unit UID…"
-            className="flex-1 min-w-[220px] rounded-lg border border-primary/30 bg-background px-3 py-3 font-mono text-base"
+            className="flex-1 min-w-0 basis-48 rounded-lg border border-primary/30 bg-background px-3 py-3 font-mono text-base"
             autoFocus
           />
           <button onClick={scan} className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm font-medium text-primary">Load</button>
@@ -254,7 +259,7 @@ function OperatorApp() {
         )}
       </div>
 
-      {lotMode && <LotProgressPanel stationId={stationId} lineId={station.lineId} />}
+      {lotMode && <LotProgressPanel stationId={stationId} lineId={station.line_id} />}
 
 
 
@@ -296,7 +301,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4 backdrop-blur">
       <div className="w-full max-w-md space-y-3 rounded-2xl border border-border/60 bg-card p-4 shadow-xl">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-display text-lg font-semibold">{title}</h3>
           <button onClick={onClose} className="text-muted-foreground">✕</button>
         </div>

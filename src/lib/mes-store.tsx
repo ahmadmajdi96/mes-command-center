@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   workOrders as seedWO,
   downtime as seedDT,
@@ -54,9 +54,6 @@ type State = {
 };
 
 type Actions = {
-  createWorkOrder: (w: Omit<WorkOrder, "id" | "progress" | "qtyProduced">) => void;
-  updateWorkOrder: (id: string, patch: Partial<WorkOrder>) => void;
-  deleteWorkOrder: (id: string) => void;
   createDowntime: (d: Omit<DowntimeEvent, "id">) => void;
   updateDowntime: (id: string, patch: Partial<DowntimeEvent>) => void;
   deleteDowntime: (id: string) => void;
@@ -144,19 +141,9 @@ function hhmmss() {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-// Jitter helpers for the simulated live tick
-function jitterNumeric(s: string | undefined, pct = 0.02): string | undefined {
-  if (!s) return s;
-  const m = s.match(/^([\d.]+)(.*)$/);
-  if (!m) return s;
-  const n = parseFloat(m[1]);
-  if (!isFinite(n)) return s;
-  const delta = n * pct * (Math.random() - 0.5) * 2;
-  const next = Math.round((n + delta) * 100) / 100;
-  return `${next}${m[2]}`;
-}
-
-export function MesStoreProvider({ children }: { children: ReactNode }) {
+export function MesStoreProvider({ children, actorId }: { children: ReactNode; actorId: string }) {
+  const storageKey = `${KEY}:${actorId}`;
+  const [loaded, setLoaded] = useState(false);
   const [state, setState] = useState<State>(() => ({
     workOrders: seedWO,
     downtime: seedDT,
@@ -180,44 +167,26 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(storageKey);
       if (raw) {
         const parsed = JSON.parse(raw);
-        setState((s) => ({ ...s, ...parsed }));
+        setState((state) => ({ ...state, ...parsed }));
       }
-    } catch {}
-  }, []);
+    } catch {
+      // Unavailable or invalid storage leaves the fixture at its initial state.
+    }
+    setLoaded(true);
+  }, [storageKey]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
-  }, [state]);
-
-  // ===== Live tick: refresh running automatic stations every 3s
-  const tickRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    tickRef.current = window.setInterval(() => {
-      setState((s) => {
-        const now = hhmmss();
-        const stations = s.stations.map((st) => {
-          if (st.status !== "running") return { ...st, lastTickAt: st.lastTickAt };
-          // Re-render trigger + jitter on numeric currentValue
-          return {
-            ...st,
-            currentValue: jitterNumeric(st.currentValue),
-            lastTickAt: now,
-          };
-        });
-        return { ...s, stations };
-      });
-    }, 3000);
-    return () => {
-      if (tickRef.current) window.clearInterval(tickRef.current);
-    };
-  }, []);
+    if (!loaded) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    } catch {
+      // The browser can deny persistent storage.
+    }
+  }, [loaded, state, storageKey]);
 
   // ===== Audit helper bound to the current state setter
   const audit = (
@@ -252,31 +221,7 @@ export function MesStoreProvider({ children }: { children: ReactNode }) {
     setCurrentActor,
 
     // ---------- Work orders
-    createWorkOrder: (w) => {
-      const newWO = { ...w, id: nextId("WO-2401-", state.workOrders), qtyProduced: 0, progress: 0 } as WorkOrder;
-      setState((s) => ({ ...s, workOrders: [newWO, ...s.workOrders] }));
-      audit("work_order", newWO.id, "create", null, newWO, `Created work order ${newWO.id}`);
-    },
-    updateWorkOrder: (id, p) => {
-      const before = state.workOrders.find((w) => w.id === id);
-      setState((s) => ({
-        ...s,
-        workOrders: s.workOrders.map((w) => {
-          if (w.id !== id) return w;
-          const merged = { ...w, ...p };
-          merged.progress = Math.min(100, Math.round((merged.qtyProduced / Math.max(1, merged.qtyTarget)) * 100));
-          return merged;
-        }),
-      }));
-      const after = { ...(before ?? {}), ...p };
-      const d = diffObject(before, after);
-      audit("work_order", id, "update", d.before, d.after, `Updated work order ${id}`);
-    },
-    deleteWorkOrder: (id) => {
-      const before = state.workOrders.find((w) => w.id === id);
-      setState((s) => ({ ...s, workOrders: s.workOrders.filter((w) => w.id !== id) }));
-      audit("work_order", id, "delete", before, null, `Deleted work order ${id}`);
-    },
+
 
     // ---------- Downtime
     createDowntime: (d) => {
@@ -644,11 +589,4 @@ export function useMes() {
   const v = useContext(Ctx);
   if (!v) throw new Error("useMes must be used inside MesStoreProvider");
   return v;
-}
-
-export function resetMesStore() {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(KEY);
-    location.reload();
-  }
 }

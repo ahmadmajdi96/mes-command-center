@@ -29,7 +29,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -43,21 +42,18 @@ export const overview = [
   { title: "Control Center", url: "/", icon: LayoutDashboard },
   { title: "Production Lines", url: "/lines", icon: Factory },
   { title: "Stations", url: "/stations", icon: Cpu },
-  { title: "Live Shop Floor", url: "/live", icon: Radio },
 ];
 
 export const execution = [
   { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
-  { title: "Operator Console", url: "/execution", icon: PlayCircle },
-  { title: "Operator App (mobile)", url: "/mobile", icon: PlayCircle },
+  { title: "Station Execution", url: "/mobile", icon: PlayCircle },
   { title: "HMI Runtime", url: "/hmi", icon: MonitorCog },
   { title: "Operator Apps", url: "/operator", icon: HardHat },
   { title: "Step Templates", url: "/step-templates", icon: ListChecks },
   { title: "Product Tracking", url: "/tracking", icon: ScanLine },
-  { title: "Genealogy", url: "/genealogy", icon: GitBranch },
   { title: "Work in Progress", url: "/wip", icon: Boxes },
   { title: "Material Lots", url: "/material-lots", icon: Boxes },
-  { title: "Recall Report", url: "/recall", icon: AlertOctagon },
+  { title: "Lot Genealogy & Recall", url: "/recall", icon: AlertOctagon },
   { title: "Rework Tasks", url: "/rework", icon: GitBranch },
   { title: "Work Instructions", url: "/work-instructions", icon: ListChecks },
   { title: "Approvals & Signatures", url: "/approvals", icon: ShieldCheck },
@@ -67,7 +63,6 @@ export const execution = [
 export const monitoring = [
   { title: "Andon / Downtime", url: "/downtime", icon: AlertOctagon },
   { title: "Plant Analytics", url: "/analytics", icon: Activity },
-  { title: "Telemetry", url: "/telemetry", icon: Activity },
   { title: "Quality Holds", url: "/quality", icon: ShieldCheck },
   { title: "Inspection Plans", url: "/inspection-plans", icon: ListChecks },
   { title: "Nonconformance", url: "/nonconformance", icon: AlertOctagon },
@@ -79,8 +74,7 @@ export const platform = [
   { title: "Master Data", url: "/master-data", icon: Boxes },
   { title: "ERP Contract", url: "/erp-contract", icon: Boxes },
   { title: "Machines", url: "/machines", icon: Activity },
-  { title: "Maintenance & QA Portals", url: "/integrations", icon: Radio },
-  { title: "Integration Health", url: "/integration-health", icon: Activity },
+  { title: "Integrations", url: "/integration-health", icon: Activity },
   { title: "Traceability", url: "/traceability", icon: Activity },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "People & Access", url: "/access", icon: ShieldCheck },
@@ -146,17 +140,6 @@ export function AppSidebar() {
         {renderGroup("Monitoring", monitoring)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
-      <SidebarFooter className="p-3">
-        <div className="rounded-xl border border-border/60 bg-card/60 p-3 group-data-[collapsible=icon]:hidden">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="status-dot animate-pulse-glow text-success" />
-            <span className="font-medium">Edge gateway online</span>
-          </div>
-          <p className="mt-1 text-[10px] text-muted-foreground">
-            6 plants · 24 lines streaming
-          </p>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }

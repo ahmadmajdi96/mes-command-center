@@ -13,10 +13,10 @@ export const KINDS: Record<string, Kind> = {
     { title: "Electronic signatures", table: "e_signatures", fk: "ref_id", cols: ["signed_at", "signer_name", "signer_email", "meaning", "reason"], order: "signed_at" },
   ] },
   downtime: { table: "downtime_events", key: "id", back: "/downtime", backLabel: "Andon & Downtime", title: "Downtime event", related: [audit] },
-  portal: { table: "portal_connections", key: "id", back: "/integrations", backLabel: "Integrations", title: "Portal connection", hide: ["shared_secret"], related: [
+  portal: { table: "portal_connections", key: "id", back: "/integration-health", backLabel: "Integrations", title: "Portal connection", hide: ["shared_secret"], related: [
     { title: "Messages", table: "portal_events", fk: "connection_id", cols: ["created_at", "direction", "event_type", "ref_id", "status", "attempts", "last_error"] },
   ] },
-  portal_event: { table: "portal_events", key: "id", back: "/integrations", backLabel: "Integrations", title: "Portal message", related: [] },
+  portal_event: { table: "portal_events", key: "id", back: "/integration-health", backLabel: "Integrations", title: "Portal message", related: [] },
   work_center: { table: "work_centers", key: "id", back: "/master-data", backLabel: "Master Data", title: "Work center", related: [
     { title: "Routing steps here", table: "routing_operations", fk: "work_center_id", cols: ["routing_id", "sequence", "name", "setup_min", "run_min_per_unit"] },
   ] },

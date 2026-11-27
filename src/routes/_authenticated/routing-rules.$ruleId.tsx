@@ -4,7 +4,7 @@ import { Waypoints } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { useCan } from "@/lib/access";
 import { useListControls } from "@/components/list-controls";
-import { PageHead, Field, ghost, th, fmt } from "@/components/qp-ui";
+import { RecordLookupState, PageHead, Field, ghost, th, fmt } from "@/components/qp-ui";
 import { TRIGGER, ACTION, describe } from "./routing-rules.index";
 
 export const Route = createFileRoute("/_authenticated/routing-rules/$ruleId")({
@@ -21,13 +21,14 @@ function RuleDetail() {
   const { ruleId } = Route.useParams();
   const nav = useNavigate();
   const canEdit = useCan("masterdata.write");
-  const { data: rules = [] } = useRows<any>("routing_rules", { eq: { id: ruleId } });
+  const lookup = useRows<any>("routing_rules", { eq: { id: ruleId } });
+  const rules = lookup.data ?? [];
   const { data: hits = [] } = useRows<any>("routing_rule_hits", { eq: { rule_id: ruleId } });
   const { data: products = [] } = useRows<any>("products");
   const w = useWrite("routing_rules");
   const lc = useListControls(hits, { searchKeys: ["production_order_id", "action", "detail"], dateKey: "created_at", exportName: "routing-rule-hits" });
   const r = rules[0];
-  if (!r) return <div className="text-sm text-muted-foreground">Loading… <Link to="/routing-rules" className="text-primary">Back</Link></div>;
+  if (!r) return <RecordLookupState label="Routing rule" back="/routing-rules" pending={lookup.isPending} failed={lookup.isError} retry={() => lookup.refetch()} />;
   const product = products.find((p: any) => p.id === r.product_id)?.name;
   return (
     <div className="space-y-6">

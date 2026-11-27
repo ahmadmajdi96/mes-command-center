@@ -98,62 +98,17 @@ export const startOperation = createServerFn({ method: "POST" })
     num(d.inputQty, "Input quantity");
     return d;
   })
-  .handler(async ({ data: v, context }) => {
-    const ctx = c(context);
-    await need(ctx, "execution.record");
-    const w = await who(ctx);
-    const { op, po } = await loadOp(ctx, v.operationId);
-    if (!["pending", "ready", "rework_required"].includes(op.status)) throw new Error(`Operation "${op.name}" is ${op.status.replace("_", " ")} and cannot be started`);
-    const input = Number(v.inputQty);
-    if (input <= 0) throw new Error("Enter the input quantity for this operation");
-
-    // Quantity available from the previous step (or the order for the first step)
-    const { data: all } = await ctx.supabase.from("order_operations").select("id, sequence, status, qty_yield, qty_input, name").eq("production_order_id", op.production_order_id).order("sequence");
-    const prev = (all ?? []).filter((o: any) => o.sequence < op.sequence && !["skipped", "cancelled"].includes(o.status)).at(-1);
-    const available = op.status === "rework_required"
-      ? Number(op.qty_rejected || op.qty_input || po.qty)
-      : prev ? Number(prev.qty_yield) - Number(op.qty_input) : Number(po.qty) - Number(op.qty_input);
-    if (input > available + 1e-9) throw new Error(`Only ${Math.max(0, available)} ${po.uom} is available for "${op.name}"${prev ? ` (accepted at "${prev.name}")` : ""}`);
-
-    if (v.machineId) {
-      const { data: m } = await ctx.supabase.from("machines").select("id, name, status").eq("id", v.machineId).maybeSingle();
-      if (!m) throw new Error("Machine not found");
-      if (["fault", "down", "maintenance", "offline"].includes(String(m.status))) throw new Error(`Machine ${m.name} is ${m.status}`);
-    }
-    const fields: string[] = op.required_fields ?? [];
-    if (fields.includes("machine") && !v.machineId) throw new Error("This operation requires a machine");
-    if (fields.includes("batch") && !v.batchId) throw new Error("This operation requires a batch / lot");
-    if (fields.includes("parameters") && !Object.values(v.parameters ?? {}).some((x) => String(x).trim())) throw new Error("This operation requires execution parameters");
-    const { data: missingSkills } = await ctx.supabase.rpc("operation_missing_skills", { _op_id: op.id, _user_id: ctx.userId });
-    if ((missingSkills ?? []).length) throw new Error(`You are not qualified for "${op.name}": missing or expired certification for ${(missingSkills as string[]).join(", ")}`);
-
-    // Move a released order to running on the first start
-    if (po.status === "released") {
-      await need(ctx, "orders.lifecycle", "execution.record");
-      const { error } = await (await admin()).from("production_orders").update({ status: "running" }).eq("id", po.id);
-      if (error) throw new Error(error.message);
-      await audit(ctx, w, "production_order", po.id, "status:running", `Order ${po.number} started by first operation "${op.name}"`, { status: "released" }, { status: "running" });
-    }
-
-    const now = new Date().toISOString();
-    const patch: Record<string, unknown> = {
-      status: "running",
-      status_reason: op.status === "rework_required" ? "Rework started" : "Operation started",
-      qty_input: Number(op.qty_input) + input,
-      machine_id: v.machineId || op.machine_id,
-      station_id: v.stationId || op.station_id,
-      batch_id: v.batchId || op.batch_id,
-      parameters: { ...(op.parameters ?? {}), ...(v.parameters ?? {}) },
-      started_at: op.started_at ?? now,
-      started_by: op.started_by ?? w.name,
-      started_by_user_id: op.started_by_user_id ?? w.id,
-      hold_category: null,
-    };
-    if (v.withSetup) { patch.setup_started_at = now; patch.setup_completed_at = null; }
-    const { error } = await ctx.supabase.from("order_operations").update(patch).eq("id", op.id);
+  .handler(async ({ data: input, context }) => {
+    const { error } = await c(context).supabase.rpc("start_station_operation", {
+      _operation_id: input.operationId,
+      _input_qty: input.inputQty,
+      _station_id: input.stationId ?? null,
+      _machine_id: input.machineId ?? null,
+      _batch_id: input.batchId ?? null,
+      _parameters: input.parameters ?? {},
+      _with_setup: input.withSetup ?? false,
+    });
     if (error) throw new Error(error.message);
-    await event(ctx, w, op, "start", null, { input_qty: input, machine_id: patch.machine_id, station_id: patch.station_id, batch_id: patch.batch_id, parameters: v.parameters ?? {}, work_center_id: op.work_center_id, setup: !!v.withSetup });
-    if (v.withSetup) await event(ctx, w, op, "setup_start", null, {});
     return { ok: true };
   });
 
@@ -166,7 +121,7 @@ export const finishSetup = createServerFn({ method: "POST" })
     const w = await who(ctx);
     const { op } = await loadOp(ctx, v.operationId);
     if (!op.setup_started_at || op.setup_completed_at) throw new Error("No setup is running for this operation");
-    const { error } = await ctx.supabase.from("order_operations").update({ setup_completed_at: new Date().toISOString() }).eq("id", op.id);
+    const { error } = await ctx.supabase.from("order_operations").update({ setup_completed_at: new Date().toISOString() }).eq("id", op.id).is("setup_completed_at", null).select("id").single();
     if (error) throw new Error(error.message);
     const mins = Math.round((Date.now() - new Date(op.setup_started_at).getTime()) / 6000) / 10;
     await event(ctx, w, op, "setup_end", null, { setup_min: mins });
@@ -186,20 +141,21 @@ export const changeOperationStatus = createServerFn({ method: "POST" })
   })
   .handler(async ({ data: v, context }) => {
     const ctx = c(context);
+    if (v.action === "hold" || v.action === "resume") {
+      const { data: status, error } = await ctx.supabase.rpc("transition_station_operation", {
+        _operation_id: v.operationId,
+        _action: v.action,
+        _reason: v.reason ?? null,
+        _category: v.category ?? null,
+      });
+      if (error) throw new Error(error.message);
+      return { ok: true, status: status as string };
+    }
     const w = await who(ctx);
     const { op } = await loadOp(ctx, v.operationId);
     let status = op.status as string;
     let extra: Record<string, unknown> = {};
     switch (v.action) {
-      case "hold":
-        await need(ctx, "execution.record");
-        if (!["running", "partially_completed"].includes(op.status)) throw new Error("Only a running operation can be put on hold");
-        if (op.setup_started_at && !op.setup_completed_at) extra.setup_completed_at = new Date().toISOString();
-        status = "on_hold"; extra.hold_category = v.category || "waiting"; break;
-      case "resume":
-        await need(ctx, "execution.record");
-        if (op.status !== "on_hold") throw new Error("Operation is not on hold");
-        status = "running"; extra.hold_category = null; break;
       case "block":
         await need(ctx, "execution.override");
         if (["completed", "cancelled", "skipped"].includes(op.status)) throw new Error("A finished operation cannot be blocked");
@@ -221,7 +177,7 @@ export const changeOperationStatus = createServerFn({ method: "POST" })
         if (["completed", "skipped", "cancelled"].includes(op.status)) throw new Error("This operation is already finished");
         status = "cancelled"; break;
     }
-    const { error } = await ctx.supabase.from("order_operations").update({ status, status_reason: str(v.reason) ?? (v.action === "resume" ? "Resumed" : "Unblocked"), ...extra }).eq("id", op.id);
+    const { error } = await ctx.supabase.from("order_operations").update({ status, status_reason: str(v.reason) ?? "Unblocked", ...extra }).eq("id", op.id).eq("status", op.status).select("id").single();
     if (error) throw new Error(error.message);
     await audit(ctx, w, "order_operation", op.id, `operation:${v.action}`, `Operation "${op.name}" ${v.action}${v.reason ? ` — ${v.reason}` : ""}`, { status: op.status }, { status }, v.reason);
     return { ok: true, status };
