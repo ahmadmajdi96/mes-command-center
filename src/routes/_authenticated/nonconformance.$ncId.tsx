@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 import { useRows } from "@/lib/execution-db";
-import { PageHead, Field, fmt, th } from "@/components/qp-ui";
+import { RecordLookupState, PageHead, Field, fmt, th } from "@/components/qp-ui";
 import { DECISION } from "./nonconformance.index";
 import { Attachments } from "@/components/attachments";
 
@@ -17,12 +17,13 @@ export const Route = createFileRoute("/_authenticated/nonconformance/$ncId")({
 
 function NcDetail() {
   const { ncId } = Route.useParams();
-  const { data: ncs = [] } = useRows<any>("nonconformances", { eq: { id: ncId } });
+  const lookup = useRows<any>("nonconformances", { eq: { id: ncId } });
+  const ncs = lookup.data ?? [];
   const nc = ncs[0];
   const { data: ops = [] } = useRows<any>("order_operations", { eq: { id: nc?.operation_id }, enabled: !!nc?.operation_id });
   const { data: res = [] } = useRows<any>("inspection_results", { eq: { id: nc?.inspection_result_id }, enabled: !!nc?.inspection_result_id });
   const { data: msgs = [] } = useRows<any>("portal_events", { eq: { ref_id: ncId }, order: "created_at", asc: true });
-  if (!nc) return <div className="text-sm text-muted-foreground">Loading… <Link to="/nonconformance" className="text-primary">Back</Link></div>;
+  if (!nc) return <RecordLookupState label="Nonconformance" back="/nonconformance" pending={lookup.isPending} failed={lookup.isError} retry={() => lookup.refetch()} />;
   const r = res[0];
   return (
     <div className="space-y-6">
@@ -51,7 +52,7 @@ function NcDetail() {
             <tr key={m.id} className="border-t border-border/40"><td className="py-2">{fmt(m.created_at)}</td><td>{m.direction === "out" ? "Sent to QA" : "From QA"}</td><td>{m.event_type}</td><td>{m.status}</td><td>{m.last_error ?? ""}</td></tr>))}
             {msgs.length === 0 && <tr><td colSpan={5} className="py-4 text-center text-muted-foreground">No messages yet.</td></tr>}
           </tbody></table>
-        <Link to="/integrations" className="mt-2 inline-block text-xs text-primary">Open Maintenance & QA portals</Link>
+        <Link to="/integration-health" search={{ view: "connections" }} className="mt-2 inline-block text-xs text-primary">Open Maintenance & QA portals</Link>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { ClipboardCheck, Plus, Trash2 } from "lucide-react";
 import { useRows, useWrite, errMsg } from "@/lib/execution-db";
 import { useCan } from "@/lib/access";
 import { useListControls } from "@/components/list-controls";
-import { PageHead, inp, btn, ghost, lbl, th, Field, fmt } from "@/components/qp-ui";
+import { RecordLookupState, PageHead, inp, btn, ghost, lbl, th, Field, fmt } from "@/components/qp-ui";
 
 export const Route = createFileRoute("/_authenticated/inspection-plans/$planId")({
   head: () => ({ meta: [
@@ -20,13 +20,14 @@ export const Route = createFileRoute("/_authenticated/inspection-plans/$planId")
 function PlanDetail() {
   const { planId } = Route.useParams();
   const canEdit = useCan("masterdata.write");
-  const { data: plans = [] } = useRows<any>("inspection_plans", { eq: { id: planId } });
+  const lookup = useRows<any>("inspection_plans", { eq: { id: planId } });
+  const plans = lookup.data ?? [];
   const plan = plans[0];
   const { data: results = [] } = useRows<any>("inspection_results", { eq: { plan_id: planId } });
   const w = useWrite("inspection_plans");
   const [ch, setCh] = useState({ name: "", type: "numeric", min: "", max: "", unit: "" });
   const lc = useListControls(results, { searchKeys: ["production_order_id", "result", "inspector_name", "source", "notes"], dateKey: "created_at", exportName: "inspection-results" });
-  if (!plan) return <div className="text-sm text-muted-foreground">Loading plan… <Link to="/inspection-plans" className="text-primary">Back</Link></div>;
+  if (!plan) return <RecordLookupState label="Inspection plan" back="/inspection-plans" pending={lookup.isPending} failed={lookup.isError} retry={() => lookup.refetch()} />;
   const chars: any[] = plan.characteristics ?? [];
   const save = async (next: any[], ok: string) => { try { await w.update.mutateAsync({ id: plan.id, patch: { characteristics: next } }); toast.success(ok); } catch (e) { toast.error(errMsg(e)); } };
 

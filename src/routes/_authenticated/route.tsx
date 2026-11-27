@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { Search, ChevronRight, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
+import { Search, LogOut, User as UserIcon, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-bell";
@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { getMyAccess } from "@/lib/mes/authz.functions";
 import { AccessProvider } from "@/lib/access";
 import { IdleSignout } from "@/components/idle-signout";
+import { MesStoreProvider } from "@/lib/mes-store";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -68,7 +69,7 @@ function TopBar() {
     },
   });
 
-  const name = profile?.full_name || user.email || "User";
+  const name = profile?.full_name || "Account";
   const subtitle = profile?.job_title || roles?.[0] || "Member";
 
   async function handleSignOut() {
@@ -79,16 +80,9 @@ function TopBar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 flex min-w-0 h-14 items-center gap-2 sm:gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl">
       <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-      <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
-        <span>Riyadh HQ</span>
-        <ChevronRight className="h-3 w-3" />
-        <span className="text-foreground">Plant 01</span>
-        <ChevronRight className="h-3 w-3" />
-        <span>Shift A · 06:00 → 14:00</span>
-      </div>
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex min-w-0 items-center gap-2">
         <button
           onClick={() => setSearchOpen(true)}
           aria-label="Search everything"
@@ -102,7 +96,7 @@ function TopBar() {
         <NotificationBell userId={user.id} />
         <Link
           to="/profile"
-          className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2 py-1 transition hover:border-primary/50"
+          className="flex min-w-0 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2 py-1 transition hover:border-primary/50"
         >
           {profile?.avatar_url ? (
             <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-md object-cover" />
@@ -111,15 +105,15 @@ function TopBar() {
               {initials(name)}
             </div>
           )}
-          <div className="hidden text-xs leading-tight sm:block">
-            <div className="font-medium">{name}</div>
-            <div className="text-[10px] text-muted-foreground">{subtitle}</div>
+          <div className="hidden min-w-0 max-w-36 text-xs leading-tight sm:block">
+            <div className="truncate font-medium">{name}</div>
+            <div className="truncate text-[10px] text-muted-foreground">{subtitle}</div>
           </div>
           <UserIcon className="h-3.5 w-3.5 text-muted-foreground sm:hidden" />
         </Link>
         <button
           onClick={handleSignOut}
-          title="Sign out"
+          aria-label="Sign out"
           className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:text-destructive"
         >
           <LogOut className="h-4 w-4" />
@@ -185,18 +179,20 @@ function AuthedLayout() {
 
   return (
     <AccessProvider access={access}>
+      <MesStoreProvider key={user.id} actorId={user.id}>
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <AppSidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <TopBar />
-            <main className="flex-1 p-4 sm:p-6">
+            <main className="min-w-0 flex-1 p-4 sm:p-6">
               <Outlet />
             </main>
             <IdleSignout />
           </div>
         </div>
       </SidebarProvider>
+      </MesStoreProvider>
     </AccessProvider>
   );
 }

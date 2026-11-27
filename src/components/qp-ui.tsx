@@ -47,3 +47,20 @@ export const Field = ({ l, v }: { l: string; v: ReactNode }) => (
 );
 
 export const fmt = (s?: string | null) => (s ? new Date(s).toLocaleString() : "—");
+
+export function RecordLookupState({ label, back, pending, failed, retry }: {
+  label: string;
+  back: string;
+  pending: boolean;
+  failed: boolean;
+  retry: () => void;
+}) {
+  if (pending) return <p role="status" className="text-sm">Loading {label.toLowerCase()}…</p>;
+  return (
+    <section className="glass-panel space-y-2 rounded-xl p-4">
+      <h1 className="text-lg font-semibold">{failed ? `Could not load ${label.toLowerCase()}` : `${label} unavailable`}</h1>
+      {failed && <button onClick={retry} className="mr-3 text-sm text-primary underline">Retry</button>}
+      <Link to={back as never} className="text-sm text-primary underline">Back</Link>
+    </section>
+  );
+}
